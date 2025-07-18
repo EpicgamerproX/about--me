@@ -408,9 +408,10 @@
   backdrop-filter: blur(6px);
   z-index: 900;
   opacity: 0;
-  pointer-events: none;
+  pointer-events: none; /* ✅ Don't block clicks unless flipped */
   transition: opacity 0.3s ease;
 }
+
 
 /* Bottom-left stack */
 .card-stack {
@@ -1069,17 +1070,23 @@ document.addEventListener('fullscreenchange', function() {
         icon.textContent = '□'; // Fullscreen icon
     }
 });
-  function toggleCard(card) {
-    const overlay = document.getElementById("overlay");
-    card.classList.toggle("flipped");
-    if (card.classList.contains("flipped")) {
-      overlay.style.opacity = "1";
-      overlay.style.pointerEvents = "auto";
-    } else {
-      overlay.style.opacity = "0";
-      overlay.style.pointerEvents = "none";
-    }
+  
+document.addEventListener("DOMContentLoaded", () => {
+  const cards = document.querySelectorAll(".card");
+  cards.forEach(card => {
+    card.addEventListener("click", () => {
+      card.classList.toggle("flipped");
+      const overlay = document.getElementById("overlay");
+      if (card.classList.contains("flipped")) {
+        overlay.style.opacity = "1";
+        overlay.style.pointerEvents = "auto";
+      } else {
+        overlay.style.opacity = "0";
+        overlay.style.pointerEvents = "none";
+      }
+    });
   });
+});
 
     </script>
 </body>
