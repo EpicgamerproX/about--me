@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Me | Multi-OS Personality</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Base Styles just to check wtf is wrong*/
+        :root {
+            --linux-bg: #0a0a0a;
+            --linux-text: #e0e0e0;
+            --linux-accent: #5e9eff;
+            --personality-color: #ff6b6b;
+            --discord-purple: #7289da;
+            --creeper-green: #4CAF50;
+            --font-mono: 'JetBrains Mono', monospace;
+            --font-sans: 'Inter', sans-serif;
+            --dock-bg: rgba(255, 255, 255, 0.2);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            font-family: var(--font-sans);
+            color: var(--linux-text);
+            background-color: var(--linux-bg);
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        section {
+            min-height: 100vh;
+            width: 100%;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Personality Elements */
+        .personality-highlight {
+            color: var(--personality-color);
+            font-weight: bold;
+        }
+
+        .bubble {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 107, 107, 0.1);
+            z-index: -1;
+            animation: float 15s infinite linear;
+        }
+
+        /* Linux Terminal Section */
+        .linux-section {
+            background-color: var(--linux-bg);
+            color: var(--linux-text);
+        }
+
+        .terminal {
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: #1a1a1a;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+        }
+
+        .terminal-header {
+            padding: 10px 15px;
+            background-color: #2a2a2a;
+            display: flex;
+            align-items: center;
+        }
+
+        .terminal-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .terminal-button {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .terminal-button.red { background-color: #ff5f56; }
+        .terminal-button.yellow { background-color: #ffbd2e; }
+        .terminal-button.green { background-color: #27c93f; }
+
+        .terminal-title {
+            margin: 0 auto;
+            font-size: 0.8rem;
+            color: #888;
+            font-family: var(--font-mono);
+        }
+
+        .terminal-body {
+            padding: 30px;
+            font-family: var(--font-mono);
+        }
+
+        .typewriter h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            background: linear-gradient(90deg, var(--linux-accent), var(--personality-color));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .prompt {
+            font-size: 1.2rem;
+            margin: 15px 0;
+            line-height: 1.6;
+        }
+
+        .cursor {
+            display: inline-block;
+            animation: blink 1s infinite;
+        }
+
+        /* Logic Gates Demo */
+        .logic-gate-demo {
+            margin-top: 30px;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .gate-row {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+
+        .gate {
+            width: 180px;
+            background: #333;
+            border-radius: 8px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .gate:hover {
+            transform: translateY(-5px);
+            background: #444;
+        }
+
+        .inputs, .outputs {
+            margin-top: 10px;
+        }
+
+        .input {
+            background: #444;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            margin: 0 5px;
+            cursor: pointer;
+        }
+
+        .input.active {
+            background: var(--personality-color);
+        }
+
+        .selector {
+            margin: 0 5px;
+        }
+
+        .output {
+            margin: 0 5px;
+        }
+
+        /* Personality Portfolio Section */
+        .portfolio-section {
+            background-color: #1a1a1a;
+            color: var(--linux-text);
+            padding: 40px;
+        }
+
+        .portfolio-ui {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: #2a2a2a;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .personality-boxes {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .personality-box {
+            background-color: #3a3a3a;
+            padding: 20px;
+            border-radius: 8px;
+            display: flex;
+            align-items: stretch;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .text-area {
+            flex: 1;
+            transition: flex 0.3s ease;
+            padding-right: 20px;
+        }
+
+        .box-title {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: var(--personality-color);
+        }
+
+        .image-container {
+            width: 0;
+            overflow: hidden;
+            transition: width 0.3s ease;
+        }
+
+        .image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .personality-box:hover .image-container {
+            width: var(--image-width);
+        }
+
+        .personality-box:hover .image-container img {
+            opacity: 1;
+        }
+
+        /* Dock */
+        .dock-container {
+            position: relative;
+            margin-top: 50px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .dock-background {
+            background: var(--dock-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 15px 25px;
+            display: inline-flex;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .dock {
+            display: flex;
+            gap: 15px;
+        }
+
+        .dock-item {
+            width: 50px;
+            height: 50px;
+            background-color: rgba(0, 0, 0, 0.05);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .dock-item:hover {
+            transform: scale(1.5) translateY(-20px);
+            margin: 0 10px;
+        }
+
+        .dock-item:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            white-space: nowrap;
+        }
+
+        .dock-item i {
+            font-size: 1.5rem;
+            color: var(--linux-text);
+        }
+
+        /* Music Player */
+        .music-player {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .play-button {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: var(--discord-purple);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .play-button:hover {
+            transform: scale(1.1);
+        }
+
+        .play-button i {
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .soundcloud-player {
+            display: none;
+            width: 300px;
+        }
+
+        .music-notification {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            pointer-events: none;
+        }
+
+        .music-notification.show {
+            animation: pulse 6s forwards;
+        }
+
+        .music-notification span {
+            color: white;
+        }
+
+        .music-notification .color-shift {
+            animation: colorShift 3s infinite alternate;
+        }
+
+        /* Animations */
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+            100% { transform: translateY(0) rotate(0deg); }
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0; transform: translateY(20px) scale(0.9); }
+            10% { opacity: 1; transform: translateY(0) scale(1); }
+            80% { opacity: 1; transform: translateY(0) scale(1); }
+            90% { transform: scale(1.05); }
+            100% { opacity: 0; transform: translateY(20px) scale(0.9); }
+        }
+
+        @keyframes colorShift {
+            0% { color: var(--creeper-green); }
+            100% { color: var(--discord-purple); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            section { padding: 40px 20px; }
+            .typewriter h1 { font-size: 2rem; }
+            .personality-boxes { gap: 15px; }
+            .dock-item { width: 40px;就座height: 40px; }
+            .dock-item:hover { transform: scale(1.3) translateY(-15px); }
+        }
+
+        @media (max-width: 480px) {
+            .typewriter h1 { font-size: 1.8rem; }
+            .portfolio-ui { padding: 20px; }
+            .dock { gap: 10px; }
+            .dock-item { width: 35px; height: 35px; }
+            .dock-item i { font-size: 1.2rem; }
+            .gate-row { flex-direction: column; align-items: center; }
+        }
+
+        /* Intro Overlay */
+        #windows-intro {
+            position: fixed;
+            inset: 0;
+            background: black;
+            color: white;
+            z-index: 99999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-sans);
+        }
+
+        #windows-intro h1 {
+            font-size: 2rem;
+            opacity: 0;
+            animation: fadeInOut 2s ease-in-out forwards;
+        }
+
+        #windows-intro.fade-welcome h1 {
+            animation: fadeWelcome 2s ease-in-out forwards;
+        }
+
+        #windows-intro button {
+            opacity: 0;
+            margin-top: 40px;
+            padding: 5px 10px;
+            font-size: 1rem;
+            background: transparent;
+            border: 1px solid white;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(2px);
+        }
+
+        @keyframes fadeInOut {
+            0% { opacity: 0; }
+            50% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
+        @keyframes fadeWelcome {
+            0% { opacity: 0; }
+            50% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+    </style>
+</style>
+</head>
+<body>
+    <!-- Windows-style Intro Overlay -->
+    <div id="windows-intro">
+        <h1 id="intro-text">Hi</h1>
+        <button id="enter-site">Enter Site</button>
+    </div>
+
+    <!-- Personality bubbles background -->
+    <div class="bubble" style="width: 100px; height: 100px; top: 20%; left: 10%;"></div>
+    <div class="bubble" style="width: 150px; height: 150px; top: 60%; left: 80%;"></div>
+    <div class="bubble" style="width: 80px; height: 80px; top: 80%; left: 20%;"></div>
+
+    <!-- Linux Terminal Section -->
+    <section class="linux-section" id="linux">
+        <div class="terminal">
+            <div class="terminal-header">
+                <div class="terminal-buttons">
+                    <span class="terminal-button red"></span>
+                    <span class="terminal-button yellow"></span>
+                    <span class="terminal-button green"></span>
+                </div>
+                <div class="terminal-title">user@about-me:~</div>
+            </div>
+            <div class="terminal-body">
+                <div class="typewriter">
+                    <h1>whoami</h1>
+                    <p class="prompt">Hello World! I'm <span class="personality-highlight">[Your Name]</span></p>
+                    <p class="prompt">A <span class="personality-highlight">tech enthusiast</span> learning web design and logic gates</p>
+                    <p class="prompt">Passionate about <span class="personality-highlight">computers, politics, fitness</span> and <span class="personality-highlight">communication</span></p>
+                    <p class="prompt">Last login: <span id="current-date"></span></p>
+                    <p class="prompt">Scroll down to explore more about me <span class="cursor">_</span></p>
+                </div>
+
+                <div class="logic-gate-demo">
+                    <p>> Interactive Logic Gates Demo (click inputs to toggle):</p>
+                    <div class="gate-row">
+                        <div class="gate" data-gate="and">
+                            <span>AND</span>
+                            <div class="inputs">
+                                <button class="input" data-input="A">A: 0</button>
+                                <button class="input" data-input="B">B: 0</button>
+                            </div>
+                            <div class="outputs">
+                                <span class="output">Output: 0</span>
+                            </div>
+                        </div>
+                        <div class="gate" data-gate="or">
+                            <span>OR</span>
+                            <div class="inputs">
+                                <button class="input" data-input="A">A: 0</button>
+                                <button class="input" data-input="B">B: 0</button>
+                            </div>
+                            <div class="outputs">
+                                <span class="output">Output: 0</span>
+                            </div>
+                        </div>
+                        <div class="gate" data-gate="not">
+                            <span>NOT</span>
+                            <div class="inputs">
+                                <button class="input" data-input="A">A: 0</button>
+                            </div>
+                            <div class="outputs">
+                                <span class="output">Output: 1</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="gate-row">
+                        <div class="gate" data-gate="nand">
+                            <span>NAND</span>
+                            <div class="inputs">
+                                <button class="input" data-input="A">A: 0</button>
+                                <button class="input" data-input="B">B: 0</button>
+                            </div>
+                            <div class="outputs">
+                                <span class="output">Output: 1</span>
+                            </div>
+                        </div>
+                        <div class="gate" data-gate="nor">
+                            <span>NOR</span>
+                            <div class="inputs">
+                                <button class="input" data-input="A">A: 0</button>
+                                <button class="input" data-input="B">B: 0</button>
+                            </div>
+                            <div class="outputs">
+                                <span class="output">Output: 1</span>
+                            </div>
+                        </div>
+                        <div class="gate" data-gate="xor">
+                            <span>XOR</span>
+                            <div class="inputs">
+                                <button class="input" data-input="A">A: 0</button>
+                                <button class="input" data-input="B">B: 0</button>
+                            </div>
+                            <div class="outputs">
+                                <span class="output">Output: 0</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="gate-row">
+                        <div class="gate" data-gate="flipflop">
+                            <span>FLIP FLOP (SR)</span>
+                            <div class="inputs">
+                                <button class="input" data-input="S">S: 0</button>
+                                <button class="input" data-input="R">R: 0</button>
+                            </div>
+                            <div class="outputs">
+                                <span class="output" data-output="Q">Q: 0</span>
+                                <span class="output" data-output="Qprime">Q': 1</span>
+                            </div>
+                        </div>
+                        <div class="gate" data-gate="mux">
+                            <span>MUX</span>
+                            <div class="inputs">
+                                <button class="input" data-input="I0">I0: 0</button>
+                                <button class="input" data-input="I1">I1: 0</button>
+                                <select class="selector" data-selector="S">
+                                    <option value="0">Select I0</option>
+                                    <option value="1">Select I1</option>
+                                </select>
+                            </div>
+                            <div class="outputs">
+                                <span class="output">Output: 0</span>
+                            </div>
+                        </div>
+                        <div class="gate" data-gate="demux">
+                            <span>DEMUX</span>
+                            <div class="inputs">
+                                <button class="input" data-input="Input">Input: 0</button>
+                                <select class="selector" data-selector="S">
+                                    <option value="0">Select Output 0</option>
+                                    <option value="1">Select Output 1</option>
+                                </select>
+                            </div>
+                            <div class="outputs">
+                                <span class="output" data-output="0">Output 0: 0</span>
+                                <span class="output" data-output="1">Output 1: 0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Portfolio Section -->
+    <section class="portfolio-section" id="portfolio">
+        <div class="portfolio-ui">
+            <h2 style="color: var(--personality-color); margin-bottom: 20px;">My Personality Portfolio</h2>
+            <div class="personality-boxes">
+                <div class="personality-box">
+                    <div class="text-area">
+                        <h3 class="box-title">Tech Skills</h3>
+                        <p>Built a responsive portfolio site using HTML, CSS, and JavaScript as well as a tiny (8Tb) NAS with a 15yr old PC and gaming console with an old Laptop. Currently studying digital electronics and communication. Also trying to master Linux</p>
+                    </div>
+                    <div class="image-container">
+                        <img src="https://i.ibb.co/8gv7Z6dj/402-EE2-BE-C96-E-477-C-8-DBC-6-C7-A8-DDD9932.png" alt="Tech Skills Image" loading="lazy">
+                    </div>
+                </div>
+                <div class="personality-box">
+                    <div class="text-area">
+                        <h3 class="box-title">Languages</h3>
+                        <p>Fluent in English, Malayalam, Hindi, and Kannada because i lived in these regions here.</p>
+                    </div>
+                    <div class="image-container">
+                        <img src="https://i.ibb.co/sp5hPr0y/E67-AEDE6-80-A9-404-F-88-A7-EC4-A80-FF23-AC.png" alt="Languages Image" loading="lazy">
+                    </div>
+                </div>
+                <div class="personality-box">
+                    <div class="text-area">
+                        <h3 class="box-title">MUN Experience</h3>
+                        <p>Won Special Mention at MUN 2023, representing India in the United Nations Human Rights Council. Pretty passionate about global politics and diplomacy. *i speak too much bro* </p>
+                    </div>
+                    <div class="image-container">
+                        <img src="https://i.ibb.co/tMXpyN0v/E29-A9-CCE-2-E4-F-4775-A44-D-E10-CD3-CC8008.png" alt="MUN Experience Image" loading="lazy">
+                    </div>
+                </div>
+                <div class="personality-box">
+                    <div class="text-area">
+                        <h3 class="box-title">Personality</h3>
+                        <p>Extremely extroverted and friendly and would love to connect with absolutely anyone. Enjoy connecting with people, sharing knowledge, and leading group projects.</p>
+                    </div>
+                    <div class="image-container">
+                        <img src="https://i.ibb.co/PZ9ZjkQC/128-D3-AD5-3-D71-4-BDD-8106-94-A9599-DEF51.png" alt="Personality Image" loading="lazy">
+                    </div>
+                </div>
+
+            <div class="dock-container">
+                <div class="dock-background">
+                    <div class="dock">
+                        <div class="dock-item" data-tooltip="Instagram" onclick="window.open('https://www.instagram.com/achyut_r_m?utm_source=qr', '_blank')" aria-label="Instagram">
+                            <i class="fab fa-instagram"></i>
+                        </div>
+                        <div class="dock-item" data-tooltip="Twitter" onclick="window.open('https://twitter.com/yourusername', '_blank')" aria-label="Twitter">
+                            <i class="fab fa-twitter"></i>
+                        </div>
+                        <div class="dock-item" data-tooltip="LinkedIn" onclick="window.open('https://linkedin.com/in/yourusername', '_blank')" aria-label="LinkedIn">
+                            <i class="fab fa-linkedin-in"></i>
+                        </div>
+                        <div class="dock-item" data-tooltip="Email" onclick="window.location.href='mailto:achyutrmenon@gmail.com'" aria-label="Email">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div class="dock-item" data-tooltip="YouTube" onclick="window.open('https://youtube.com/@achkichcodm?si=WSYJvQyouZvICRXp', '_blank')" aria-label="YouTube">
+                            <i class="fab fa-youtube"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Music Player -->
+    <div class="music-player">
+        <div class="play-button" id="playButton">
+            <i class="fas fa-play" id="playIcon"></i>
+        </div>
+        <div class="soundcloud-player" id="soundcloudPlayer">
+            <iframe width="100%" height="300" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/326463848&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true"></iframe>
+        </div>
+        <div class="music-notification" id="musicNotification">
+            <span class="color-shift">Click to pause music</span>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Create more personality bubbles
+            function createBubbles() {
+                const colors = ['rgba(255, 107, 107, 0.1)', 'rgba(255, 107, 107, 0.07)', 'rgba(255, 107, 107, 0.05)'];
+                for (let i = 0; i < 5; i++) {
+                    const bubble = document.createElement('div');
+                    bubble.className = 'bubble';
+                    const size = Math.random() * 100 + 50;
+                    bubble.style.width = `${size}px`;
+                    bubble.style.height = `${size}px`;
+                    bubble.style.top = `${Math.random() * 100}%`;
+                    bubble.style.left = `${Math.random() * 100}%`;
+                    bubble.style.background = colors[Math.floor(Math.random() * colors.length)];
+                    bubble.style.animationDuration = `${Math.random() * 10 + 10}s`;
+                    document.body.appendChild(bubble);
+                }
+            }
+            createBubbles();
+
+            // Set current date in terminal
+            const currentDate = new Date().toLocaleString();
+            document.getElementById('current-date').textContent = currentDate;
+
+            // Music player functionality
+            const playButton = document.getElementById('playButton');
+            const playIcon = document.getElementById('playIcon');
+            const soundcloudPlayer = document.getElementById('soundcloudPlayer');
+            const musicNotification = document.getElementById('musicNotification');
+            
+            let isPlaying = false;
+            let player;
+            
+            const iframe = soundcloudPlayer.querySelector('iframe');
+            iframe.onload = function() {
+                player = SC.Widget(iframe);
+                player.bind(SC.Widget.Events.READY, function() {
+                    player.setVolume(30);
+                });
+                player.bind(SC.Widget.Events.FINISH, function() {
+                    showMusicNotification();
+                    player.play();
+                });
+            };
+
+            playButton.addEventListener('click', function() {
+                if (!player) return;
+                if (isPlaying) {
+                    player.pause();
+                    playIcon.classList.remove('fa-pause');
+                    playIcon.classList.add('fa-play');
+                } else {
+                    player.setVolume(30);
+                    player.play();
+                    playIcon.classList.remove('fa-play');
+                    playIcon.classList.add('fa-pause');
+                    showMusicNotification();
+                }
+                isPlaying = !isPlaying;
+            });
+
+            function showMusicNotification() {
+                musicNotification.classList.remove('show');
+                void musicNotification.offsetWidth;
+                musicNotification.classList.add('show');
+            }
+
+            const script = document.createElement('script');
+            script.src = 'https://w.soundcloud.com/player/api.js';
+            document.body.appendChild(script);
+
+            // Logic Gates Interaction
+            const gateStates = {
+                and: { A: 0, B: 0, output: 0 },
+                or: { A: 0, B: 0, output: 0 },
+                not: { A: 0, output: 1 },
+                nand: { A: 0, B: 0, output: 1 },
+                nor: { A: 0, B: 0, output: 1 },
+                xor: { A: 0, B: 0, output: 0 },
+                flipflop: { S: 0, R: 0, Q: 0, Qprime: 1 },
+                mux: { I0: 0, I1: 0, S: 0, output: 0 },
+                demux: { Input: 0, S: 0, output0: 0, output1: 0 },
+            };
+
+            function updateGateOutput(gateName) {
+                const state = gateStates[gateName];
+                switch (gateName) {
+                    case 'and':
+                        state.output = state.A && state.B;
+                        break;
+                    case 'or':
+                        state.output = state.A || state.B;
+                        break;
+                    case 'not':
+                        state.output = state.A ? 0 : 1;
+                        break;
+                    case 'nand':
+                        state.output = !(state.A && state.B) ? 1 : 0;
+                        break;
+                    case 'nor':
+                        state.output = !(state.A || state.B) ? 1 : 0;
+                        break;
+                    case 'xor':
+                        state.output = state.A !== state.B ? 1 : 0;
+                        break;
+                    case 'flipflop':
+                        if (state.S === 1 && state.R === 0) {
+                            state.Q = 1;
+                            state.Qprime = 0;
+                        } else if (state.S === 0 && state.R === 1) {
+                            state.Q = 0;
+                            state.Qprime = 1;
+                        } else if (state.S === 1 && state.R === 1) {
+                            state.Q = 0;
+                            state.Qprime = 0;
+                        }
+                        break;
+                    case 'mux':
+                        state.output = state.S ? state.I1 : state.I0;
+                        break;
+                    case 'demux':
+                        state.output0 = state.S === 0 ? state.Input : 0;
+                        state.output1 = state.S === 1 ? state.Input : 0;
+                        break;
+                }
+                const gateElement = document.querySelector(`.gate[data-gate="${gateName}"]`);
+                if (gateElement) {
+                    const outputElements = gateElement.querySelectorAll('.output');
+                    outputElements.forEach(el => {
+                        const outputName = el.getAttribute('data-output');
+                        if (outputName) {
+                            el.textContent = `${outputName}: ${state[outputName]}`;
+                        } else {
+                            el.textContent = `Output: ${state.output}`;
+                        }
+                    });
+                }
+            }
+
+            document.querySelectorAll('.input').forEach(button => {
+                button.addEventListener('click', function() {
+                    const gateName = this.closest('.gate').getAttribute('data-gate');
+                    const inputName = this.getAttribute('data-input');
+                    const currentValue = gateStates[gateName][inputName];
+                    const newValue = currentValue ? 0 : 1;
+                    gateStates[gateName][inputName] = newValue;
+                    this.textContent = `${inputName}: ${newValue}`;
+                    if (newValue) {
+                        this.classList.add('active');
+                    } else {
+                        this.classList.remove('active');
+                    }
+                    updateGateOutput(gateName);
+                });
+            });
+
+            document.querySelectorAll('.selector').forEach(select => {
+                select.addEventListener('change', function() {
+                    const gateName = this.closest('.gate').getAttribute('data-gate');
+                    const selectorName = this.getAttribute('data-selector');
+                    gateStates[gateName][selectorName] = parseInt(this.value);
+                    updateGateOutput(gateName);
+                });
+            });
+
+            // Intro Sequence
+            const intro = document.getElementById("windows-intro");
+            const introText = document.getElementById("intro-text");
+            const enterButton = document.getElementById("enter-site");
+
+            setTimeout(() => {
+                intro.classList.add("fade-welcome");
+                introText.textContent = "Welcome";
+            }, 2000);
+
+            setTimeout(() => {
+                enterButton.style.opacity = 1;
+            }, 4000);
+
+            enterButton.addEventListener("click", () => {
+                intro.style.transition = "opacity 1s ease";
+                intro.style.opacity = 0;
+                setTimeout(() => {
+                    intro.remove();
+                    if (player) {
+                        player.setVolume(30);
+                        player.play();
+                        playIcon.classList.remove('fa-play');
+                        playIcon.classList.add('fa-pause');
+                        isPlaying = true;
+                        showMusicNotification();
+                    }
+                    const boxes = document.querySelectorAll('.personality-box');
+                    boxes.forEach((box, index) => {
+                        setTimeout(() => {
+                            box.classList.add('animate-in');
+                        }, 1000 + index * 300);
+                    });
+                }, 1000);
+            });
+        });
+
+                const boxes = document.querySelectorAll('.personality-box');
+        function setImageWidth() {
+            boxes.forEach(box => {
+                const height = box.clientHeight;
+                box.style.setProperty('--image-width', `${height}px`);
+            });
+        }
+        window.addEventListener('load', setImageWidth);
+        window.addEventListener('resize', setImageWidth);
+    </script>
+</body>
+</html>
