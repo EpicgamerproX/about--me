@@ -91,15 +91,33 @@
             gap: 8px;
         }
 
-        .terminal-button {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-        }
+        /* Terminal Button Styles */
+.terminal-button {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.6rem;
+    color: transparent;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
 
-        .terminal-button.red { background-color: #ff5f56; }
-        .terminal-button.yellow { background-color: #ffbd2e; }
-        .terminal-button.green { background-color: #27c93f; }
+.terminal-button:hover {
+    color: rgba(0, 0, 0, 0.7);
+}
+
+.button-icon {
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    font-weight: bold;
+    transform: translateY(-1px);
+}
+
+.terminal-button.red { background-color: #ff5f56; }
+.terminal-button.yellow { background-color: #ffbd2e; }
+.terminal-button.green { background-color: #27c93f; }
 
         .terminal-title {
             margin: 0 auto;
@@ -494,9 +512,15 @@
         <div class="terminal">
             <div class="terminal-header">
                 <div class="terminal-buttons">
-                    <span class="terminal-button red"></span>
-                    <span class="terminal-button yellow"></span>
-                    <span class="terminal-button green"></span>
+                    <span class="terminal-button red" id="close-button" title="Close (opens website)">
+                        <span class="button-icon">×</span>
+                    </span>
+                    <span class="terminal-button yellow" id="minimize-button" title="Minimize">
+                        <span class="button-icon">-</span>
+                    </span>
+                    <span class="terminal-button green" id="fullscreen-button" title="Fullscreen">
+                        <span class="button-icon">□</span>
+                    </span>
                 </div>
                 <div class="terminal-title">user@about-me:~</div>
             </div>
@@ -920,6 +944,37 @@
         }
         window.addEventListener('load', setImageWidth);
         window.addEventListener('resize', setImageWidth);
+
+        // Terminal buttons functionality
+document.getElementById('close-button').addEventListener('click', function() {
+    // Replace with your desired website URL
+    window.open('https://example.com', '_blank');
+});
+
+document.getElementById('minimize-button').addEventListener('click', function() {
+    if (document.fullscreenElement) {
+        document.exitFullscreen();
+    }
+});
+
+document.getElementById('fullscreen-button').addEventListener('click', function() {
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+    } else {
+        document.exitFullscreen();
+    }
+});
+
+// Update fullscreen button icon based on state
+document.addEventListener('fullscreenchange', function() {
+    const fullscreenButton = document.getElementById('fullscreen-button');
+    const icon = fullscreenButton.querySelector('.button-icon');
+    if (document.fullscreenElement) {
+        icon.textContent = '⛶'; // Fullscreen exit icon
+    } else {
+        icon.textContent = '□'; // Fullscreen icon
+    }
+});
     </script>
 </body>
 </html>
