@@ -48,8 +48,6 @@
             position: relative;
             overflow: hidden;
         }
-
-        /* Personality Elements */
         .personality-highlight {
             color: var(--personality-color);
             font-weight: bold;
@@ -63,7 +61,6 @@
             animation: float 15s infinite linear;
         }
 
-        /* Linux Terminal Section */
         .linux-section {
             background-color: var(--linux-bg);
             color: var(--linux-text);
@@ -91,7 +88,6 @@
             gap: 8px;
         }
 
-        /* Terminal Button Styles */
 .terminal-button {
     width: 12px;
     height: 12px;
@@ -210,7 +206,6 @@
             margin: 0 5px;
         }
 
-        /* Personality Portfolio Section */
         .portfolio-section {
             background-color: #1a1a1a;
             color: var(--linux-text);
@@ -400,7 +395,6 @@
             animation: colorShift 3s infinite alternate;
         }
 
-/* Blurred/dimmed background */
 #overlay {
   position: fixed;
   inset: 0;
@@ -413,7 +407,7 @@
 }
 
 
-/* Bottom-left stack */
+
 .card-stack {
   position: fixed;
   bottom: 2rem;
@@ -422,7 +416,7 @@
   perspective: 1000px;
 }
 
-/* Card base */
+
 .card {
   width: 80px;
   height: 80px;
@@ -432,12 +426,11 @@
   position: relative;
 }
 
-/* Hover animation */
+
 .card:hover {
   transform: translateY(-8px) scale(1.05);
 }
 
-/* Flipped and centered */
 .card.flipped {
   transform: rotateY(180deg) scale(1.8);
   position: fixed;
@@ -448,7 +441,7 @@
   z-index: 1001;
 }
 
-/* Faces */
+
 .card-front,
 .card-back {
   position: absolute;
@@ -464,7 +457,6 @@
   box-shadow: 0 4px 12px rgba(0,0,0,0.3);
 }
 
-/* Back face */
 .card-back {
   transform: rotateY(180deg);
   flex-direction: column;
@@ -483,7 +475,6 @@
   margin: 0;
 }
 
-        /* Animations */
         @keyframes blink {
             0%, 100% { opacity: 1; }
             50% { opacity: 0; }
@@ -508,7 +499,6 @@
             100% { color: var(--discord-purple); }
         }
 
-        /* Responsive */
         @media (max-width: 768px) {
             section { padding: 40px 20px; }
             .typewriter h1 { font-size: 2rem; }
