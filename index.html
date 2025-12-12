@@ -3,648 +3,323 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About Me | Multi-OS Personality</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <title>Dev Portfolio | Developer</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import "tailwindcss";
-        /* Base Styles just to check wtf is wrong*/
-        :root {
-            --linux-bg: #0a0a0a;
-            --linux-text: #e0e0e0;
-            --linux-accent: #5e9eff;
-            --personality-color: #ff6b6b;
-            --discord-purple: #7289da;
-            --creeper-green: #4CAF50;
-            --font-mono: 'JetBrains Mono', monospace;
-            --font-sans: 'Inter', sans-serif;
-            --dock-bg: rgba(255, 255, 255, 0.2);
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            font-family: 'Inter', sans-serif;
         }
-
-        *{
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body, html {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            font-family: var(--font-sans);
-            color: var(--linux-text);
-            background-color: var(--linux-bg);
+        
+        body {
+            background-color: #0a0a0a;
+            color: #e5e5e5;
             overflow-x: hidden;
-            scroll-behavior: smooth;
         }
-
-        section {
-            min-height: 100vh;
-            width: 100%;
-            padding: 40px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
+        
+        /* Consistent dark theme */
+        .dark-section {
+            background: #0a0a0a;
+        }
+        
+        .darker-section {
+            background: #080808;
+        }
+        
+        /* Hollow skill cards with consistent dark theme but colored icons */
+        .hollow-card {
+            background: rgba(20, 20, 20, 0.3);
+            border: 1px solid rgba(40, 40, 40, 0.8);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.4s ease;
             position: relative;
             overflow: hidden;
+            box-shadow: 
+                inset 0 0 25px rgba(0, 0, 0, 0.9),
+                0 5px 15px rgba(0, 0, 0, 0.4);
         }
-        .personality-highlight {
-            color: var(--personality-color);
-            font-weight: bold;
+        
+        .hollow-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(60, 60, 60, 1);
+            box-shadow: 
+                inset 0 0 35px rgba(0, 0, 0, 0.95),
+                0 8px 25px rgba(0, 0, 0, 0.6);
+            background: rgba(25, 25, 25, 0.4);
         }
-
-        .bubble {
+        
+        .hollow-card::before {
+            content: '';
             position: absolute;
-            border-radius: 50%;
-            background: rgba(255, 107, 107, 0.1);
-            z-index: -1;
-            animation: float 15s infinite linear;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(60, 60, 60, 0.8), transparent);
         }
-
-        .linux-section {
-            background-color: var(--linux-bg);
-            color: var(--linux-text);
+        
+        .hollow-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(60, 60, 60, 0.8), transparent);
         }
-
-        .terminal {
-            width: 100%;
-            max-width: 900px;
-            margin: 0 auto;
-            background-color: #1a1a1a;
-            border-radius: 8px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            overflow: hidden;
+        
+        /* Section dividers - dark */
+        .section-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #1a1a1a, #222, #1a1a1a, transparent);
+            margin: 3rem 0;
         }
-
-        .terminal-header {
-            padding: 10px 15px;
-            background-color: #2a2a2a;
-            display: flex;
-            align-items: center;
+        
+        /* Project cards - dark */
+        .project-card {
+            background: rgba(20, 20, 20, 0.4);
+            border: 1px solid rgba(40, 40, 40, 0.8);
+            transition: all 0.4s ease;
+            box-shadow: 
+                inset 0 0 15px rgba(0, 0, 0, 0.8),
+                0 5px 15px rgba(0, 0, 0, 0.3);
         }
-
-        .terminal-buttons {
-            display: flex;
-            gap: 8px;
+        
+        .project-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(60, 60, 60, 1);
+            box-shadow: 
+                inset 0 0 25px rgba(0, 0, 0, 0.95),
+                0 10px 25px rgba(0, 0, 0, 0.5);
         }
-
-.terminal-button {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.6rem;
-    color: transparent;
-    transition: all 0.2s ease;
-    cursor: pointer;
-}
-
-.terminal-button:hover {
-    color: rgba(0, 0, 0, 0.7);
-}
-
-.button-icon {
-    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-    font-weight: bold;
-    transform: translateY(-1px);
-}
-
-.terminal-button.red { background-color: #ff5f56; }
-.terminal-button.yellow { background-color: #ffbd2e; }
-.terminal-button.green { background-color: #27c93f; }
-
-        .terminal-title {
-            margin: 0 auto;
-            font-size: 0.8rem;
-            color: #888;
-            font-family: var(--font-mono);
+        
+        /* Subtle accent colors - not bright */
+        .accent-text {
+            color: #a0a0a0;
         }
-
-        .terminal-body {
-            padding: 30px;
-            font-family: var(--font-mono);
-        }
-
-        .typewriter h1 {
-            font-size: 2.5rem;
-            margin-bottom: 20px;
-            background: linear-gradient(90deg, var(--linux-accent), var(--personality-color));
+        
+        .subtle-gradient-text {
+            background: linear-gradient(90deg, #888, #aaa, #888);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
+            background-size: 200% auto;
         }
-
-        .prompt {
-            font-size: 1.2rem;
-            margin: 15px 0;
-            line-height: 1.6;
-        }
-
-        .cursor {
-            display: inline-block;
-            animation: blink 1s infinite;
-        }
-
-        /* Logic Gates Demo */
-        .logic-gate-demo {
-            margin-top: 30px;
-            background: rgba(0, 0, 0, 0.2);
-            padding: 20px;
-            border-radius: 8px;
-        }
-
-        .gate-row {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin: 15px 0;
-            flex-wrap: wrap;
-        }
-
-        .gate {
-            width: 180px;
-            background: #333;
-            border-radius: 8px;
-            padding: 10px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.4s ease;
-        }
-
-        .gate:hover {
-            transform: translateY(-6px);
-            background: #444;
-        }
-
-        .inputs, .outputs {
-            margin-top: 10px;
-        }
-
-        .input {
-            background: #444;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            margin: 0 5px;
-            cursor: pointer;
-        }
-
-        .input.active {
-            background: var(--personality-color);
-        }
-
-        .selector {
-            margin: 0 5px;
-        }
-
-        .output {
-            margin: 0 5px;
-        }
-
-        .portfolio-section {
-            background-color: #1a1a1a;
-            color: var(--linux-text);
-            padding: 40px;
-        }
-
-        .portfolio-ui {
-            max-width: 900px;
-            margin: 0 auto;
-            background-color: #2a2a2a;
-            border-radius: 12px;
-            padding: 40px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-
-        .personality-boxes {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .personality-box {
-            background-color: #3a3a3a;
-            padding: 20px;
-            border-radius: 8px;
-            display: flex;
-            align-items: stretch;
-            overflow: hidden;
+        
+        /* Contact form - dark */
+        .input-field {
+            background: rgba(15, 15, 15, 0.8);
+            border: 1px solid rgba(40, 40, 40, 0.8);
+            color: #e5e5e5;
             transition: all 0.3s ease;
         }
-
-        .text-area {
-            flex: 1;
-            transition: flex 0.1s ease-in;
-            padding-right: 20px;
+        
+        .input-field:focus {
+            outline: none;
+            border-color: rgba(80, 80, 80, 1);
+            box-shadow: 0 0 0 1px rgba(80, 80, 80, 0.3);
+            background: rgba(20, 20, 20, 0.9);
         }
-
-        .box-title {
-            font-size: 1.2rem;
-            margin-bottom: 10px;
-            color: var(--personality-color);
+        
+        /* Email automation card - dark */
+        .email-automation-card {
+            background: rgba(20, 20, 25, 0.4);
+            border: 1px solid rgba(40, 40, 50, 0.8);
+            box-shadow: 
+                inset 0 0 30px rgba(0, 0, 0, 0.9),
+                0 10px 30px rgba(0, 0, 0, 0.4);
         }
-
-        .image-container {
-            width: 0;
+        
+        /* Navigation - dark */
+        .nav-dark {
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(40, 40, 40, 0.8);
+        }
+        
+        /* Button styles - dark theme with subtle color */
+        .dark-btn {
+            background: linear-gradient(90deg, #222, #333, #222);
+            color: #e5e5e5;
+            border: 1px solid rgba(60, 60, 60, 0.8);
+            transition: all 0.3s ease;
+            position: relative;
             overflow: hidden;
-            transition: width 0.3s ease-in;
         }
-
-        .image-container img {
+        
+        .dark-btn:hover {
+            background: linear-gradient(90deg, #2a2a2a, #3a3a3a, #2a2a2a);
+            border-color: rgba(80, 80, 80, 1);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+        }
+        
+        .dark-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
             width: 100%;
             height: 100%;
-            object-fit: cover;
-            opacity: 0;
-            transition: opacity 0.3s ease;
+            background: linear-gradient(90deg, transparent, rgba(100, 100, 100, 0.1), transparent);
+            transition: left 0.7s ease;
         }
-
-        .personality-box:hover .image-container {
-            width: var(--image-width);
+        
+        .dark-btn:hover::before {
+            left: 100%;
         }
-
-        .personality-box:hover .image-container img {
-            opacity: 1;
+        
+        /* Email button - subtle accent */
+        .email-btn {
+            background: linear-gradient(90deg, #1e3a8a, #3730a3, #1e3a8a);
+            color: #e5e5e5;
+            border: 1px solid rgba(60, 80, 120, 0.8);
         }
-
-        /* Dock */
-        .dock-container {
-            position: relative;
-            margin-top: 50px;
-            display: flex;
-            justify-content: center;
+        
+        .email-btn:hover {
+            background: linear-gradient(90deg, #1e40af, #4338ca, #1e40af);
+            border-color: rgba(80, 100, 150, 1);
         }
-
-        .dock-background {
-            background: var(--dock-bg);
-            backdrop-filter: blur(25px);
-            border-radius: 20px;
-            padding: 15px 25px;
-            display: inline-flex;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+        
+        /* Skill icons - COLORED as requested! */
+        .skill-icon {
             transition: all 0.3s ease;
         }
-
-        .dock {
-            display: flex;
-            gap: 15px;
-        }
-
-        .dock-item {
-            width: 50px;
-            height: 50px;
-            background-color: rgba(0, 0, 0, 0.05);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            cursor: pointer;
-            position: relative;
-        }
-
-        .dock-item:hover {
-            transform: scale(1.5) translateY(-20px);
-            margin: 0 10px;
-        }
-
-        .dock-item:hover::after {
-            content: attr(data-tooltip);
-            position: absolute;
-            bottom: -30px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.7);
-            color: white;
-            padding: 3px 8px;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            white-space: nowrap;
-        }
-
-        .dock-item i {
-            font-size: 1.5rem;
-            color: var(--linux-text);
-        }
-
-        /* Music Player */
-        .music-player {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 1000;
-        }
-
-        .play-button {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background-color: var(--discord-purple);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-            transition: all 0.5s ease;
-        }
-
-        .play-button:hover {
+        
+        .skill-icon:hover {
             transform: scale(1.1);
+            filter: brightness(1.3);
         }
-
-        .play-button i {
-            color: white;
-            font-size: 1.2rem;
+        
+        /* Colored skill category icons */
+        .category-icon-frontend {
+            color: #3b82f6; /* Blue */
         }
-
-        .soundcloud-player {
-            display: none;
-            width: 300px;
+        
+        .category-icon-backend {
+            color: #10b981; /* Green */
         }
-
-        .music-notification {
-            position: fixed;
-            bottom: 80px;
-            right: 20px;
-            background: rgba(0, 0, 0, 0.8);
-            color: white;
-            padding: 10px 15px;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            opacity: 0;
-            transform: translateY(20px);
-            transition: all 0.3s ease;
-            z-index: 1000;
-            pointer-events: none;
+        
+        .category-icon-languages {
+            color: #8b5cf6; /* Purple */
         }
-
-        .music-notification.show {
-            animation: pulse 6s forwards;
+        
+        .category-icon-tools {
+            color: #ef4444; /* Red */
         }
-
-        .music-notification span {
-            color: white;
+        
+        /* Project card icons - colored */
+        .project-icon-1 {
+            color: #3b82f6; /* Blue */
         }
-
-        .music-notification .color-shift {
-            animation: colorShift 3s infinite alternate;
+        
+        .project-icon-2 {
+            color: #10b981; /* Green */
         }
-
-#overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(6px);
-  z-index: 900;
-  opacity: 0;
-  pointer-events: none; /* ✅ Don't block clicks unless flipped */
-  transition: opacity 0.3s ease;
-}
-
-
-
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0; }
+        
+        .project-icon-3 {
+            color: #8b5cf6; /* Purple */
         }
-
-        @keyframes float {
-            0% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-20px) rotate(5deg); }
-            100% { transform: translateY(0) rotate(0deg); }
+        
+        /* Footer */
+        .footer-dark {
+            background: #0a0a0a;
+            border-top: 1px solid rgba(40, 40, 40, 0.8);
         }
-
-        @keyframes pulse {
-            0% { opacity: 0; transform: translateY(20px) scale(0.9); }
-            10% { opacity: 1; transform: translateY(0) scale(1); }
-            80% { opacity: 1; transform: translateY(0) scale(1); }
-            90% { transform: scale(1.05); }
-            100% { opacity: 0; transform: translateY(20px) scale(0.9); }
+        
+        /* Subtle text highlights */
+        .text-subtle-highlight {
+            color: #d0d0d0;
         }
-
-        @keyframes colorShift {
-            0% { color: var(--creeper-green); }
-            100% { color: var(--discord-purple); }
+        
+        /* Colored contact icons */
+        .contact-icon-email {
+            color: #3b82f6; /* Blue */
         }
-
-        @media (max-width: 768px) {
-            section { padding: 40px 20px; }
-            .typewriter h1 { font-size: 2rem; }
-            .personality-boxes { gap: 15px; }
-            .dock-item { width: 40px;就座height: 40px; }
-            .dock-item:hover { transform: scale(1.3) translateY(-15px); }
+        
+        .contact-icon-phone {
+            color: #10b981; /* Green */
         }
-
-        @media (max-width: 480px) {
-            .typewriter h1 { font-size: 1.8rem; }
-            .portfolio-ui { padding: 20px; }
-            .dock { gap: 10px; }
-            .dock-item { width: 35px; height: 35px; }
-            .dock-item i { font-size: 1.2rem; }
-            .gate-row { flex-direction: column; align-items: center; }
+        
+        .contact-icon-location {
+            color: #ef4444; /* Red */
         }
-
-
-        #windows-intro {
-            position: fixed;
-            inset: 0;
-            background: black;
-            color: white;
-            z-index: 99999;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            font-family: var(--font-sans);
+        
+        /* Colored social icons */
+        .social-icon-github {
+            color: #f5f5f5; /* White for GitHub */
         }
-
-        #windows-intro h1 {
-            font-size: 2rem;
-            opacity: 0;
-            animation: fadeInOut 2s ease-in forwards;
+        
+        .social-icon-linkedin {
+            color: #0a66c2; /* LinkedIn blue */
         }
-
-        #windows-intro.fade-welcome h1 {
-            animation: fadeWelcome 2s ease-in forwards;
-        }
-
-        #windows-intro button {
-            opacity: 0;
-            margin-top: 40px;
-            padding: 5px 10px;
-            font-size: 1rem;
-            background: transparent;
-            border: 1px solid white;
-            color: white;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(2px);
-        }
-
-        @keyframes fadeInOut {
-            0% { opacity: 0; }
-            50% { opacity: 1; }
-            100% { opacity: 0; }
-        }
-
-        @keyframes fadeWelcome {
-            0% { opacity: 0; }
-            50% { opacity: 1; }
-            100% { opacity: 0; }
+        
+        .social-icon-twitter {
+            color: #1da1f2; /* Twitter blue */
         }
     </style>
-</style>
 </head>
-<body>
-    <!-- Windows-style Intro Overlay -->
-    <div id="windows-intro">
-        <h1 id="intro-text">Hi</h1>
-        <button id="enter-site">Enter Site</button>
-    </div>
-
-    <!-- Personality bubbles background -->
-    <div class="bubble" style="width: 100px; height: 100px; top: 20%; left: 10%;"></div>
-    <div class="bubble" style="width: 150px; height: 150px; top: 60%; left: 80%;"></div>
-    <div class="bubble" style="width: 80px; height: 80px; top: 80%; left: 20%;"></div>
-
-    <!-- Linux Terminal Section -->
-    <section class="linux-section" id="linux">
-        <div class="terminal">
-            <div class="terminal-header">
-                <div class="terminal-buttons">
-                    <span class="terminal-button red" id="close-button" title="Close (opens website)">
-                        <span class="button-icon">×</span>
-                    </span>
-                    <span class="terminal-button yellow" id="minimize-button" title="Minimize">
-                        <span class="button-icon">-</span>
-                    </span>
-                    <span class="terminal-button green" id="fullscreen-button" title="Fullscreen">
-                        <span class="button-icon">□</span>
-                    </span>
-                </div>
-                <div class="terminal-title">user@about-me:~</div>
+<body class="min-h-screen">
+    <!-- Navigation -->
+    <nav class="nav-dark fixed w-full z-10 py-4">
+        <div class="container mx-auto px-6 flex justify-between items-center">
+            <a href="#" class="text-xl font-bold text-subtle-highlight">DevPortfolio</a>
+            <div class="hidden md:flex space-x-8">
+                <a href="#home" class="accent-text hover:text-gray-300 transition duration-300">Home</a>
+                <a href="#about" class="accent-text hover:text-gray-300 transition duration-300">About</a>
+                <a href="#skills" class="accent-text hover:text-gray-300 transition duration-300">Skills</a>
+                <a href="#projects" class="accent-text hover:text-gray-300 transition duration-300">Projects</a>
+                <a href="#contact" class="accent-text hover:text-gray-300 transition duration-300">Contact</a>
             </div>
-            <div class="terminal-body">
-                <div class="typewriter">
-                    <h1>whoami</h1>
-                    <p class="prompt">Hello World! I'm <span class="personality-highlight">Achyut</span></p>
-                    <p class="prompt">A <span class="personality-highlight">tech enthusiast</span> learning web design and logic gates</p>
-                    <p class="prompt">Passionate about <span class="personality-highlight">computers, politics, fitness</span> and <span class="personality-highlight">communication</span></p>
-                    <p class="prompt">Last login: <span id="current-date"></span></p>
-                    <p class="prompt">Scroll down to explore more about me <span class="cursor">_</span></p>
-                </div>
+            <button class="md:hidden text-xl accent-text">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
 
-                <div class="logic-gate-demo">
-                    <p>> Interactive Logic Gates Demo (click inputs to toggle):</p>
-                    <div class="gate-row">
-                        <div class="gate" data-gate="and">
-                            <span>AND</span>
-                            <div class="inputs">
-                                <button class="input" data-input="A">A: 0</button>
-                                <button class="input" data-input="B">B: 0</button>
-                            </div>
-                            <div class="outputs">
-                                <span class="output">Output: 0</span>
-                            </div>
-                        </div>
-                        <div class="gate" data-gate="or">
-                            <span>OR</span>
-                            <div class="inputs">
-                                <button class="input" data-input="A">A: 0</button>
-                                <button class="input" data-input="B">B: 0</button>
-                            </div>
-                            <div class="outputs">
-                                <span class="output">Output: 0</span>
-                            </div>
-                        </div>
-                        <div class="gate" data-gate="not">
-                            <span>NOT</span>
-                            <div class="inputs">
-                                <button class="input" data-input="A">A: 0</button>
-                            </div>
-                            <div class="outputs">
-                                <span class="output">Output: 1</span>
-                            </div>
+    <!-- Hero Section -->
+    <section id="home" class="pt-32 pb-20 px-6 darker-section">
+        <div class="container mx-auto max-w-4xl">
+            <div class="text-center">
+                <h1 class="text-4xl md:text-6xl font-bold mb-6">Hello, I'm <span class="subtle-gradient-text">Developer</span></h1>
+                <p class="text-xl text-gray-400 mb-8 max-w-2xl mx-auto">I build efficient, scalable solutions with clean code. Passionate about backend systems, automation, and creating seamless user experiences.</p>
+                
+                <!-- Email Automation Button -->
+                <a href="mailto:dev@portfolio.com?subject=Portfolio Inquiry&body=Hello, I saw your portfolio and wanted to connect..." 
+                   class="email-btn dark-btn inline-block font-medium py-3 px-8 rounded-lg mb-4">
+                    <i class="fas fa-paper-plane mr-2"></i>Get In Touch
+                </a>
+                <p class="text-gray-600 text-sm">Clicking will open your email client with my address pre-filled</p>
+            </div>
+        </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- About Section -->
+    <section id="about" class="py-16 px-6 dark-section">
+        <div class="container mx-auto max-w-4xl">
+            <h2 class="text-3xl font-bold mb-10 text-center text-subtle-highlight">About Me</h2>
+            <div class="hollow-card">
+                <div class="flex flex-col md:flex-row items-center gap-8">
+                    <div class="md:w-1/3">
+                        <div class="w-48 h-48 rounded-full bg-gradient-to-br from-gray-900 via-black to-gray-900 mx-auto flex items-center justify-center border border-gray-800 shadow-inner">
+                            <span class="text-6xl text-gray-600">👨‍💻</span>
                         </div>
                     </div>
-                    <div class="gate-row">
-                        <div class="gate" data-gate="nand">
-                            <span>NAND</span>
-                            <div class="inputs">
-                                <button class="input" data-input="A">A: 0</button>
-                                <button class="input" data-input="B">B: 0</button>
-                            </div>
-                            <div class="outputs">
-                                <span class="output">Output: 1</span>
-                            </div>
-                        </div>
-                        <div class="gate" data-gate="nor">
-                            <span>NOR</span>
-                            <div class="inputs">
-                                <button class="input" data-input="A">A: 0</button>
-                                <button class="input" data-input="B">B: 0</button>
-                            </div>
-                            <div class="outputs">
-                                <span class="output">Output: 1</span>
-                            </div>
-                        </div>
-                        <div class="gate" data-gate="xor">
-                            <span>XOR</span>
-                            <div class="inputs">
-                                <button class="input" data-input="A">A: 0</button>
-                                <button class="input" data-input="B">B: 0</button>
-                            </div>
-                            <div class="outputs">
-                                <span class="output">Output: 0</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="gate-row">
-                        <div class="gate" data-gate="flipflop">
-                            <span>FLIP FLOP (SR)</span>
-                            <div class="inputs">
-                                <button class="input" data-input="S">S: 0</button>
-                                <button class="input" data-input="R">R: 0</button>
-                            </div>
-                            <div class="outputs">
-                                <span class="output" data-output="Q">Q: 0</span>
-                                <span class="output" data-output="Qprime">Q': 1</span>
-                            </div>
-                        </div>
-                        <div class="gate" data-gate="mux">
-                            <span>MUX</span>
-                            <div class="inputs">
-                                <button class="input" data-input="I0">I0: 0</button>
-                                <button class="input" data-input="I1">I1: 0</button>
-                                <select class="selector" data-selector="S">
-                                    <option value="0">Select I0</option>
-                                    <option value="1">Select I1</option>
-                                </select>
-                            </div>
-                            <div class="outputs">
-                                <span class="output">Output: 0</span>
-                            </div>
-                        </div>
-                        <div class="gate" data-gate="demux">
-                            <span>DEMUX</span>
-                            <div class="inputs">
-                                <button class="input" data-input="Input">Input: 0</button>
-                                <select class="selector" data-selector="S">
-                                    <option value="0">Select Output 0</option>
-                                    <option value="1">Select Output 1</option>
-                                </select>
-                            </div>
-                            <div class="outputs">
-                                <span class="output" data-output="0">Output 0: 0</span>
-                                <span class="output" data-output="1">Output 1: 0</span>
-                            </div>
+                    <div class="md:w-2/3">
+                        <p class="text-gray-400 mb-6">
+                            I'm a passionate developer who specializes in building robust backend systems and automation tools. With a strong foundation in computer science principles, I enjoy solving complex problems and creating efficient solutions.
+                        </p>
+                        <p class="text-gray-400 mb-6">
+                            I believe in writing clean, maintainable code and following best practices. Whether it's developing a web application with Flask, creating a bash automation script, or optimizing a database query, I approach each project with attention to detail.
+                        </p>
+                        <div class="flex items-center space-x-4 mt-8">
+                            <a href="#contact" class="dark-btn px-5 py-2 rounded-lg">Hire Me</a>
+                            <a href="#projects" class="border border-gray-800 hover:bg-gray-900 px-5 py-2 rounded-lg transition duration-300 accent-text">View Projects</a>
                         </div>
                     </div>
                 </div>
@@ -652,355 +327,368 @@
         </div>
     </section>
 
-    <!-- Portfolio Section -->
-    <section class="portfolio-section" id="portfolio">
-        <div class="portfolio-ui">
-            <h2 style="color: var(--personality-color); margin-bottom: 20px;">My Personality Portfolio</h2>
-            <div class="personality-boxes">
-                <div class="personality-box">
-                    <div class="text-area">
-                        <h3 class="box-title">Tech Skills</h3>
-                        <p>Built a responsive portfolio site using HTML, CSS, and JavaScript as well as a tiny (8Tb) NAS with a 15yr old PC and gaming console with an old Laptop. Currently studying digital electronics and communication. Also trying to master Linux</p>
+    <div class="section-divider"></div>
+
+    <!-- Skills Section - WITH COLORED ICONS -->
+    <section id="skills" class="py-16 px-6 darker-section">
+        <div class="container mx-auto max-w-6xl">
+            <h2 class="text-3xl font-bold mb-10 text-center text-subtle-highlight">Technical Skills</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Frontend Skills - Blue icon -->
+                <div class="hollow-card">
+                    <div class="category-icon-frontend text-3xl mb-4">
+                        <i class="fas fa-code skill-icon"></i>
                     </div>
-                    <div class="image-container">
-                        <img src="https://i.ibb.co/m5r2Zswc/724-A807-D-4631-48-CA-939-D-C2-EB56-C01-CA4.png" alt="Tech Skills Image" loading="lazy">
-                    </div>
-                </div>
-                <div class="personality-box">
-                    <div class="text-area">
-                        <h3 class="box-title">Languages</h3>
-                        <p>Fluent in English, Malayalam, Hindi, and Kannada...</p>
-                    </div>
-                    <div class="image-container">
-                        <img src="https://i.ibb.co/fdnpCSHg/CFACE104-530-A-49-F7-9-D7-F-39-C72-B40-D2-E6.png" loading="lazy">
-                    </div>
-                </div>
-                <div class="personality-box">
-                    <div class="text-area">
-                        <h3 class="box-title">MUN Experience</h3>
-                        <p>Won Special Mention at Model United Nations 2023, representing India in the United Nations Human Rights Council. Pretty passionate about global politics and diplomacy. *i speak too much bro* </p>
-                    </div>
-                    <div class="image-container">
-                        <img src="https://i.ibb.co/6JbnPkm1/8251-ED89-2-CC5-4-D48-BBDB-85-EB6-E2-E1507.png" alt="MUN Experience Image" loading="lazy">
-                    </div>
-                </div>
-                <div class="personality-box">
-                    <div class="text-area">
-                        <h3 class="box-title">What i also do</h3>
-                        <p>I'm well interested in writing, i do that a bit. I do strength training, powerlifting, gymnastics (very basic), calisthenics (again basic) and armwrestle a lot.</p>
-                    </div>
-                    <div class="image-container">
-                        <img src="https://i.ibb.co/9k44MXMd/94-FC4-A43-5536-4523-B446-A233-AF4461-C0.png" alt="Gym Image" loading="lazy">
-                    </div>
-                </div>
-                <div class="personality-box">
-                    <div class="text-area">
-                        <h3 class="box-title">Personality</h3>
-                        <p>Extremely extroverted and friendly and would love to connect with absolutely anyone. Enjoy connecting with people, sharing knowledge, and leading group projects.</p>
-                    </div>
-                    <div class="image-container">
-                        <img src="https://i.ibb.co/PZ9ZjkQC/128-D3-AD5-3-D71-4-BDD-8106-94-A9599-DEF51.png" alt="Personality Image" loading="lazy">
-                    </div>
+                    <h3 class="text-xl font-bold mb-4 text-subtle-highlight">Frontend</h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-center">
+                            <i class="fab fa-html5 text-orange-500 mr-3 skill-icon"></i>
+                            <span class="text-gray-300">HTML5</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fab fa-css3-alt text-blue-500 mr-3 skill-icon"></i>
+                            <span class="text-gray-300">CSS3</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fab fa-js-square text-yellow-500 mr-3 skill-icon"></i>
+                            <span class="text-gray-300">JavaScript</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-wind text-teal-400 mr-3 skill-icon"></i>
+                            <span class="text-gray-300">Tailwind CSS</span>
+                        </li>
+                    </ul>
                 </div>
 
-            <div class="dock-container">
-                <div class="dock-background">
-                    <div class="dock">
-                        <div class="dock-item" data-tooltip="Instagram" onclick="window.open('https://www.instagram.com/achyut_r_m?utm_source=qr', '_blank')" aria-label="Instagram">
-                            <i class="fab fa-instagram"></i>
+                <!-- Backend Skills - Green icon -->
+                <div class="hollow-card">
+                    <div class="category-icon-backend text-3xl mb-4">
+                        <i class="fas fa-server skill-icon"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4 text-subtle-highlight">Backend</h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-center">
+                            <i class="fab fa-python text-yellow-400 mr-3 skill-icon"></i>
+                            <span class="text-gray-300">Python & Flask</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-database text-blue-300 mr-3 skill-icon"></i>
+                            <span class="text-gray-300">SQL Databases</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-cogs text-gray-400 mr-3 skill-icon"></i>
+                            <span class="text-gray-300">Bash Automation</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Programming Languages - Purple icon -->
+                <div class="hollow-card">
+                    <div class="category-icon-languages text-3xl mb-4">
+                        <i class="fas fa-laptop-code skill-icon"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4 text-subtle-highlight">Languages</h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-center">
+                            <i class="fas fa-copyright text-blue-400 mr-3 skill-icon"></i>
+                            <span class="text-gray-300">C Programming</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fab fa-python text-blue-500 mr-3 skill-icon"></i>
+                            <span class="text-gray-300">Python</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fab fa-js-square text-yellow-500 mr-3 skill-icon"></i>
+                            <span class="text-gray-300">JavaScript</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-terminal text-gray-300 mr-3 skill-icon"></i>
+                            <span class="text-gray-300">Bash Scripting</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Tools & Others - Red icon -->
+                <div class="hollow-card">
+                    <div class="category-icon-tools text-3xl mb-4">
+                        <i class="fas fa-tools skill-icon"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4 text-subtle-highlight">Tools & Others</h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-center">
+                            <i class="fab fa-git-alt text-orange-600 mr-3 skill-icon"></i>
+                            <span class="text-gray-300">Git Version Control</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-terminal text-green-500 mr-3 skill-icon"></i>
+                            <span class="text-gray-300">Linux Command Line</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-project-diagram text-purple-500 mr-3 skill-icon"></i>
+                            <span class="text-gray-300">System Design</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-bolt text-yellow-500 mr-3 skill-icon"></i>
+                            <span class="text-gray-300">Automation Scripts</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- Email Automation Section -->
+    <section id="automation" class="py-16 px-6 dark-section">
+        <div class="container mx-auto max-w-4xl">
+            <h2 class="text-3xl font-bold mb-10 text-center text-subtle-highlight">Email Automation</h2>
+            <div class="email-automation-card rounded-2xl p-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                    <div>
+                        <h3 class="text-xl font-bold mb-4 text-subtle-highlight">Quick Contact</h3>
+                        <p class="text-gray-400 mb-6">
+                            Click the button below to automatically open your email client with my address pre-filled. This saves you time and ensures you reach me directly.
+                        </p>
+                        <div class="mb-6">
+                            <h4 class="font-medium mb-2 text-gray-300">Pre-filled Information:</h4>
+                            <ul class="text-gray-500 space-y-1">
+                                <li><i class="fas fa-check text-green-500 mr-2"></i> My email address: dev@portfolio.com</li>
+                                <li><i class="fas fa-check text-green-500 mr-2"></i> Subject: Portfolio Inquiry</li>
+                                <li><i class="fas fa-check text-green-500 mr-2"></i> Basic greeting message</li>
+                            </ul>
                         </div>
-                        <div class="dock-item" data-tooltip="Twitter" onclick="window.open('https://twitter.com/yourusername', '_blank')" aria-label="Twitter">
-                            <i class="fab fa-twitter"></i>
+                        
+                        <!-- Email Automation Button -->
+                        <a href="mailto:dev@portfolio.com?subject=Portfolio Inquiry&body=Hello, I saw your portfolio and wanted to connect. Here's what I'd like to discuss..." 
+                           class="email-btn dark-btn inline-block font-medium py-3 px-8 rounded-lg mb-2">
+                            <i class="fas fa-envelope mr-2"></i>Send Email Now
+                        </a>
+                        <p class="text-gray-600 text-sm">Works on all devices with email clients</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-6xl mb-4 text-blue-400">
+                            <i class="fas fa-robot"></i>
                         </div>
-                        <div class="dock-item" data-tooltip="LinkedIn" onclick="window.open('https://linkedin.com/in/yourusername', '_blank')" aria-label="LinkedIn">
-                            <i class="fab fa-linkedin-in"></i>
-                        </div>
-                        <div class="dock-item" data-tooltip="Email" onclick="window.location.href='mailto:achyutrmenon@gmail.com'" aria-label="Email">
-                            <i class="fas fa-envelope"></i>
-                        </div>
-                        <div class="dock-item" data-tooltip="YouTube" onclick="window.open('https://youtube.com/@achkichcodm?si=WSYJvQyouZvICRXp', '_blank')" aria-label="YouTube">
-                            <i class="fab fa-youtube"></i>
-                        </div>
+                        <p class="text-gray-500 italic">
+                            "Automation applied to an efficient operation will magnify the efficiency."
+                        </p>
+                        <p class="text-gray-600 mt-2">- Bill Gates</p>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Music Player -->
-    <div class="music-player">
-        <div class="play-button" id="playButton">
-            <i class="fas fa-play" id="playIcon"></i>
-        </div>
-        <div class="soundcloud-player" id="soundcloudPlayer">
-            <iframe width="100%" height="300" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/326463848&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true"></iframe>
-        </div>
-        <div class="music-notification" id="musicNotification">
-            <span class="color-shift">Click to pause</span>
-        </div>
-    </div>
+    <div class="section-divider"></div>
 
-    <!--Cards portion-->
-<div id="overlay"></div>
+    <!-- Projects Section - WITH COLORED ICONS -->
+    <section id="projects" class="py-16 px-6 darker-section">
+        <div class="container mx-auto max-w-6xl">
+            <h2 class="text-3xl font-bold mb-10 text-center text-subtle-highlight">Projects</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Project 1 - Blue icon -->
+                <div class="project-card rounded-xl p-6">
+                    <div class="project-icon-1 text-2xl mb-4">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 text-subtle-highlight">Bash Automation Suite</h3>
+                    <p class="text-gray-400 mb-4">A collection of bash scripts for automating deployment, backup, and system monitoring tasks on Linux servers.</p>
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        <span class="bg-gray-900 px-3 py-1 rounded-full text-sm text-gray-300">Bash</span>
+                        <span class="bg-gray-900 px-3 py-1 rounded-full text-sm text-gray-300">Linux</span>
+                        <span class="bg-gray-900 px-3 py-1 rounded-full text-sm text-gray-300">Automation</span>
+                    </div>
+                    <a href="#" class="text-gray-400 hover:text-gray-300 flex items-center">
+                        View Details <i class="fas fa-arrow-right ml-2"></i>
+                    </a>
+                </div>
+
+                <!-- Project 2 - Green icon -->
+                <div class="project-card rounded-xl p-6">
+                    <div class="project-icon-2 text-2xl mb-4">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 text-subtle-highlight">Flask Data Dashboard</h3>
+                    <p class="text-gray-400 mb-4">A web application built with Flask and SQLite that visualizes data with interactive charts and real-time updates.</p>
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        <span class="bg-gray-900 px-3 py-1 rounded-full text-sm text-gray-300">Flask</span>
+                        <span class="bg-gray-900 px-3 py-1 rounded-full text-sm text-gray-300">Python</span>
+                        <span class="bg-gray-900 px-3 py-1 rounded-full text-sm text-gray-300">SQL</span>
+                        <span class="bg-gray-900 px-3 py-1 rounded-full text-sm text-gray-300">Chart.js</span>
+                    </div>
+                    <a href="#" class="text-gray-400 hover:text-gray-300 flex items-center">
+                        View Details <i class="fas fa-arrow-right ml-2"></i>
+                    </a>
+                </div>
+
+                <!-- Project 3 - Purple icon -->
+                <div class="project-card rounded-xl p-6">
+                    <div class="project-icon-3 text-2xl mb-4">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 text-subtle-highlight">C System Utility</h3>
+                    <p class="text-gray-400 mb-4">A low-level system utility written in C for file operations and process management with a minimal memory footprint.</p>
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        <span class="bg-gray-900 px-3 py-1 rounded-full text-sm text-gray-300">C Programming</span>
+                        <span class="bg-gray-900 px-3 py-1 rounded-full text-sm text-gray-300">Systems</span>
+                        <span class="bg-gray-900 px-3 py-1 rounded-full text-sm text-gray-300">Performance</span>
+                    </div>
+                    <a href="#" class="text-gray-400 hover:text-gray-300 flex items-center">
+                        View Details <i class="fas fa-arrow-right ml-2"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- Contact Section - WITH COLORED ICONS -->
+    <section id="contact" class="py-16 px-6 dark-section">
+        <div class="container mx-auto max-w-4xl">
+            <h2 class="text-3xl font-bold mb-10 text-center text-subtle-highlight">Contact Me</h2>
+            <div class="hollow-card">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                    <div>
+                        <h3 class="text-xl font-bold mb-6 text-subtle-highlight">Let's work together</h3>
+                        <p class="text-gray-400 mb-8">
+                            I'm currently open to new opportunities and interesting projects. Whether you need a backend developer, automation expert, or full-stack solutions, feel free to reach out.
+                        </p>
+                        <div class="space-y-4 mb-8">
+                            <div class="flex items-center">
+                                <i class="fas fa-envelope contact-icon-email mr-4 text-xl"></i>
+                                <span class="text-gray-300">dev@portfolio.com</span>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fas fa-phone contact-icon-phone mr-4 text-xl"></i>
+                                <span class="text-gray-300">+1 (555) 123-4567</span>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fas fa-map-marker-alt contact-icon-location mr-4 text-xl"></i>
+                                <span class="text-gray-300">San Francisco, CA</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Social icons with brand colors -->
+                        <div class="flex space-x-4 mb-6">
+                            <a href="#" class="bg-gray-900 hover:bg-gray-800 w-10 h-10 rounded-full flex items-center justify-center">
+                                <i class="fab fa-github social-icon-github"></i>
+                            </a>
+                            <a href="#" class="bg-gray-900 hover:bg-gray-800 w-10 h-10 rounded-full flex items-center justify-center">
+                                <i class="fab fa-linkedin-in social-icon-linkedin"></i>
+                            </a>
+                            <a href="#" class="bg-gray-900 hover:bg-gray-800 w-10 h-10 rounded-full flex items-center justify-center">
+                                <i class="fab fa-twitter social-icon-twitter"></i>
+                            </a>
+                        </div>
+                        
+                        <!-- Direct Email Button -->
+                        <a href="mailto:dev@portfolio.com?subject=Job Opportunity&body=Hello, I have a potential opportunity I'd like to discuss with you..." 
+                           class="email-btn dark-btn inline-block font-medium py-3 px-6 rounded-lg mb-4">
+                            <i class="fas fa-briefcase mr-2"></i>Email for Opportunities
+                        </a>
+                    </div>
+                    <div>
+                        <form class="space-y-6" id="contactForm">
+                            <div>
+                                <label class="block mb-2 text-gray-300">Name</label>
+                                <input type="text" class="w-full input-field rounded-lg p-3" required>
+                            </div>
+                            <div>
+                                <label class="block mb-2 text-gray-300">Email</label>
+                                <input type="email" class="w-full input-field rounded-lg p-3" required>
+                            </div>
+                            <div>
+                                <label class="block mb-2 text-gray-300">Message</label>
+                                <textarea rows="4" class="w-full input-field rounded-lg p-3" required></textarea>
+                            </div>
+                            <button type="submit" class="dark-btn font-medium py-3 px-6 rounded-lg w-full">
+                                <i class="fas fa-paper-plane mr-2"></i>Send Message
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer-dark py-8 px-6">
+        <div class="container mx-auto text-center">
+            <p class="text-gray-600">© 2023 Dev Portfolio. All rights reserved.</p>
+            <p class="text-gray-700 text-sm mt-2">Built with passion and clean code</p>
+            <div class="mt-4">
+                <!-- Quick Email Link in Footer -->
+                <a href="mailto:dev@portfolio.com" class="text-gray-600 hover:text-gray-400 text-sm">
+                    <i class="fas fa-envelope contact-icon-email mr-1"></i> dev@portfolio.com
+                </a>
+            </div>
+        </div>
+    </footer>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Create more personality bubbles
-            function createBubbles() {
-                const colors = ['rgba(255, 107, 107, 0.1)', 'rgba(255, 107, 107, 0.07)', 'rgba(255, 107, 107, 0.05)'];
-                for (let i = 0; i < 5; i++) {
-                    const bubble = document.createElement('div');
-                    bubble.className = 'bubble';
-                    const size = Math.random() * 100 + 50;
-                    bubble.style.width = `${size}px`;
-                    bubble.style.height = `${size}px`;
-                    bubble.style.top = `${Math.random() * 100}%`;
-                    bubble.style.left = `${Math.random() * 100}%`;
-                    bubble.style.background = colors[Math.floor(Math.random() * colors.length)];
-                    bubble.style.animationDuration = `${Math.random() * 10 + 10}s`;
-                    document.body.appendChild(bubble);
-                }
-            }
-            createBubbles();
-
-            // Set current date in terminal
-            const currentDate = new Date().toLocaleString();
-            document.getElementById('current-date').textContent = currentDate;
-
-            // Music player functionality
-            const playButton = document.getElementById('playButton');
-            const playIcon = document.getElementById('playIcon');
-            const soundcloudPlayer = document.getElementById('soundcloudPlayer');
-            const musicNotification = document.getElementById('musicNotification');
-
-            let isPlaying = false;
-            let player;
-
-            const iframe = soundcloudPlayer.querySelector('iframe');
-            iframe.onload = function() {
-                player = SC.Widget(iframe);
-                player.bind(SC.Widget.Events.READY, function() {
-                    player.setVolume(30);
-                });
-                player.bind(SC.Widget.Events.FINISH, function() {
-                    showMusicNotification();
-                    player.play();
-                });
-            };
-
-            playButton.addEventListener('click', function() {
-                if (!player) return;
-                if (isPlaying) {
-                    player.pause();
-                    playIcon.classList.remove('fa-pause');
-                    playIcon.classList.add('fa-play');
-                } else {
-                    player.setVolume(30);
-                    player.play();
-                    playIcon.classList.remove('fa-play');
-                    playIcon.classList.add('fa-pause');
-                    showMusicNotification();
-                }
-                isPlaying = !isPlaying;
-            });
-
-            function showMusicNotification() {
-                musicNotification.classList.remove('show');
-                void musicNotification.offsetWidth;
-                musicNotification.classList.add('show');
-            }
-
-            const script = document.createElement('script');
-            script.src = 'https://w.soundcloud.com/player/api.js';
-            document.body.appendChild(script);
-
-            // Logic Gates Interaction
-            const gateStates = {
-                and: { A: 0, B: 0, output: 0 },
-                or: { A: 0, B: 0, output: 0 },
-                not: { A: 0, output: 1 },
-                nand: { A: 0, B: 0, output: 1 },
-                nor: { A: 0, B: 0, output: 1 },
-                xor: { A: 0, B: 0, output: 0 },
-                flipflop: { S: 0, R: 0, Q: 0, Qprime: 1 },
-                mux: { I0: 0, I1: 0, S: 0, output: 0 },
-                demux: { Input: 0, S: 0, output0: 0, output1: 0 },
-            };
-
-            function updateGateOutput(gateName) {
-                const state = gateStates[gateName];
-                switch (gateName) {
-                    case 'and':
-                        state.output = state.A && state.B;
-                        break;
-                    case 'or':
-                        state.output = state.A || state.B;
-                        break;
-                    case 'not':
-                        state.output = state.A ? 0 : 1;
-                        break;
-                    case 'nand':
-                        state.output = !(state.A && state.B) ? 1 : 0;
-                        break;
-                    case 'nor':
-                        state.output = !(state.A || state.B) ? 1 : 0;
-                        break;
-                    case 'xor':
-                        state.output = state.A !== state.B ? 1 : 0;
-                        break;
-                    case 'flipflop':
-                        if (state.S === 1 && state.R === 0) {
-                            state.Q = 1;
-                            state.Qprime = 0;
-                        } else if (state.S === 0 && state.R === 1) {
-                            state.Q = 0;
-                            state.Qprime = 1;
-                        } else if (state.S === 1 && state.R === 1) {
-                            state.Q = 0;
-                            state.Qprime = 0;
-                        }
-                        break;
-                    case 'mux':
-                        state.output = state.S ? state.I1 : state.I0;
-                        break;
-                    case 'demux':
-                        state.output0 = state.S === 0 ? state.Input : 0;
-                        state.output1 = state.S === 1 ? state.Input : 0;
-                        break;
-                }
-                const gateElement = document.querySelector(`.gate[data-gate="${gateName}"]`);
-                if (gateElement) {
-                    const outputElements = gateElement.querySelectorAll('.output');
-                    outputElements.forEach(el => {
-                        const outputName = el.getAttribute('data-output');
-                        if (outputName) {
-                            el.textContent = `${outputName}: ${state[outputName]}`;
-                        } else {
-                            el.textContent = `Output: ${state.output}`;
-                        }
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                if(targetId === '#') return;
+                
+                const targetElement = document.querySelector(targetId);
+                if(targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
                     });
                 }
-            }
-
-            document.querySelectorAll('.input').forEach(button => {
-                button.addEventListener('click', function() {
-                    const gateName = this.closest('.gate').getAttribute('data-gate');
-                    const inputName = this.getAttribute('data-input');
-                    const currentValue = gateStates[gateName][inputName];
-                    const newValue = currentValue ? 0 : 1;
-                    gateStates[gateName][inputName] = newValue;
-                    this.textContent = `${inputName}: ${newValue}`;
-                    if (newValue) {
-                        this.classList.add('active');
-                    } else {
-                        this.classList.remove('active');
-                    }
-                    updateGateOutput(gateName);
-                });
-            });
-
-            document.querySelectorAll('.selector').forEach(select => {
-                select.addEventListener('change', function() {
-                    const gateName = this.closest('.gate').getAttribute('data-gate');
-                    const selectorName = this.getAttribute('data-selector');
-                    gateStates[gateName][selectorName] = parseInt(this.value);
-                    updateGateOutput(gateName);
-                });
-            });
-
-            // Intro Sequence
-            const intro = document.getElementById("windows-intro");
-            const introText = document.getElementById("intro-text");
-            const enterButton = document.getElementById("enter-site");
-
-            setTimeout(() => {
-                intro.classList.add("fade-welcome");
-                introText.textContent = "Welcome";
-            }, 2000);
-
-            setTimeout(() => {
-                enterButton.style.opacity = 1;
-            }, 4000);
-
-            enterButton.addEventListener("click", () => {
-                intro.style.transition = "opacity 1s ease";
-                intro.style.opacity = 0;
-                setTimeout(() => {
-                    intro.remove();
-                    if (player) {
-                        player.setVolume(30);
-                        player.play();
-                        playIcon.classList.remove('fa-play');
-                        playIcon.classList.add('fa-pause');
-                        isPlaying = true;
-                        showMusicNotification();
-                    }
-                    const boxes = document.querySelectorAll('.personality-box');
-                    boxes.forEach((box, index) => {
-                        setTimeout(() => {
-                            box.classList.add('animate-in');
-                        }, 1000 + index * 300);
-                    });
-                }, 1000);
             });
         });
 
-                const boxes = document.querySelectorAll('.personality-box');
-        function setImageWidth() {
-            boxes.forEach(box => {
-                const height = box.clientHeight;
-                box.style.setProperty('--image-width', `${height}px`);
-            });
-        }
-        window.addEventListener('load', setImageWidth);
-        window.addEventListener('resize', setImageWidth);
+        // Mobile menu toggle
+        const menuButton = document.querySelector('button.md\\:hidden');
+        const navLinks = document.querySelector('.hidden.md\\:flex');
+        
+        menuButton.addEventListener('click', () => {
+            navLinks.classList.toggle('hidden');
+            navLinks.classList.toggle('flex');
+            navLinks.classList.toggle('flex-col');
+            navLinks.classList.toggle('absolute');
+            navLinks.classList.toggle('top-16');
+            navLinks.classList.toggle('left-0');
+            navLinks.classList.toggle('right-0');
+            navLinks.classList.toggle('bg-gray-900');
+            navLinks.classList.toggle('p-6');
+            navLinks.classList.toggle('space-y-4');
+            navLinks.classList.toggle('text-center');
+        });
 
-        // Terminal buttons functionality
-document.getElementById('close-button').addEventListener('click', function() {
-    // Replace with your desired website URL
-    window.open('https://epicgamerprox.github.io/sharpthinking/', '_blank');
-});
+        // Form submission handler
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // In a real implementation, you would send this data to a server
+            // For demo purposes, we'll just show a success message
+            alert('Message sent successfully! In a real implementation, this would connect to a backend.');
+            
+            // Clear the form
+            this.reset();
+        });
 
-document.getElementById('minimize-button').addEventListener('click', function() {
-    window.open('https://www.youtube.com/embed/At8v_Yc044Y?si=xlXO50cDkZ4X0uTE');
-});
+        // Add scroll effect to navbar
+        window.addEventListener('scroll', () => {
+            const nav = document.querySelector('nav');
+            if (window.scrollY > 50) {
+                nav.classList.add('nav-dark');
+            } else {
+                nav.classList.add('nav-dark');
+            }
+        });
 
-document.getElementById('fullscreen-button').addEventListener('click', function() {
-    if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen();
-    } else {
-        document.exitFullscreen();
-    }
-});
-
-// Update fullscreen button icon based on state
-document.addEventListener('fullscreenchange', function() {
-    const fullscreenButton = document.getElementById('fullscreen-button');
-    const icon = fullscreenButton.querySelector('.button-icon');
-    if (document.fullscreenElement) {
-        icon.textContent = '⛶'; // Fullscreen exit icon
-    } else {
-        icon.textContent = '□'; // Fullscreen icon
-    }
-});
-
-document.addEventListener("DOMContentLoaded", () => {
-  const cards = document.querySelectorAll(".card");
-  cards.forEach(card => {
-    card.addEventListener("click", () => {
-      card.classList.toggle("flipped");
-      const overlay = document.getElementById("overlay");
-      if (card.classList.contains("flipped")) {
-        overlay.style.opacity = "1";
-        overlay.style.pointerEvents = "auto";
-      } else {
-        overlay.style.opacity = "0";
-        overlay.style.pointerEvents = "none";
-      }
-    });
-  });
-});
-
+        // Email automation note
+        console.log("Email automation is implemented using mailto: links with pre-filled subject and body.");
+        console.log("To customize for your own email, change 'dev@portfolio.com' to your actual email address.");
     </script>
 </body>
 </html>
