@@ -3,50 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Minimalist Portfolio</title>
+    <title>Flow State Portfolio</title>
     <style>
         /* --- 1. RESET & CORE --- */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            cursor: none; /* Hides the default computer cursor */
+            cursor: none; /* Hide default cursor */
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: 'Inter', -apple-system, sans-serif;
             background-color: #000;
             color: #fff;
-            overflow-x: hidden;
+            overflow-x: hidden; /* Prevent horizontal scroll */
         }
 
-        /* --- 2. THE BLOB (PHYSICS CURSOR) --- */
+        /* --- 2. THE LIQUID BLOB --- */
         #cursor-blob {
             position: fixed;
             top: 0;
             left: 0;
-            width: 40px;
-            height: 40px;
-            background-color: #fff;
-            border-radius: 50%;
-            pointer-events: none; /* Allows clicking through the blob */
-            z-index: 9999;
-            transform: translate(-50%, -50%) scale(0); /* Starts hidden */
-            transition: width 0.3s, height 0.3s, transform 0.2s ease-out;
+            /* Size: Massive to feel atmospheric */
+            width: 450px; 
+            height: 450px;
             
-            /* THE MAGIC: This creates the inverted color effect */
-            mix-blend-mode: difference; 
+            /* The Color Magic */
+            background-color: white;
+            mix-blend-mode: difference; /* Inverts whatever is behind it */
+            
+            /* The Flowy/Semi-Solid Look */
+            border-radius: 50%;
+            filter: blur(60px); /* Softens edges to look like gas/liquid */
+            
+            /* Positioning & Animation */
+            transform: translate(-50%, -50%);
+            z-index: 9999;
+            pointer-events: none;
+            
+            /* The Morphing Animation */
+            animation: wobble 8s infinite ease-in-out;
+            opacity: 0; /* Starts hidden until mouse moves */
+            transition: opacity 0.5s ease;
         }
 
-        /* Class to pop the cursor in */
+        /* Active state makes it visible */
         #cursor-blob.active {
-            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
         }
 
-        /* Hover effect for links */
-        body.hovering #cursor-blob {
-            width: 80px;
-            height: 80px;
+        /* The Organic Wobble Animation */
+        @keyframes wobble {
+            0% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+            25% { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; }
+            50% { border-radius: 40% 60% 30% 70% / 60% 30% 70% 40%; }
+            75% { border-radius: 60% 40% 70% 30% / 60% 30% 70% 40%; }
+            100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
         }
 
         /* --- 3. LAYERS (STICKY STACK) --- */
@@ -57,69 +70,66 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
-            align-items: flex-start; /* Minimalist left align */
             padding: 10vw;
-            background-color: #000; /* Default base */
-            border-top: 1px solid rgba(255,255,255,0.1); /* Subtle separator */
-            box-shadow: 0 -20px 50px rgba(0,0,0,1); /* Deep shadow for depth */
+            background-color: #000;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            overflow: hidden;
         }
 
-        /* Layer Colors - Alternating for contrast with the blend mode cursor */
+        /* Layer Colors */
         #layer-1 { background-color: #000000; z-index: 1; }
-        #layer-2 { background-color: #0a0a0a; z-index: 2; }
-        #layer-3 { background-color: #111111; z-index: 3; }
+        #layer-2 { background-color: #050505; z-index: 2; }
+        #layer-3 { background-color: #0a0a0a; z-index: 3; }
         #layer-4 { background-color: #000000; z-index: 4; }
 
         /* --- 4. TYPOGRAPHY --- */
         h1 {
-            font-size: 8vw;
-            line-height: 0.9;
-            font-weight: 700;
-            letter-spacing: -0.04em;
+            font-size: 9vw;
+            line-height: 0.85;
+            font-weight: 800;
+            letter-spacing: -0.05em;
             margin-bottom: 2rem;
             color: #fff;
+            position: relative;
+            z-index: 10;
         }
 
         h2 {
-            font-size: 4vw;
-            font-weight: 300;
-            color: #888;
-            margin-bottom: 1rem;
+            font-size: 2vw;
+            font-weight: 400;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: #666;
+            margin-bottom: 2rem;
+            z-index: 10;
         }
 
         p {
             font-size: 1.5rem;
-            max-width: 600px;
+            max-width: 50vw;
             line-height: 1.6;
             color: #ccc;
-            margin-bottom: 2rem;
+            z-index: 10;
         }
 
-        /* --- 5. MINIMALIST LINKS --- */
-        a.link {
+        a.btn {
+            display: inline-block;
+            margin-top: 30px;
             font-size: 1.2rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
             text-decoration: none;
             color: #fff;
-            border-bottom: 1px solid rgba(255,255,255,0.3);
-            padding-bottom: 5px;
-            transition: opacity 0.3s;
-        }
-        
-        a.link:hover {
-            opacity: 0.7;
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 15px 40px;
+            border-radius: 100px;
+            transition: all 0.3s;
+            z-index: 10;
+            background: transparent;
         }
 
-        /* Helper to indicate scroll */
-        .scroll-hint {
-            position: absolute;
-            bottom: 40px;
-            left: 10vw;
-            font-size: 0.8rem;
-            color: #555;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+        a.btn:hover {
+            background: #fff;
+            color: #000;
+            border-color: #fff;
         }
 
     </style>
@@ -130,83 +140,66 @@
 
     <main>
         <section class="layer" id="layer-1">
-            <h2>Portfolio</h2>
-            <h1>DIGITAL<br>CRAFTSMAN</h1>
-            <p>I turn complex code into fluid interfaces.</p>
-            <div class="scroll-hint">(Scroll)</div>
+            <h2>Introduction</h2>
+            <h1>DIGITAL<br>ALCHEMY.</h1>
+            <p>I don't just write code. I create digital atmospheres.</p>
         </section>
 
         <section class="layer" id="layer-2">
-            <h2>01. Philosophy</h2>
-            <h1>LESS IS<br>INFINITELY<br>MORE.</h1>
-            <p>We strip away the non-essential to reveal the core experience.</p>
+            <h2>The Vision</h2>
+            <h1>FORM<br>FOLLOWS<br>FLOW.</h1>
+            <p>Static is dead. The future of web is reactive, organic, and alive.</p>
         </section>
 
         <section class="layer" id="layer-3">
-            <h2>02. Selected Work</h2>
-            <h1>SYSTEMS &<br>DESIGN</h1>
-            <p>Finance dashboards, 3D web experiences, and scalable architecture.</p>
-            <a href="#" class="link">View Case Studies</a>
+            <h2>Selected Works</h2>
+            <h1>CASE<br>STUDIES.</h1>
+            <p>Immersive commerce, WebGL experiences, and next-gen interfaces.</p>
+            <a href="#" class="btn">Explore Work</a>
         </section>
 
         <section class="layer" id="layer-4">
-            <h2>03. Contact</h2>
-            <h1>LET'S BUILD<br>THE FUTURE.</h1>
-            <a href="mailto:me@example.com" class="link">Get in touch</a>
+            <h2>Contact</h2>
+            <h1>START THE<br>PROJECT.</h1>
+            <a href="mailto:email@example.com" class="btn">Say Hello</a>
         </section>
     </main>
 
     <script>
-        // 1. SETUP VARIABLES
         const blob = document.getElementById('cursor-blob');
-        const links = document.querySelectorAll('a');
         
-        // Mouse Coordinates (Target)
-        let mouseX = 0;
-        let mouseY = 0;
+        let mouseX = window.innerWidth / 2;
+        let mouseY = window.innerHeight / 2;
+        
+        // Current position of the blob (for inertia)
+        let blobX = window.innerWidth / 2;
+        let blobY = window.innerHeight / 2;
 
-        // Blob Coordinates (Current - Lagging)
-        let blobX = 0;
-        let blobY = 0;
-
-        // 2. TRACK MOUSE MOVEMENT
+        // 1. TRACK MOUSE
         document.addEventListener('mousemove', (e) => {
             mouseX = e.clientX;
             mouseY = e.clientY;
-
-            // Make blob visible on first move
+            
+            // Fade in on first movement
             if (!blob.classList.contains('active')) {
                 blob.classList.add('active');
             }
         });
 
-        // 3. THE PHYSICS LOOP (INERTIA)
+        // 2. ANIMATION LOOP (PHYSICS)
         function animate() {
-            // This is the "Lag" math.
-            // We move the blob 15% (0.15) of the way to the mouse every frame.
-            // Lower number = slower/heavier. Higher number = faster.
-            blobX += (mouseX - blobX) * 0.15;
-            blobY += (mouseY - blobY) * 0.15;
+            // "Lerp" (Linear Interpolation) for the lag effect
+            // 0.08 is the speed. Lower = more sluggish/liquid. Higher = faster.
+            blobX += (mouseX - blobX) * 0.08;
+            blobY += (mouseY - blobY) * 0.08;
 
-            // Apply the position
             blob.style.left = blobX + 'px';
             blob.style.top = blobY + 'px';
 
             requestAnimationFrame(animate);
         }
-        
-        // Start the loop
-        animate();
 
-        // 4. HOVER INTERACTION
-        links.forEach(link => {
-            link.addEventListener('mouseenter', () => {
-                document.body.classList.add('hovering');
-            });
-            link.addEventListener('mouseleave', () => {
-                document.body.classList.remove('hovering');
-            });
-        });
+        animate();
     </script>
 </body>
 </html>
