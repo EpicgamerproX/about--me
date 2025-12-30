@@ -3,30 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ice & Ember Portfolio</title>
+    <title>Ice & Ember Portfolio V2</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Montserrat:wght@300;400&display=swap');
 
         :root {
-            --bg-dark: #0a0a0a;
-            --ice-color: #a5d8ff;
-            --sand-color: #dcb183;
-            --whiskey-color: #d48c26;
-            --glass-shine: rgba(255, 255, 255, 0.2);
+            --bg-dark: #050505;
+            --ice-blue: #a5d8ff;
+            --sand-color: #c2b280;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
+
         body {
             background-color: var(--bg-dark);
             color: white;
             font-family: 'Montserrat', sans-serif;
-            overflow: hidden; /* We handle scroll manually for effects */
+            overflow: hidden; 
             height: 100vh;
             width: 100vw;
         }
 
-        /* --- Navigation --- */
+        /* --- UI Overlay --- */
         nav {
             position: fixed;
             top: 20px;
@@ -34,9 +33,9 @@
             transform: translateX(-50%);
             z-index: 1000;
             display: flex;
-            gap: 40px;
+            gap: 20px;
             background: rgba(255,255,255,0.05);
-            padding: 15px 30px;
+            padding: 10px 25px;
             border-radius: 50px;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255,255,255,0.1);
@@ -45,9 +44,9 @@
         .nav-btn {
             background: none;
             border: none;
-            color: rgba(255,255,255,0.6);
+            color: rgba(255,255,255,0.5);
             font-family: 'Playfair Display', serif;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             cursor: pointer;
             transition: all 0.3s ease;
         }
@@ -57,271 +56,146 @@
             text-shadow: 0 0 10px rgba(255,255,255,0.5);
         }
 
-        /* --- Main Container --- */
-        .content-wrapper {
-            position: relative;
-            width: 100%;
-            height: 100%;
-        }
-
-        .tab-section {
+        /* --- Sections --- */
+        .section-container {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0; width: 100%; height: 100%;
             opacity: 0;
             pointer-events: none;
-            transition: opacity 0.8s ease-in-out;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            transition: opacity 1s ease;
         }
 
-        .tab-section.active {
+        .section-container.active {
             opacity: 1;
             pointer-events: all;
         }
 
-        /* --- PORTFOLIO TAB (ICE & SAND) --- */
-        #portfolio-tab {
-            overflow-y: auto;
-            overflow-x: hidden;
-            display: block; /* Overrides flex for scrolling */
-            perspective: 1000px;
+        /* --- PORTFOLIO (ICE) --- */
+        #portfolio-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            /* Allow scrolling for the sand part later */
+            overflow-y: auto; 
+            perspective: 1200px; /* Crucial for the 3D tilt */
+            background: radial-gradient(circle at center, #111 0%, #000 100%);
         }
 
-        /* The Ice Slab Scene */
-        .ice-container {
+        .ice-stage {
             height: 100vh;
-            position: relative;
+            width: 100%;
             display: flex;
             justify-content: center;
             align-items: center;
-            /* The angled view from bottom-up */
+            position: relative;
             transform-style: preserve-3d;
-            background: radial-gradient(circle at center, #1a2a3a 0%, #000 100%);
-            z-index: 2;
         }
 
         .ice-slab {
-            width: 80%;
-            height: 70%;
-            background: linear-gradient(135deg, rgba(165, 216, 255, 0.1), rgba(165, 216, 255, 0.05));
-            border: 1px solid rgba(255,255,255,0.3);
-            backdrop-filter: blur(5px);
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5), inset 0 0 30px rgba(165, 216, 255, 0.2);
-            /* Angled perspective */
-            transform: rotateX(20deg) scale(0.9); 
+            width: 70vw;
+            height: 60vh;
+            background: linear-gradient(135deg, rgba(165, 216, 255, 0.05), rgba(165, 216, 255, 0.01));
+            border: 1px solid rgba(165, 216, 255, 0.3);
+            border-radius: 15px;
+            
+            /* The 3D Angle */
+            transform: rotateX(45deg) rotateZ(0deg); 
+            transform-style: preserve-3d; /* Allows children to float off surface */
+            
+            box-shadow: 
+                0 20px 50px rgba(0,0,0,1),
+                inset 0 0 40px rgba(165, 216, 255, 0.1);
             position: relative;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            border-radius: 20px;
-            overflow: hidden;
         }
 
-        /* Canvas for frost trails */
+        /* Fake thickness for the slab */
+        .ice-slab::before {
+            content: '';
+            position: absolute;
+            top: 100%; left: 0; width: 100%; height: 20px;
+            background: rgba(165, 216, 255, 0.1);
+            transform-origin: top;
+            transform: rotateX(-90deg);
+            border-bottom: 1px solid rgba(165, 216, 255, 0.2);
+        }
+
         #frost-canvas {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none; /* Let clicks pass through */
+            top: 0; left: 0; width: 100%; height: 100%;
             mix-blend-mode: overlay;
+            border-radius: 15px;
+        }
+
+        .ice-content {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%) translateZ(60px); /* Lifts text OFF the ice to prevent clipping */
+            text-align: center;
+            pointer-events: none;
         }
 
         .ice-content h1 {
+            font-size: 5vw;
             font-family: 'Playfair Display', serif;
-            font-size: 4rem;
-            color: var(--ice-color);
-            text-shadow: 0 0 20px rgba(165, 216, 255, 0.6);
-            pointer-events: none;
+            background: linear-gradient(to bottom, #fff, #a5d8ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 10px rgba(165, 216, 255, 0.5));
         }
 
-        .scroll-hint {
-            position: absolute;
-            bottom: 40px;
-            opacity: 0.7;
-            animation: bounce 2s infinite;
+        .ice-content p {
+            font-size: 1.2rem;
+            color: rgba(255,255,255,0.7);
+            margin-top: 10px;
         }
 
-        /* The Sand Scene */
-        .sand-container {
-            height: 100vh;
-            background: radial-gradient(circle, #2b2319 0%, #0a0a0a 100%);
-            position: relative;
-            z-index: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+        /* --- PROJECTS (THREE.JS WHISKEY) --- */
+        #projects-section {
+            background: #000;
             overflow: hidden;
+        }
+
+        #webgl-container {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 1;
+        }
+
+        .project-ui {
+            position: absolute;
+            z-index: 2;
+            width: 100%;
+            height: 100%;
+            pointer-events: none; /* Let clicks pass to 3D canvas */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 10%;
+        }
+
+        .project-card {
+            background: rgba(20, 20, 20, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 12px;
+            backdrop-filter: blur(8px);
+            width: 300px;
+            color: #ccc;
+            transform: translateY(20px);
+            opacity: 0;
+            transition: all 0.5s ease;
         }
         
-        /* Sand Texture overlay */
-        .sand-texture {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPgo8cmVjdCB3aWR0aD0iNCIgaGVpZ2h0PSI0IiBmaWxsPSIjMmIyMzE5Ii8+CjxyZWN0IHdpZHRoPSIxIiBoZWlnaHQ9IjEiIGZpbGw9IiMzZDM0MmIiLz4KPC9zdmc+');
-            opacity: 0.2;
-            pointer-events: none;
+        .project-card.visible {
+            transform: translateY(0);
+            opacity: 1;
         }
 
-        #sand-canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-        }
-
-        .sand-content {
-            position: relative;
-            z-index: 2;
-            text-align: center;
-            max-width: 600px;
-        }
-
-        .sand-content h2 {
+        .project-card h3 {
+            color: #d48c26;
             font-family: 'Playfair Display', serif;
-            font-size: 3rem;
-            color: var(--sand-color);
-            margin-bottom: 20px;
-        }
-
-        .sand-content p {
-            line-height: 1.6;
-            color: rgba(255,255,255,0.8);
-        }
-
-        /* --- PROJECTS TAB (WHISKEY) --- */
-        #projects-tab {
-            background: #050505;
-            perspective: 1200px;
-            overflow: hidden;
-        }
-
-        .projects-stage {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        /* The Glass */
-        .glass-container {
-            width: 250px;
-            height: 300px;
-            position: relative;
-            z-index: 10;
-            transform-style: preserve-3d;
-        }
-
-        .whiskey-glass {
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.05);
-            border-left: 1px solid rgba(255,255,255,0.2);
-            border-right: 1px solid rgba(255,255,255,0.2);
-            border-bottom: 5px solid rgba(255,255,255,0.3);
-            border-radius: 10px 10px 40px 40px;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.8);
-        }
-
-        .liquid {
-            position: absolute;
-            bottom: 10px;
-            left: 5px;
-            right: 5px;
-            height: 60%;
-            background: linear-gradient(to bottom, #d48c26, #8a4b08);
-            border-radius: 5px 5px 30px 30px;
-            opacity: 0.9;
-            transform-origin: bottom center;
-            transition: transform 0.1s ease-out;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
-        }
-
-        /* Top surface of liquid */
-        .liquid::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 20px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 50%;
-            transform: scaleY(0.5);
-        }
-
-        .ice-cube {
-            position: absolute;
-            background: rgba(255,255,255,0.3);
-            border: 1px solid rgba(255,255,255,0.4);
-            backdrop-filter: blur(3px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            border-radius: 4px;
-        }
-
-        .cube1 { width: 60px; height: 60px; bottom: 30px; left: 40px; transform: rotate(15deg); }
-        .cube2 { width: 50px; height: 50px; bottom: 70px; right: 50px; transform: rotate(-10deg); }
-
-        /* Floating Project Cards */
-        .card-floater {
-            position: absolute;
-            width: 250px;
-            background: rgba(20, 20, 20, 0.8);
-            border: 1px solid rgba(255,255,255,0.1);
-            padding: 20px;
-            border-radius: 10px;
-            backdrop-filter: blur(10px);
-            transition: transform 0.2s ease-out;
-        }
-
-        .card-left {
-            left: 15%;
-            top: 30%;
-            animation: float 6s ease-in-out infinite;
-        }
-
-        .card-right {
-            right: 15%;
-            top: 40%;
-            animation: float 6s ease-in-out infinite reverse;
-        }
-
-        .card-floater h3 {
-            color: var(--whiskey-color);
+            font-size: 1.5rem;
             margin-bottom: 10px;
-            font-family: 'Playfair Display', serif;
-        }
-
-        .card-floater p {
-            font-size: 0.85rem;
-            color: #ccc;
-        }
-
-        /* --- Animations --- */
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(10px); }
-        }
-
-        @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-20px); }
-            100% { transform: translateY(0px); }
         }
 
     </style>
@@ -329,246 +203,263 @@
 <body>
 
     <nav>
-        <button class="nav-btn active" onclick="switchTab('portfolio')">Portfolio</button>
-        <button class="nav-btn" onclick="switchTab('projects')">Projects</button>
+        <button class="nav-btn active" onclick="setTab('portfolio')">Portfolio</button>
+        <button class="nav-btn" onclick="setTab('projects')">Projects</button>
     </nav>
 
-    <div class="content-wrapper">
-        
-        <section id="portfolio-tab" class="tab-section active">
-            
-            <div class="ice-container">
-                <div class="ice-slab">
-                    <canvas id="frost-canvas"></canvas>
-                    <div class="ice-content">
-                        <h1>John Doe</h1>
-                        <p>Creative Developer & Designer</p>
-                    </div>
-                </div>
-                <div class="scroll-hint">Scroll Down</div>
-            </div>
-
-            <div class="sand-container">
-                <div class="sand-texture"></div>
-                <canvas id="sand-canvas"></canvas>
-                <div class="sand-content">
-                    <h2>About Me</h2>
-                    <p>Like the shifting sands, I adapt to new technologies. I build immersive digital experiences that leave a mark. From the cold precision of code to the fluid creativity of design, I bridge the gap.</p>
+    <section id="portfolio-section" class="section-container active">
+        <div class="ice-stage">
+            <div class="ice-slab">
+                <canvas id="frost-canvas"></canvas>
+                <div class="ice-content">
+                    <h1>JOHN DOE</h1>
+                    <p>Creative Developer</p>
                 </div>
             </div>
-
+        </div>
         </section>
 
-        <section id="projects-tab" class="tab-section">
-            <div class="projects-stage" id="project-stage">
-                
-                <div class="card-floater card-left" data-speed="0.5">
-                    <h3>Project Alpha</h3>
-                    <p>A high-frequency trading dashboard with real-time analytics.</p>
-                </div>
-
-                <div class="glass-container" data-speed="0.2">
-                    <div class="whiskey-glass">
-                        <div class="liquid" id="liquid"></div>
-                        <div class="ice-cube cube1"></div>
-                        <div class="ice-cube cube2"></div>
-                    </div>
-                </div>
-
-                <div class="card-floater card-right" data-speed="0.8">
-                    <h3>Project Beta</h3>
-                    <p>AI-driven image recognition tool for medical diagnostics.</p>
-                </div>
-
+    <section id="projects-section" class="section-container">
+        <div id="webgl-container"></div>
+        <div class="project-ui">
+            <div class="project-card visible" id="card-left">
+                <h3>Trading Bot</h3>
+                <p>High-frequency Python algorithm visualization.</p>
             </div>
-        </section>
-
-    </div>
+            <div class="project-card visible" id="card-right">
+                <h3>Neural Art</h3>
+                <p>Generative AI image processor using WebGL.</p>
+            </div>
+        </div>
+    </section>
 
     <script>
-        // --- Tab Switching Logic ---
-        function switchTab(tabName) {
-            document.querySelectorAll('.tab-section').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
-            
-            document.getElementById(tabName + '-tab').classList.add('active');
-            
-            // Find button with specific text content roughly
-            const buttons = document.querySelectorAll('.nav-btn');
-            buttons.forEach(btn => {
-                if(btn.textContent.toLowerCase().includes(tabName)) btn.classList.add('active');
-            });
-        }
-
-        // --- EFFECT 1: Ice Frost Trails (Canvas) ---
-        const frostCanvas = document.getElementById('frost-canvas');
-        const fCtx = frostCanvas.getContext('2d');
-        let fWidth, fHeight;
-        let trails = [];
-
-        function resizeFrost() {
-            // Get parent dimensions
-            const parent = frostCanvas.parentElement;
-            fWidth = parent.clientWidth;
-            fHeight = parent.clientHeight;
-            frostCanvas.width = fWidth;
-            frostCanvas.height = fHeight;
-        }
+        // --- 1. TAB SWITCHING SYSTEM ---
+        let currentTab = 'portfolio';
         
-        window.addEventListener('resize', resizeFrost);
-        resizeFrost();
+        function setTab(tab) {
+            currentTab = tab;
+            
+            // UI Toggle
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            document.querySelectorAll('.section-container').forEach(sec => sec.classList.remove('active'));
+            
+            if(tab === 'portfolio') {
+                document.getElementById('portfolio-section').classList.add('active');
+            } else {
+                document.getElementById('projects-section').classList.add('active');
+                initThreeJS(); // Start 3D only when needed
+            }
+        }
 
-        // Track mouse on Ice Slab
-        frostCanvas.parentElement.addEventListener('mousemove', (e) => {
-            const rect = frostCanvas.getBoundingClientRect();
+        // --- 2. ICE FROST EFFECT (CANVAS) ---
+        const canvas = document.getElementById('frost-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resizeCanvas() {
+            const rect = canvas.parentElement.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        setTimeout(resizeCanvas, 100); // Init
+
+        // Add Frost on Move
+        canvas.parentElement.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
             const x = e.clientX - rect.left;
             const y = e.clientY - rect.top;
             
-            trails.push({ x, y, alpha: 1.0, size: Math.random() * 20 + 10 });
+            // Create a cluster of "frost" particles
+            for(let i=0; i<3; i++) {
+                particles.push({
+                    x: x + (Math.random() - 0.5) * 20,
+                    y: y + (Math.random() - 0.5) * 20,
+                    size: Math.random() * 20 + 5,
+                    life: 1.0
+                });
+            }
         });
 
         function animateFrost() {
-            fCtx.clearRect(0, 0, fWidth, fHeight);
-            
-            for (let i = 0; i < trails.length; i++) {
-                const p = trails[i];
-                fCtx.beginPath();
-                fCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                
-                // Create gradient for "frosty" look
-                let grd = fCtx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size);
-                grd.addColorStop(0, `rgba(255, 255, 255, ${p.alpha})`);
-                grd.addColorStop(1, `rgba(200, 230, 255, 0)`);
-                
-                fCtx.fillStyle = grd;
-                fCtx.fill();
-
-                p.alpha -= 0.015; // Fade out
-                p.size += 0.2;    // Spread out
+            if(currentTab !== 'portfolio') {
+                requestAnimationFrame(animateFrost);
+                return;
             }
 
-            trails = trails.filter(p => p.alpha > 0);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw particles
+            particles.forEach((p, index) => {
+                p.life -= 0.01;
+                if(p.life <= 0) particles.splice(index, 1);
+                
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size);
+                grad.addColorStop(0, `rgba(255, 255, 255, ${p.life * 0.4})`);
+                grad.addColorStop(1, `rgba(255, 255, 255, 0)`);
+                ctx.fillStyle = grad;
+                ctx.fill();
+            });
             requestAnimationFrame(animateFrost);
         }
         animateFrost();
 
 
-        // --- EFFECT 2: Sand Particles (Canvas) ---
-        const sandCanvas = document.getElementById('sand-canvas');
-        const sCtx = sandCanvas.getContext('2d');
-        let sWidth, sHeight;
-        let particles = [];
+        // --- 3. THREE.JS WHISKEY GLASS (THE REAL 3D STUFF) ---
+        let scene, camera, renderer, glassGroup;
+        let liquidMesh, glassMesh;
+        let mouseX = 0, mouseY = 0;
+        let targetRotationX = 0, targetRotationY = 0;
+        let isThreeInit = false;
 
-        function resizeSand() {
-            sWidth = window.innerWidth;
-            sHeight = window.innerHeight;
-            sandCanvas.width = sWidth;
-            sandCanvas.height = sHeight;
-            initSand();
-        }
+        function initThreeJS() {
+            if(isThreeInit) return;
+            isThreeInit = true;
 
-        class SandParticle {
-            constructor() {
-                this.x = Math.random() * sWidth;
-                this.y = Math.random() * sHeight;
-                this.vx = 0;
-                this.vy = 0;
-                this.baseX = this.x;
-                this.baseY = this.y;
-                this.size = Math.random() * 2 + 1;
-                this.color = Math.random() > 0.5 ? '#dcb183' : '#c29b6b';
-            }
-            update(mouseX, mouseY) {
-                let dx = mouseX - this.x;
-                let dy = mouseY - this.y;
-                let distance = Math.sqrt(dx*dx + dy*dy);
-                let forceDirectionX = dx / distance;
-                let forceDirectionY = dy / distance;
-                let maxDistance = 100;
-                let force = (maxDistance - distance) / maxDistance;
-                let directionX = forceDirectionX * force * 5; // Strength
-                let directionY = forceDirectionY * force * 5;
+            const container = document.getElementById('webgl-container');
 
-                if (distance < maxDistance) {
-                    this.vx -= directionX;
-                    this.vy -= directionY;
-                } else {
-                    if (this.x !== this.baseX) {
-                        let dx = this.x - this.baseX;
-                        this.vx -= dx/10;
-                    }
-                    if (this.y !== this.baseY) {
-                        let dy = this.y - this.baseY;
-                        this.vy -= dy/10;
-                    }
-                }
-                
-                // Friction
-                this.vx *= 0.9;
-                this.vy *= 0.9;
-                this.x += this.vx;
-                this.y += this.vy;
-            }
-            draw() {
-                sCtx.fillStyle = this.color;
-                sCtx.fillRect(this.x, this.y, this.size, this.size);
-            }
-        }
+            // SCENE
+            scene = new THREE.Scene();
+            scene.fog = new THREE.FogExp2(0x050505, 0.05);
 
-        function initSand() {
-            particles = [];
-            // Create fewer particles for performance
-            for(let i=0; i<300; i++){
-                particles.push(new SandParticle());
-            }
-        }
+            // CAMERA
+            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+            camera.position.set(0, 2, 8);
+            camera.lookAt(0, 0, 0);
 
-        let mouse = { x: null, y: null };
-        window.addEventListener('mousemove', (e) => {
-            mouse.x = e.x;
-            mouse.y = e.y;
-        });
+            // RENDERER
+            renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.outputEncoding = THREE.sRGBEncoding;
+            container.appendChild(renderer.domElement);
 
-        function animateSand() {
-            sCtx.clearRect(0, 0, sWidth, sHeight);
-            particles.forEach(p => {
-                p.update(mouse.x, mouse.y);
-                p.draw();
+            // LIGHTS
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
+            scene.add(ambientLight);
+
+            const spotLight = new THREE.SpotLight(0xffa95c, 5); // Warm whiskey light
+            spotLight.position.set(5, 10, 5);
+            spotLight.castShadow = true;
+            spotLight.penumbra = 0.5;
+            scene.add(spotLight);
+            
+            const blueRimLight = new THREE.PointLight(0x4455ff, 2);
+            blueRimLight.position.set(-5, 2, -5);
+            scene.add(blueRimLight);
+
+            // MATERIALS
+            const glassMaterial = new THREE.MeshPhysicalMaterial({
+                color: 0xffffff,
+                metalness: 0,
+                roughness: 0,
+                transmission: 1, // Glass-like transparency
+                thickness: 0.5,
+                ior: 1.5, // Index of Refraction
+                transparent: true,
+                opacity: 1
             });
-            requestAnimationFrame(animateSand);
+
+            const liquidMaterial = new THREE.MeshPhysicalMaterial({
+                color: 0xd48c26, // Whiskey Color
+                metalness: 0.1,
+                roughness: 0.1,
+                transmission: 0.4,
+                transparent: true,
+                opacity: 0.9,
+                ior: 1.4
+            });
+
+            const iceMaterial = new THREE.MeshPhysicalMaterial({
+                color: 0xffffff,
+                roughness: 0.2,
+                transmission: 0.8,
+                thickness: 1.0,
+                clearcoat: 1.0
+            });
+
+            // GEOMETRY GROUP
+            glassGroup = new THREE.Group();
+            scene.add(glassGroup);
+
+            // 1. The Glass Cup
+            const cupGeo = new THREE.CylinderGeometry(1.5, 1.4, 3, 32);
+            // Create a hollow cup effect by slight scaling logic isn't native, so we rely on transparency
+            glassMesh = new THREE.Mesh(cupGeo, glassMaterial);
+            glassMesh.position.y = 0;
+            glassMesh.castShadow = true;
+            glassGroup.add(glassMesh);
+
+            // 2. The Liquid (Slightly smaller cylinder inside)
+            const liqGeo = new THREE.CylinderGeometry(1.35, 1.25, 1.8, 32);
+            liqGeo.translate(0, -0.5, 0); // Shift center of mass down so it rotates from bottom
+            liquidMesh = new THREE.Mesh(liqGeo, liquidMaterial);
+            liquidMesh.position.y = 0;
+            glassGroup.add(liquidMesh);
+
+            // 3. Ice Cubes
+            const cubeGeo = new THREE.BoxGeometry(0.8, 0.8, 0.8);
+            
+            const cube1 = new THREE.Mesh(cubeGeo, iceMaterial);
+            cube1.position.set(0.2, -0.2, 0.2);
+            cube1.rotation.set(Math.random(), Math.random(), Math.random());
+            glassGroup.add(cube1);
+
+            const cube2 = new THREE.Mesh(cubeGeo, iceMaterial);
+            cube2.position.set(-0.3, 0.4, -0.1);
+            cube2.rotation.set(Math.random(), Math.random(), Math.random());
+            glassGroup.add(cube2);
+
+
+            // MOUSE INTERACTION
+            document.addEventListener('mousemove', (e) => {
+                if(currentTab !== 'projects') return;
+                // Normalize mouse -1 to 1
+                mouseX = (e.clientX / window.innerWidth) * 2 - 1;
+                mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
+            });
+
+            animateThree();
+        }
+
+        function animateThree() {
+            if(currentTab !== 'projects') return;
+            requestAnimationFrame(animateThree);
+
+            // Smooth damping for Glass Tilt
+            targetRotationY += (mouseX * 0.5 - targetRotationY) * 0.05;
+            targetRotationX += (mouseY * 0.2 - targetRotationX) * 0.05;
+
+            // Apply rotation to the whole group (Glass)
+            glassGroup.rotation.y = targetRotationY;
+            glassGroup.rotation.x = targetRotationX;
+
+            // LIQUID PHYSICS SIMULATION
+            // The liquid lags behind the glass to simulate inertia (sloshing)
+            liquidMesh.rotation.x = -targetRotationX * 0.5 + Math.sin(Date.now() * 0.003) * 0.05;
+            liquidMesh.rotation.z = targetRotationY * 0.5 + Math.cos(Date.now() * 0.002) * 0.05;
+
+            // Parallax float for the whole scene
+            camera.position.x += (mouseX * 0.5 - camera.position.x) * 0.02;
+            camera.position.y += (2 + mouseY * 0.2 - camera.position.y) * 0.02;
+            camera.lookAt(0, 0, 0);
+
+            renderer.render(scene, camera);
         }
         
-        resizeSand();
-        animateSand();
-
-
-        // --- EFFECT 3: Whiskey Parallax ---
-        const stage = document.getElementById('project-stage');
-        const liquid = document.getElementById('liquid');
-        const floaters = document.querySelectorAll('.card-floater');
-        const glassContainer = document.querySelector('.glass-container');
-
-        stage.addEventListener('mousemove', (e) => {
-            let x = (window.innerWidth / 2 - e.pageX) / 20;
-            let y = (window.innerHeight / 2 - e.pageY) / 20;
-
-            // Liquid Slosh effect
-            liquid.style.transform = `rotate(${x}deg) translateY(${y/2}px)`;
-
-            // Parallax for cards
-            floaters.forEach(card => {
-                let speed = card.getAttribute('data-speed');
-                card.style.transform = `translate(${x * speed}px, ${y * speed}px)`;
-            });
-
-            // Glass movement
-            glassContainer.style.transform = `rotateY(${x}deg) rotateX(${-y}deg)`;
-        });
-
-        // Reset on mouse leave
-        stage.addEventListener('mouseleave', () => {
-            liquid.style.transform = `rotate(0deg)`;
-            glassContainer.style.transform = `rotateY(0deg) rotateX(0deg)`;
+        // Handle Resize
+        window.addEventListener('resize', () => {
+            if(camera && renderer) {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            }
         });
 
     </script>
