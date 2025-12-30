@@ -3,15 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ice & Ember Portfolio V2</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <title>Ice & Ember Portfolio Ultimate</title>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Montserrat:wght@300;400&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@300;500&display=swap');
 
         :root {
             --bg-dark: #050505;
-            --ice-blue: #a5d8ff;
-            --sand-color: #c2b280;
+            --accent: #d48c26;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -25,441 +31,415 @@
             width: 100vw;
         }
 
-        /* --- UI Overlay --- */
+        /* --- NAVIGATION --- */
         nav {
             position: fixed;
-            top: 20px;
-            left: 50%;
+            top: 30px; left: 50%;
             transform: translateX(-50%);
             z-index: 1000;
             display: flex;
-            gap: 20px;
-            background: rgba(255,255,255,0.05);
-            padding: 10px 25px;
+            gap: 10px;
+            background: rgba(20,20,20,0.8);
+            padding: 8px 10px;
             border-radius: 50px;
-            backdrop-filter: blur(10px);
             border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
         }
 
         .nav-btn {
             background: none;
             border: none;
-            color: rgba(255,255,255,0.5);
-            font-family: 'Playfair Display', serif;
-            font-size: 1.1rem;
+            color: rgba(255,255,255,0.4);
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 500;
+            font-size: 0.9rem;
+            padding: 10px 25px;
+            border-radius: 30px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
         }
 
         .nav-btn.active {
+            background: rgba(255,255,255,0.1);
             color: #fff;
-            text-shadow: 0 0 10px rgba(255,255,255,0.5);
+            box-shadow: 0 0 15px rgba(255,255,255,0.05);
         }
 
-        /* --- Sections --- */
-        .section-container {
+        /* --- SECTIONS --- */
+        .section {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
             opacity: 0;
             pointer-events: none;
-            transition: opacity 1s ease;
+            transition: opacity 0.8s ease;
         }
+        .section.active { opacity: 1; pointer-events: all; }
 
-        .section-container.active {
-            opacity: 1;
-            pointer-events: all;
-        }
-
-        /* --- PORTFOLIO (ICE) --- */
+        /* --- PORTFOLIO: ICE SLAB (CSS 3D) --- */
         #portfolio-section {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            /* Allow scrolling for the sand part later */
-            overflow-y: auto; 
-            perspective: 1200px; /* Crucial for the 3D tilt */
-            background: radial-gradient(circle at center, #111 0%, #000 100%);
-        }
-
-        .ice-stage {
-            height: 100vh;
-            width: 100%;
+            perspective: 1000px;
+            background: radial-gradient(circle at center, #1a1a1a 0%, #000000 100%);
+            overflow: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
+        }
+
+        .ice-stage {
+            transform-style: preserve-3d;
+            transform: rotateX(25deg); /* The Angle */
+            position: relative;
+        }
+
+        .ice-slab {
+            width: 60vw;
+            height: 70vh;
+            background: linear-gradient(135deg, rgba(200, 235, 255, 0.08), rgba(200, 235, 255, 0.02));
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 4px;
+            box-shadow: 
+                0 0 30px rgba(165, 216, 255, 0.1),
+                inset 0 0 100px rgba(0,0,0,0.8);
+            backdrop-filter: blur(8px); /* Real blur behind */
             position: relative;
             transform-style: preserve-3d;
         }
 
-        .ice-slab {
-            width: 70vw;
-            height: 60vh;
-            background: linear-gradient(135deg, rgba(165, 216, 255, 0.05), rgba(165, 216, 255, 0.01));
-            border: 1px solid rgba(165, 216, 255, 0.3);
-            border-radius: 15px;
-            
-            /* The 3D Angle */
-            transform: rotateX(45deg) rotateZ(0deg); 
-            transform-style: preserve-3d; /* Allows children to float off surface */
-            
-            box-shadow: 
-                0 20px 50px rgba(0,0,0,1),
-                inset 0 0 40px rgba(165, 216, 255, 0.1);
-            position: relative;
-        }
-
-        /* Fake thickness for the slab */
-        .ice-slab::before {
+        /* Glossy Highlight on Ice */
+        .ice-slab::after {
             content: '';
             position: absolute;
-            top: 100%; left: 0; width: 100%; height: 20px;
-            background: rgba(165, 216, 255, 0.1);
-            transform-origin: top;
-            transform: rotateX(-90deg);
-            border-bottom: 1px solid rgba(165, 216, 255, 0.2);
-        }
-
-        #frost-canvas {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            mix-blend-mode: overlay;
-            border-radius: 15px;
-        }
-
-        .ice-content {
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%) translateZ(60px); /* Lifts text OFF the ice to prevent clipping */
-            text-align: center;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(120deg, transparent 40%, rgba(255,255,255,0.1) 50%, transparent 60%);
+            background-size: 200% 100%;
+            animation: shine 8s infinite linear;
             pointer-events: none;
         }
 
-        .ice-content h1 {
-            font-size: 5vw;
-            font-family: 'Playfair Display', serif;
-            background: linear-gradient(to bottom, #fff, #a5d8ff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 0 10px rgba(165, 216, 255, 0.5));
+        .content-layer {
+            position: absolute;
+            top: 50%; left: 50%;
+            /* FIX FOR CLIPPING: Lift text 100px off the slab */
+            transform: translate(-50%, -50%) translateZ(80px); 
+            text-align: center;
+            width: 100%;
         }
 
-        .ice-content p {
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 5rem;
+            margin: 0;
+            background: linear-gradient(to bottom, #fff 40%, #a5d8ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 10px 20px rgba(0,0,0,0.5);
+        }
+
+        p.subtitle {
             font-size: 1.2rem;
-            color: rgba(255,255,255,0.7);
+            letter-spacing: 2px;
+            color: rgba(255,255,255,0.6);
             margin-top: 10px;
         }
 
-        /* --- PROJECTS (THREE.JS WHISKEY) --- */
-        #projects-section {
-            background: #000;
-            overflow: hidden;
-        }
-
-        #webgl-container {
+        /* --- PROJECTS: 3D CANVAS --- */
+        #webgl-canvas {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
             z-index: 1;
         }
 
-        .project-ui {
+        .overlay-ui {
             position: absolute;
             z-index: 2;
-            width: 100%;
-            height: 100%;
-            pointer-events: none; /* Let clicks pass to 3D canvas */
+            width: 100%; height: 100%;
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 0 10%;
+            pointer-events: none;
         }
 
-        .project-card {
-            background: rgba(20, 20, 20, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 2rem;
+        .card {
+            background: rgba(10, 10, 10, 0.7);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 30px;
             border-radius: 12px;
-            backdrop-filter: blur(8px);
-            width: 300px;
-            color: #ccc;
-            transform: translateY(20px);
+            max-width: 300px;
+            backdrop-filter: blur(10px);
+            transform: translateY(50px);
             opacity: 0;
-            transition: all 0.5s ease;
+            transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
-        
-        .project-card.visible {
+
+        .section.active .card {
             transform: translateY(0);
             opacity: 1;
         }
 
-        .project-card h3 {
-            color: #d48c26;
+        .card h2 {
             font-family: 'Playfair Display', serif;
-            font-size: 1.5rem;
+            color: var(--accent);
             margin-bottom: 10px;
         }
+        .card p { font-size: 0.9rem; color: #aaa; line-height: 1.5; }
+
+        @keyframes shine { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 
     </style>
 </head>
 <body>
 
     <nav>
-        <button class="nav-btn active" onclick="setTab('portfolio')">Portfolio</button>
-        <button class="nav-btn" onclick="setTab('projects')">Projects</button>
+        <button class="nav-btn active" onclick="switchTab('portfolio')">Portfolio</button>
+        <button class="nav-btn" onclick="switchTab('projects')">Projects</button>
     </nav>
 
-    <section id="portfolio-section" class="section-container active">
-        <div class="ice-stage">
+    <section id="portfolio-section" class="section active">
+        <div class="ice-stage" id="ice-stage">
             <div class="ice-slab">
-                <canvas id="frost-canvas"></canvas>
-                <div class="ice-content">
+                <canvas id="frost-canvas" style="position:absolute; width:100%; height:100%; top:0; left:0; mix-blend-mode: overlay; opacity: 0.7;"></canvas>
+                
+                <div class="content-layer">
                     <h1>JOHN DOE</h1>
-                    <p>Creative Developer</p>
+                    <p class="subtitle">CREATIVE DEVELOPER</p>
                 </div>
-            </div>
-        </div>
-        </section>
-
-    <section id="projects-section" class="section-container">
-        <div id="webgl-container"></div>
-        <div class="project-ui">
-            <div class="project-card visible" id="card-left">
-                <h3>Trading Bot</h3>
-                <p>High-frequency Python algorithm visualization.</p>
-            </div>
-            <div class="project-card visible" id="card-right">
-                <h3>Neural Art</h3>
-                <p>Generative AI image processor using WebGL.</p>
             </div>
         </div>
     </section>
 
-    <script>
-        // --- 1. TAB SWITCHING SYSTEM ---
+    <section id="projects-section" class="section">
+        <canvas id="webgl-canvas"></canvas>
+        <div class="overlay-ui">
+            <div class="card" style="transition-delay: 0.1s">
+                <h2>Alpha Trade</h2>
+                <p>Algorithmic trading platform utilizing Python and WebSockets for real-time data visualization.</p>
+            </div>
+            <div class="card" style="transition-delay: 0.3s">
+                <h2>Neuro Vision</h2>
+                <p>Medical imaging AI that detects anomalies in X-rays with 99% accuracy using TensorFlow.</p>
+            </div>
+        </div>
+    </section>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+
+        // --- GLOBAL VARIABLES ---
         let currentTab = 'portfolio';
         
-        function setTab(tab) {
-            currentTab = tab;
-            
-            // UI Toggle
-            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-            
-            document.querySelectorAll('.section-container').forEach(sec => sec.classList.remove('active'));
-            
-            if(tab === 'portfolio') {
-                document.getElementById('portfolio-section').classList.add('active');
-            } else {
-                document.getElementById('projects-section').classList.add('active');
-                initThreeJS(); // Start 3D only when needed
-            }
+        // --- 1. PORTFOLIO ICE INTERACTIVITY (Vanilla JS) ---
+        const iceStage = document.getElementById('ice-stage');
+        document.getElementById('portfolio-section').addEventListener('mousemove', (e) => {
+            if(currentTab !== 'portfolio') return;
+            // Subtle parallax tilt of the slab
+            const x = (window.innerWidth / 2 - e.clientX) / 40;
+            const y = (window.innerHeight / 2 - e.clientY) / 40;
+            // Maintain the base 25deg rotation and add mouse influence
+            iceStage.style.transform = `rotateX(${25 + y}deg) rotateY(${x}deg)`;
+        });
+
+        // Frost Canvas Logic
+        const frostC = document.getElementById('frost-canvas');
+        const fCtx = frostC.getContext('2d');
+        
+        function resizeFrost() {
+            const rect = frostC.getBoundingClientRect();
+            frostC.width = rect.width;
+            frostC.height = rect.height;
         }
+        window.addEventListener('resize', resizeFrost);
+        setTimeout(resizeFrost, 100);
 
-        // --- 2. ICE FROST EFFECT (CANVAS) ---
-        const canvas = document.getElementById('frost-canvas');
-        const ctx = canvas.getContext('2d');
-        let particles = [];
-
-        function resizeCanvas() {
-            const rect = canvas.parentElement.getBoundingClientRect();
-            canvas.width = rect.width;
-            canvas.height = rect.height;
-        }
-        window.addEventListener('resize', resizeCanvas);
-        setTimeout(resizeCanvas, 100); // Init
-
-        // Add Frost on Move
-        canvas.parentElement.addEventListener('mousemove', (e) => {
-            const rect = canvas.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            
-            // Create a cluster of "frost" particles
-            for(let i=0; i<3; i++) {
-                particles.push({
-                    x: x + (Math.random() - 0.5) * 20,
-                    y: y + (Math.random() - 0.5) * 20,
-                    size: Math.random() * 20 + 5,
-                    life: 1.0
-                });
-            }
+        let trails = [];
+        frostC.addEventListener('mousemove', (e) => {
+            const rect = frostC.getBoundingClientRect();
+            trails.push({ x: e.clientX - rect.left, y: e.clientY - rect.top, age: 0 });
         });
 
         function animateFrost() {
-            if(currentTab !== 'portfolio') {
-                requestAnimationFrame(animateFrost);
-                return;
-            }
-
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // Draw particles
-            particles.forEach((p, index) => {
-                p.life -= 0.01;
-                if(p.life <= 0) particles.splice(index, 1);
-                
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size);
-                grad.addColorStop(0, `rgba(255, 255, 255, ${p.life * 0.4})`);
-                grad.addColorStop(1, `rgba(255, 255, 255, 0)`);
-                ctx.fillStyle = grad;
-                ctx.fill();
+            fCtx.clearRect(0,0, frostC.width, frostC.height);
+            fCtx.fillStyle = 'rgba(255,255,255,0.1)'; 
+            trails.forEach((t, i) => {
+                t.age++;
+                fCtx.beginPath();
+                fCtx.arc(t.x, t.y, 20 - t.age*0.2, 0, Math.PI*2);
+                fCtx.fill();
             });
+            trails = trails.filter(t => t.age < 100);
             requestAnimationFrame(animateFrost);
         }
         animateFrost();
 
 
-        // --- 3. THREE.JS WHISKEY GLASS (THE REAL 3D STUFF) ---
-        let scene, camera, renderer, glassGroup;
-        let liquidMesh, glassMesh;
-        let mouseX = 0, mouseY = 0;
-        let targetRotationX = 0, targetRotationY = 0;
-        let isThreeInit = false;
-
-        function initThreeJS() {
-            if(isThreeInit) return;
-            isThreeInit = true;
-
-            const container = document.getElementById('webgl-container');
-
-            // SCENE
-            scene = new THREE.Scene();
-            scene.fog = new THREE.FogExp2(0x050505, 0.05);
-
-            // CAMERA
-            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
-            camera.position.set(0, 2, 8);
-            camera.lookAt(0, 0, 0);
-
-            // RENDERER
-            renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(window.devicePixelRatio);
-            renderer.toneMapping = THREE.ACESFilmicToneMapping;
-            renderer.outputEncoding = THREE.sRGBEncoding;
-            container.appendChild(renderer.domElement);
-
-            // LIGHTS
-            const ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
-            scene.add(ambientLight);
-
-            const spotLight = new THREE.SpotLight(0xffa95c, 5); // Warm whiskey light
-            spotLight.position.set(5, 10, 5);
-            spotLight.castShadow = true;
-            spotLight.penumbra = 0.5;
-            scene.add(spotLight);
-            
-            const blueRimLight = new THREE.PointLight(0x4455ff, 2);
-            blueRimLight.position.set(-5, 2, -5);
-            scene.add(blueRimLight);
-
-            // MATERIALS
-            const glassMaterial = new THREE.MeshPhysicalMaterial({
-                color: 0xffffff,
-                metalness: 0,
-                roughness: 0,
-                transmission: 1, // Glass-like transparency
-                thickness: 0.5,
-                ior: 1.5, // Index of Refraction
-                transparent: true,
-                opacity: 1
-            });
-
-            const liquidMaterial = new THREE.MeshPhysicalMaterial({
-                color: 0xd48c26, // Whiskey Color
-                metalness: 0.1,
-                roughness: 0.1,
-                transmission: 0.4,
-                transparent: true,
-                opacity: 0.9,
-                ior: 1.4
-            });
-
-            const iceMaterial = new THREE.MeshPhysicalMaterial({
-                color: 0xffffff,
-                roughness: 0.2,
-                transmission: 0.8,
-                thickness: 1.0,
-                clearcoat: 1.0
-            });
-
-            // GEOMETRY GROUP
-            glassGroup = new THREE.Group();
-            scene.add(glassGroup);
-
-            // 1. The Glass Cup
-            const cupGeo = new THREE.CylinderGeometry(1.5, 1.4, 3, 32);
-            // Create a hollow cup effect by slight scaling logic isn't native, so we rely on transparency
-            glassMesh = new THREE.Mesh(cupGeo, glassMaterial);
-            glassMesh.position.y = 0;
-            glassMesh.castShadow = true;
-            glassGroup.add(glassMesh);
-
-            // 2. The Liquid (Slightly smaller cylinder inside)
-            const liqGeo = new THREE.CylinderGeometry(1.35, 1.25, 1.8, 32);
-            liqGeo.translate(0, -0.5, 0); // Shift center of mass down so it rotates from bottom
-            liquidMesh = new THREE.Mesh(liqGeo, liquidMaterial);
-            liquidMesh.position.y = 0;
-            glassGroup.add(liquidMesh);
-
-            // 3. Ice Cubes
-            const cubeGeo = new THREE.BoxGeometry(0.8, 0.8, 0.8);
-            
-            const cube1 = new THREE.Mesh(cubeGeo, iceMaterial);
-            cube1.position.set(0.2, -0.2, 0.2);
-            cube1.rotation.set(Math.random(), Math.random(), Math.random());
-            glassGroup.add(cube1);
-
-            const cube2 = new THREE.Mesh(cubeGeo, iceMaterial);
-            cube2.position.set(-0.3, 0.4, -0.1);
-            cube2.rotation.set(Math.random(), Math.random(), Math.random());
-            glassGroup.add(cube2);
-
-
-            // MOUSE INTERACTION
-            document.addEventListener('mousemove', (e) => {
-                if(currentTab !== 'projects') return;
-                // Normalize mouse -1 to 1
-                mouseX = (e.clientX / window.innerWidth) * 2 - 1;
-                mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
-            });
-
-            animateThree();
-        }
-
-        function animateThree() {
-            if(currentTab !== 'projects') return;
-            requestAnimationFrame(animateThree);
-
-            // Smooth damping for Glass Tilt
-            targetRotationY += (mouseX * 0.5 - targetRotationY) * 0.05;
-            targetRotationX += (mouseY * 0.2 - targetRotationX) * 0.05;
-
-            // Apply rotation to the whole group (Glass)
-            glassGroup.rotation.y = targetRotationY;
-            glassGroup.rotation.x = targetRotationX;
-
-            // LIQUID PHYSICS SIMULATION
-            // The liquid lags behind the glass to simulate inertia (sloshing)
-            liquidMesh.rotation.x = -targetRotationX * 0.5 + Math.sin(Date.now() * 0.003) * 0.05;
-            liquidMesh.rotation.z = targetRotationY * 0.5 + Math.cos(Date.now() * 0.002) * 0.05;
-
-            // Parallax float for the whole scene
-            camera.position.x += (mouseX * 0.5 - camera.position.x) * 0.02;
-            camera.position.y += (2 + mouseY * 0.2 - camera.position.y) * 0.02;
-            camera.lookAt(0, 0, 0);
-
-            renderer.render(scene, camera);
-        }
+        // --- 2. PROJECTS 3D WHISKEY (Three.js) ---
         
-        // Handle Resize
-        window.addEventListener('resize', () => {
-            if(camera && renderer) {
-                camera.aspect = window.innerWidth / window.innerHeight;
-                camera.updateProjectionMatrix();
-                renderer.setSize(window.innerWidth, window.innerHeight);
+        // Scene Setup
+        const canvas = document.querySelector('#webgl-canvas');
+        const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.0;
+
+        const scene = new THREE.Scene();
+
+        // **CRITICAL**: Environment Map (Make glass look real)
+        const pmremGenerator = new THREE.PMREMGenerator(renderer);
+        scene.environment = pmremGenerator.fromScene(new RoomEnvironment(), 0.04).texture;
+
+        const camera = new THREE.PerspectiveCamera(35, window.innerWidth/window.innerHeight, 0.1, 100);
+        camera.position.set(0, 3, 12);
+
+        // Group to rotate everything
+        const glassGroup = new THREE.Group();
+        scene.add(glassGroup);
+
+        // Materials
+        const glassMaterial = new THREE.MeshPhysicalMaterial({
+            color: 0xffffff,
+            transmission: 1.0,  // Full glass transparency
+            opacity: 1.0,
+            metalness: 0.0,
+            roughness: 0.05,    // Very smooth
+            ior: 1.5,           // Refraction index of glass
+            thickness: 0.5,     // Volume rendering
+            specularIntensity: 1.0,
+            clearcoat: 1.0
+        });
+
+        const liquidMaterial = new THREE.MeshPhysicalMaterial({
+            color: 0xffa500,    // Whiskey Amber
+            transmission: 0.6,
+            opacity: 0.9,
+            metalness: 0.0,
+            roughness: 0.2,
+            ior: 1.4,
+            attenuationColor: new THREE.Color(0x8a4b08), // Darkens as light goes through
+            attenuationDistance: 2.0
+        });
+
+        const iceMaterial = new THREE.MeshPhysicalMaterial({
+            color: 0xffffff,
+            transmission: 0.9,
+            roughness: 0.2,
+            thickness: 1.5,
+            clearcoat: 1.0,
+            ior: 1.31
+        });
+
+        // 1. CREATE THE GLASS CUP (Using LatheGeometry for thickness)
+        // We draw the "profile" of the cup wall
+        const points = [];
+        for ( let i = 0; i < 10; i ++ ) {
+            // Inner wall (bottom up)
+            points.push( new THREE.Vector2( Math.sin( i * 0.2 ) * 1.3 + 0.1, ( i - 5 ) * 0.5 ) ); 
+        }
+        // Manual simple shape:
+        const profile = [
+            new THREE.Vector2(0, 0),       // Center Bottom
+            new THREE.Vector2(1.5, 0),     // Outer Bottom Edge
+            new THREE.Vector2(1.8, 4),     // Outer Top Rim
+            new THREE.Vector2(1.6, 4),     // Inner Top Rim
+            new THREE.Vector2(1.35, 0.4),  // Inner Bottom Edge
+            new THREE.Vector2(0, 0.4)      // Inner Center
+        ];
+        const geometry = new THREE.LatheGeometry( profile, 40 ); 
+        const cup = new THREE.Mesh( geometry, glassMaterial );
+        cup.position.y = -2;
+        cup.castShadow = true;
+        glassGroup.add( cup );
+
+        // 2. CREATE THE LIQUID
+        // Just a simple cylinder inside the cup
+        const liqGeo = new THREE.CylinderGeometry(1.55, 1.2, 2.0, 32);
+        const liquid = new THREE.Mesh(liqGeo, liquidMaterial);
+        liquid.position.y = -0.8;
+        glassGroup.add(liquid);
+
+        // 3. ICE CUBES
+        const cubeGeo = new THREE.BoxGeometry(0.9, 0.9, 0.9);
+        
+        const cube1 = new THREE.Mesh(cubeGeo, iceMaterial);
+        cube1.position.set(0.3, -0.5, 0.3);
+        cube1.rotation.set(0.5, 0.5, 0);
+        glassGroup.add(cube1);
+
+        const cube2 = new THREE.Mesh(cubeGeo, iceMaterial);
+        cube2.position.set(-0.4, 0.2, -0.2);
+        cube2.rotation.set(0.8, 0.2, 0.4);
+        glassGroup.add(cube2);
+
+        // Lighting
+        const spotLight = new THREE.SpotLight( 0xffffff, 100 );
+        spotLight.position.set( 5, 10, 5 );
+        spotLight.angle = Math.PI / 6;
+        spotLight.penumbra = 1;
+        scene.add( spotLight );
+
+        const rimLight = new THREE.PointLight( 0x4488ff, 20 );
+        rimLight.position.set( -5, 2, -5 );
+        scene.add( rimLight );
+
+
+        // Animation Variables
+        let mouseX = 0;
+        let mouseY = 0;
+        let targetRotX = 0;
+        let targetRotY = 0;
+
+        document.addEventListener('mousemove', (e) => {
+            mouseX = (e.clientX - window.innerWidth / 2) * 0.001;
+            mouseY = (e.clientY - window.innerHeight / 2) * 0.001;
+        });
+
+        // Loop
+        function animate() {
+            requestAnimationFrame(animate);
+
+            if (currentTab === 'projects') {
+                // Smooth Camera movement
+                targetRotX += (mouseY - targetRotX) * 0.05;
+                targetRotY += (mouseX - targetRotY) * 0.05;
+
+                // Rotate the whole glass group
+                glassGroup.rotation.x = targetRotX * 0.5;
+                glassGroup.rotation.y = targetRotY * 1.5;
+
+                // Liquid Slosh Physics (Lag behind the glass)
+                liquid.rotation.x = -targetRotX * 0.8 + Math.sin(Date.now()*0.002)*0.05;
+                liquid.rotation.z = targetRotY * 0.8 + Math.cos(Date.now()*0.003)*0.05;
+                
+                // Ice float animation
+                cube2.position.y = 0.2 + Math.sin(Date.now() * 0.001) * 0.05;
+                cube2.rotation.y += 0.002;
+
+                renderer.render(scene, camera);
             }
+        }
+        animate();
+
+
+        // --- UI LOGIC ---
+        window.switchTab = function(tabName) {
+            currentTab = tabName;
+            
+            // Buttons
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Sections
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.getElementById(tabName + '-section').classList.add('active');
+        };
+
+        // Resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            resizeFrost();
         });
 
     </script>
