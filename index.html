@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ice & Ember: Soft Body Physics</title>
+    <title>Ice & Ember: Stable Fluids</title>
     <script type="importmap">
         {
             "imports": {
@@ -26,6 +26,7 @@
             height: 100vh; width: 100vw;
         }
 
+        /* --- UI --- */
         nav {
             position: fixed; top: 40px; left: 50%; transform: translateX(-50%);
             z-index: 100; display: flex; gap: 20px;
@@ -97,12 +98,12 @@
         <canvas id="webgl-canvas"></canvas>
         <div class="ui-layer">
             <div class="card" id="card-left">
-                <h3>VINTAGE UI</h3>
-                <p>Interfaces that feel physical. Tactile depth, realistic lighting, and glassmorphism.</p>
+                <h3>STABLE FLUIDS</h3>
+                <p>Navier-Stokes solver running in real-time. This isn't an animation, it's a physics simulation.</p>
             </div>
             <div class="card" id="card-right">
-                <h3>SOFT BODY</h3>
-                <p>Full volumetric vertex displacement simulating liquid inertia and surface tension.</p>
+                <h3>TURBULENCE</h3>
+                <p>Mouse movement injects velocity vectors into the grid, creating advection and diffusion.</p>
             </div>
         </div>
     </section>
@@ -112,12 +113,7 @@
         import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 
         let currentTab = 'portfolio';
-        // Physics variables for Inertia
         let mouse = { x: 0, y: 0 };
-        let prevMouse = { x: 0, y: 0 };
-        let acceleration = { x: 0, y: 0 };
-        let velocity = { x: 0, y: 0 };
-
         const windowHalfX = window.innerWidth / 2;
         const windowHalfY = window.innerHeight / 2;
 
@@ -129,10 +125,8 @@
         window.addEventListener('resize', resizeFrost); resizeFrost();
 
         document.addEventListener('mousemove', (e) => {
-            // Update Mouse Logic
             mouse.x = (e.clientX - windowHalfX) / windowHalfX;
             mouse.y = (e.clientY - windowHalfY) / windowHalfY;
-            
             if(currentTab === 'portfolio') {
                 const r = fC.getBoundingClientRect();
                 trails.push({ x: e.clientX - r.left, y: e.clientY - r.top, a: 0.5 });
@@ -151,7 +145,119 @@
         renderIce();
 
 
-        // --- 2. 3D ENGINE ---
+        // ==========================================
+        // === JOS STAM STABLE FLUIDS SOLVER (JS) ===
+        // ==========================================
+        const N = 64; // Grid Resolution
+        const iter = 4; // Solver Iterations
+        const size = (N + 2) * (N + 2);
+        
+        let u = new Float32Array(size); // Velocity X
+        let v = new Float32Array(size); // Velocity Y
+        let u_prev = new Float32Array(size);
+        let v_prev = new Float32Array(size);
+        let dens = new Float32Array(size); // Density (The Whiskey color)
+        let dens_prev = new Float32Array(size);
+
+        function IX(x, y) { return x + (N + 2) * y; }
+
+        function add_source(x, s, dt) {
+            for (let i = 0; i < size; i++) x[i] += dt * s[i];
+        }
+
+        function set_bnd(b, x) {
+            for (let i = 1; i <= N; i++) {
+                x[IX(0, i)] = b === 1 ? -x[IX(1, i)] : x[IX(1, i)];
+                x[IX(N + 1, i)] = b === 1 ? -x[IX(N, i)] : x[IX(N, i)];
+                x[IX(i, 0)] = b === 2 ? -x[IX(i, 1)] : x[IX(i, 1)];
+                x[IX(i, N + 1)] = b === 2 ? -x[IX(i, N)] : x[IX(i, N)];
+            }
+            x[IX(0, 0)] = 0.5 * (x[IX(1, 0)] + x[IX(0, 1)]);
+            x[IX(0, N + 1)] = 0.5 * (x[IX(1, N + 1)] + x[IX(0, N)]);
+            x[IX(N + 1, 0)] = 0.5 * (x[IX(N, 0)] + x[IX(N + 1, 1)]);
+            x[IX(N + 1, N + 1)] = 0.5 * (x[IX(N, N + 1)] + x[IX(N + 1, N)]);
+        }
+
+        function lin_solve(b, x, x0, a, c) {
+            for (let k = 0; k < iter; k++) {
+                for (let j = 1; j <= N; j++) {
+                    for (let i = 1; i <= N; i++) {
+                        x[IX(i, j)] = (x0[IX(i, j)] + a * (x[IX(i - 1, j)] + x[IX(i + 1, j)] + x[IX(i, j - 1)] + x[IX(i, j + 1)])) / c;
+                    }
+                }
+                set_bnd(b, x);
+            }
+        }
+
+        function diffuse(b, x, x0, diff, dt) {
+            let a = dt * diff * N * N;
+            lin_solve(b, x, x0, a, 1 + 4 * a);
+        }
+
+        function advect(b, d, d0, u, v, dt) {
+            let i0, j0, i1, j1;
+            let x, y, s0, t0, s1, t1, dt0;
+            dt0 = dt * N;
+            for (let j = 1; j <= N; j++) {
+                for (let i = 1; i <= N; i++) {
+                    x = i - dt0 * u[IX(i, j)];
+                    y = j - dt0 * v[IX(i, j)];
+                    if (x < 0.5) x = 0.5; if (x > N + 0.5) x = N + 0.5;
+                    i0 = Math.floor(x); i1 = i0 + 1;
+                    if (y < 0.5) y = 0.5; if (y > N + 0.5) y = N + 0.5;
+                    j0 = Math.floor(y); j1 = j0 + 1;
+                    s1 = x - i0; s0 = 1 - s1;
+                    t1 = y - j0; t0 = 1 - t1;
+                    d[IX(i, j)] = s0 * (t0 * d0[IX(i0, j0)] + t1 * d0[IX(i0, j1)]) +
+                                  s1 * (t0 * d0[IX(i1, j0)] + t1 * d0[IX(i1, j1)]);
+                }
+            }
+            set_bnd(b, d);
+        }
+
+        function project(u, v, p, div) {
+            for (let j = 1; j <= N; j++) {
+                for (let i = 1; i <= N; i++) {
+                    div[IX(i, j)] = -0.5 * (u[IX(i + 1, j)] - u[IX(i - 1, j)] + v[IX(i, j + 1)] - v[IX(i, j - 1)]) / N;
+                    p[IX(i, j)] = 0;
+                }
+            }
+            set_bnd(0, div);
+            set_bnd(0, p);
+            lin_solve(0, p, div, 1, 4);
+            for (let j = 1; j <= N; j++) {
+                for (let i = 1; i <= N; i++) {
+                    u[IX(i, j)] -= 0.5 * N * (p[IX(i + 1, j)] - p[IX(i - 1, j)]);
+                    v[IX(i, j)] -= 0.5 * N * (p[IX(i, j + 1)] - p[IX(i, j - 1)]);
+                }
+            }
+            set_bnd(1, u);
+            set_bnd(2, v);
+        }
+
+        function fluidStep() {
+            let dt = 0.2;
+            let diff = 0.0001;
+            let visc = 0.0001;
+            
+            // Add Forces (Mouse Interaction handled separately)
+            
+            // Velocity Step
+            diffuse(1, u_prev, u, visc, dt);
+            diffuse(2, v_prev, v, visc, dt);
+            project(u_prev, v_prev, u, v);
+            advect(1, u, u_prev, u_prev, v_prev, dt);
+            advect(2, v, v_prev, u_prev, v_prev, dt);
+            project(u, v, u_prev, v_prev);
+            
+            // Density Step
+            diffuse(0, dens_prev, dens, diff, dt);
+            advect(0, dens, dens_prev, u, v, dt);
+        }
+
+        // ==========================================
+        // === 3D ENGINE INTEGRATION ===
+        // ==========================================
         const canvas = document.querySelector('#webgl-canvas');
         const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
@@ -161,7 +267,6 @@
 
         const scene = new THREE.Scene();
 
-        // HDRI
         new RGBELoader()
             .setPath('https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/')
             .load('studio_small_09_1k.hdr', function (texture) {
@@ -170,187 +275,147 @@
             });
 
         const camera = new THREE.PerspectiveCamera(40, window.innerWidth/window.innerHeight, 0.1, 100);
-        camera.position.set(0, 3, 14);
+        camera.position.set(0, 4, 14);
 
         const glassGroup = new THREE.Group();
         glassGroup.position.y = -2.5; 
         scene.add(glassGroup);
 
-        // --- MATERIALS (Visibility & Clarity Fix) ---
+        // --- MATERIALS ---
         const glassMat = new THREE.MeshPhysicalMaterial({
-            color: 0xffffff,
-            transmission: 1.0,  
-            thickness: 0.05, // Ultra thin for clarity
-            roughness: 0,
-            ior: 1.5,
-            clearcoat: 1.0,
-            transparent: true,
-            side: THREE.FrontSide
+            color: 0xffffff, transmission: 1.0, thickness: 0.1, roughness: 0,
+            ior: 1.5, clearcoat: 1.0, transparent: true, side: THREE.FrontSide 
         });
 
-        const liquidMat = new THREE.MeshPhysicalMaterial({
-            color: 0xff9900,
-            transmission: 0.8, 
-            thickness: 1.5,    
-            roughness: 0.1,
-            ior: 1.2, // Slightly lower IOR helps visibility inside glass
-            attenuationColor: new THREE.Color(0xcc6600), 
-            attenuationDistance: 5.0,
+        // FLUID TEXTURE (Canvas to Texture)
+        const fluidCanvas = document.createElement('canvas');
+        fluidCanvas.width = N;
+        fluidCanvas.height = N;
+        const fluidCtx = fluidCanvas.getContext('2d');
+        const fluidTexture = new THREE.CanvasTexture(fluidCanvas);
+        
+        // Material that uses the fluid texture
+        const fluidPlaneMat = new THREE.MeshBasicMaterial({
+            map: fluidTexture,
             transparent: true,
-            side: THREE.DoubleSide // Ensure we see back and front of waves
-        });
-
-        const iceMat = new THREE.MeshPhysicalMaterial({
-            transmission: 0.9, roughness: 0.1, thickness: 1.5, ior: 1.31,
-            color: 0xffffff, clearcoat: 0.5
+            opacity: 0.9,
+            color: 0xffaa00, // Whiskey Tint
+            side: THREE.DoubleSide,
+            blending: THREE.AdditiveBlending
         });
 
         // --- GEOMETRY ---
-
-        // Glass Cup
+        // 1. The Glass
         const cupProfile = [
-            new THREE.Vector2(0, 0),    
-            new THREE.Vector2(3, 0),    
-            new THREE.Vector2(3.2, 5),  
-            new THREE.Vector2(3.0, 5),  
-            new THREE.Vector2(2.8, 0.5),
-            new THREE.Vector2(0, 0.5)   
+            new THREE.Vector2(0, 0), new THREE.Vector2(3, 0),    
+            new THREE.Vector2(3.2, 5), new THREE.Vector2(3.0, 5),  
+            new THREE.Vector2(2.8, 0.5), new THREE.Vector2(0, 0.5)   
         ];
-        const cupGeo = new THREE.LatheGeometry(cupProfile, 64);
-        const cup = new THREE.Mesh(cupGeo, glassMat);
-        cup.renderOrder = 2; 
+        const cup = new THREE.Mesh(new THREE.LatheGeometry(cupProfile, 64), glassMat);
+        cup.renderOrder = 2;
         glassGroup.add(cup);
 
-        // LIQUID - HIGH POLY FOR SOFT BODY PHYSICS
-        // RadiusTop, RadiusBot, Height, RadialSegments, HeightSegments (Important!)
-        // HeightSegments = 20 means we have 20 layers of nodes to bend!
-        const liquidGeo = new THREE.CylinderGeometry(2.85, 2.65, 2.8, 64, 20);
-        
-        // Store original positions for physics calculations
-        const posAttribute = liquidGeo.attributes.position;
-        const originalPositions = [];
-        for (let i = 0; i < posAttribute.count; i++) {
-            originalPositions.push({
-                x: posAttribute.getX(i),
-                y: posAttribute.getY(i),
-                z: posAttribute.getZ(i)
-            });
-        }
+        // 2. The Fluid Plane (Crucial for visualizing the sim)
+        // We place this INSIDE the glass to show the currents
+        const planeGeo = new THREE.PlaneGeometry(5, 5);
+        const fluidPlane = new THREE.Mesh(planeGeo, fluidPlaneMat);
+        fluidPlane.position.y = 2.5;
+        fluidPlane.renderOrder = 1;
+        // Make it billboard towards camera roughly, but spin with glass
+        glassGroup.add(fluidPlane);
 
-        const liquid = new THREE.Mesh(liquidGeo, liquidMat);
-        liquid.position.y = 1.8; 
-        liquid.renderOrder = 1;  
-        glassGroup.add(liquid);
-
-        // Ice Cube
-        const iceGeo = new THREE.BoxGeometry(1.6, 1.6, 1.6);
-        const iceCube = new THREE.Mesh(iceGeo, iceMat);
+        // 3. Ice
+        const iceCube = new THREE.Mesh(
+            new THREE.BoxGeometry(1.6, 1.6, 1.6),
+            new THREE.MeshPhysicalMaterial({transmission: 0.9, roughness: 0.2, ior: 1.31, thickness: 1.5, color: 0xffffff})
+        );
         iceCube.position.set(0, 1.5, 0);
         iceCube.rotation.set(0.5, 0.5, 0);
         glassGroup.add(iceCube);
 
-        // --- LIGHTING ---
-        const backLight = new THREE.PointLight(0xffffff, 60);
+        // LIGHTING
+        const backLight = new THREE.PointLight(0xffffff, 80);
         backLight.position.set(0, 5, -10);
         scene.add(backLight);
-
-        const innerLight = new THREE.PointLight(0xffaa00, 20);
-        innerLight.position.set(0, 2, 0); // Inside the drink
-        glassGroup.add(innerLight);
-
         const fillLight = new THREE.DirectionalLight(0xffaa00, 3);
         fillLight.position.set(-5, 5, 5);
         scene.add(fillLight);
 
-        const cardL = document.getElementById('card-left');
-        const cardR = document.getElementById('card-right');
+        // --- SIMULATION LOOP ---
+        const cL = document.getElementById('card-left');
+        const cR = document.getElementById('card-right');
+        
+        // Pre-fill density so it's not empty
+        for(let i=0; i<size; i++) dens[i] = 0.5;
+
+        function drawFluid() {
+            const id = fluidCtx.createImageData(N, N);
+            const d = id.data;
+            for (let i = 0; i < N; i++) {
+                for (let j = 0; j < N; j++) {
+                    const idx = IX(i+1, j+1); // +1 because grid has boundaries
+                    const density = dens[idx]; 
+                    // Render density as alpha/brightness
+                    const px = (i + j * N) * 4;
+                    // Invert look: High density = bright amber
+                    let val = Math.min(255, density * 255);
+                    d[px] = 255; // R
+                    d[px+1] = 200; // G
+                    d[px+2] = 100; // B
+                    d[px+3] = val; // Alpha
+                }
+            }
+            fluidCtx.putImageData(id, 0, 0);
+            fluidTexture.needsUpdate = true;
+        }
+
+        // Handle Mouse Interaction with Fluid
+        let lastMouseX = 0, lastMouseY = 0;
+        function interactFluid() {
+            // Map mouse to grid
+            let mx = Math.floor(((mouse.x + 1) / 2) * N);
+            let my = Math.floor((1 - (mouse.y + 1) / 2) * N); // Invert Y
+            
+            // Bounds check
+            if (mx < 1 || mx > N || my < 1 || my > N) return;
+
+            // Inject velocity based on movement
+            let dx = mouse.x - lastMouseX;
+            let dy = mouse.y - lastMouseY;
+            
+            let idx = IX(mx, my);
+            u[idx] += dx * 500; // Force multiplier
+            v[idx] += dy * 500;
+            dens[idx] += 5; // Add "dye" (density) on touch
+
+            lastMouseX = mouse.x;
+            lastMouseY = mouse.y;
+        }
 
         function animate() {
             requestAnimationFrame(animate);
 
             if(currentTab === 'projects') {
-                // --- 1. CALCULATE INERTIA ---
-                // Calculate acceleration based on mouse change
-                acceleration.x = (mouse.x - prevMouse.x) * 0.05;
-                acceleration.y = (mouse.y - prevMouse.y) * 0.05;
+                // 1. Run Physics
+                interactFluid();
+                fluidStep(); // Advect, Diffuse, Project
+                drawFluid(); // Update texture
 
-                // Add to velocity with damping (spring effect)
-                velocity.x += acceleration.x;
-                velocity.x *= 0.95; // Decay
-                velocity.y += acceleration.y;
-                velocity.y *= 0.95; // Decay
+                // 2. Rotate Glass
+                glassGroup.rotation.y += (mouse.x * 0.5 - glassGroup.rotation.y) * 0.05;
+                glassGroup.rotation.x += (mouse.y * 0.2 - glassGroup.rotation.x) * 0.05;
 
-                // Save prev mouse
-                prevMouse.x = mouse.x;
-                prevMouse.y = mouse.y;
+                // 3. Ice Float
+                iceCube.rotation.y += 0.01;
+                iceCube.position.y = 1.5 + Math.sin(Date.now()*0.001) * 0.1;
 
-                // --- 2. SOFT BODY ALGORITHM ---
-                const time = Date.now() * 0.003;
-                const positions = liquidGeo.attributes.position;
-
-                for (let i = 0; i < positions.count; i++) {
-                    const orig = originalPositions[i];
-                    
-                    // "Height Factor": 0 at bottom, 1 at top.
-                    // This ensures the bottom stays stuck to the glass, top moves most.
-                    const heightFactor = (orig.y + 1.4) / 2.8; 
-                    const normalizedHeight = Math.max(0, heightFactor); 
-
-                    // Wave Noise
-                    const noise = Math.sin(orig.x * 2 + time) * 0.05 + Math.cos(orig.z * 1.5 + time) * 0.05;
-                    
-                    // --- THE ALGORITHM: AFFECT NODES THROUGHOUT ---
-                    
-                    // 1. Shear/Slosh: Top moves opposite to velocity (lag)
-                    const shearX = -velocity.x * normalizedHeight * 8.0; 
-                    const shearZ = velocity.y * normalizedHeight * 4.0; // Y mouse maps to Z depth
-
-                    // 2. Bulge: When liquid sloshes, sides expand outward
-                    // We calculate distance from center to know which way is "out"
-                    const angle = Math.atan2(orig.z, orig.x);
-                    const dist = Math.sqrt(orig.x*orig.x + orig.z*orig.z);
-                    
-                    // Dynamic Bulge based on velocity
-                    const bulgeAmount = (Math.abs(velocity.x) + Math.abs(velocity.y)) * normalizedHeight * 0.5;
-                    const bulgeX = Math.cos(angle) * bulgeAmount * Math.sin(normalizedHeight * Math.PI); // Sin ensures bulge is in middle
-                    const bulgeZ = Math.sin(angle) * bulgeAmount * Math.sin(normalizedHeight * Math.PI);
-
-                    // 3. Top Surface Turbulence (Only if y is high)
-                    let surfaceY = 0;
-                    if(orig.y > 1.3) {
-                        surfaceY = noise + (orig.x * -velocity.x * 2); // Tilt surface
-                    }
-
-                    // Apply New Positions
-                    positions.setX(i, orig.x + shearX + bulgeX);
-                    positions.setZ(i, orig.z + shearZ + bulgeZ);
-                    positions.setY(i, orig.y + surfaceY);
-                }
-
-                positions.needsUpdate = true;
-                liquidGeo.computeVertexNormals();
-
-                // Rotate Glass
-                glassGroup.rotation.y += (mouse.x * 0.3 - glassGroup.rotation.y) * 0.05;
-                glassGroup.rotation.x += (mouse.y * 0.1 - glassGroup.rotation.x) * 0.05;
-
-                // Ice Physics
-                iceCube.rotation.y += 0.005;
-                iceCube.position.y = 1.5 + Math.sin(time * 0.5) * 0.1;
-                // Ice reacts to inertia too
-                iceCube.position.x += (shearX_Calc(1) - iceCube.position.x) * 0.1;
-
-                // Parallax UI
-                cardL.style.transform = `translate(${mouse.x * -40}px, ${mouse.y * -20}px)`;
-                cardR.style.transform = `translate(${mouse.x * -60}px, ${mouse.y * -30}px)`;
+                // UI
+                cL.style.transform = `translate(${mouse.x * -40}px, ${mouse.y * -20}px)`;
+                cR.style.transform = `translate(${mouse.x * -60}px, ${mouse.y * -30}px)`;
 
                 renderer.render(scene, camera);
             }
         }
-        
-        // Helper for ice physics
-        function shearX_Calc(h) { return -velocity.x * h * 4.0; }
-
         animate();
 
         window.setTab = (t) => {
