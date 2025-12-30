@@ -13,7 +13,6 @@
             cursor: none; /* Hide default cursor */
         }
 
-        /* HIDE SCROLLBAR */
         body::-webkit-scrollbar { display: none; }
         body {
             -ms-overflow-style: none;
@@ -51,8 +50,6 @@
             pointer-events: none;
             z-index: 10000;
             transform: translate(-50%, -50%);
-            
-            /* Physics Transitions */
             transition: 
                 width 0.3s cubic-bezier(0.2, 0.8, 0.2, 1),
                 height 0.3s cubic-bezier(0.2, 0.8, 0.2, 1),
@@ -65,7 +62,8 @@
             top: 0;
             height: 100vh;
             display: flex;
-            flex-direction: column;
+            /* Default layout for most layers */
+            flex-direction: column; 
             justify-content: center;
             padding: 0 10vw;
             background-color: #050505;
@@ -73,11 +71,20 @@
             overflow: hidden;
         }
 
-        /* Minimal depth variations */
         #layer-1 { background-color: #050505; z-index: 1; }
         #layer-2 { background-color: #080808; z-index: 2; }
-        #layer-3 { background-color: #000000; z-index: 3; }
-        #layer-4 { background-color: #050505; z-index: 4; }
+        
+        /* SKILL LAYER (LAYER 3) STYLING */
+        #layer-skills { 
+            background-color: #000000; 
+            z-index: 3; 
+            /* Reset padding for split layout */
+            padding: 0; 
+            flex-direction: row; /* Horizontal layout */
+        }
+        
+        #layer-4 { background-color: #0a0a0a; z-index: 4; }
+        #layer-5 { background-color: #050505; z-index: 5; }
 
         /* --- 5. TYPOGRAPHY --- */
         h1 {
@@ -110,19 +117,11 @@
             z-index: 10;
         }
 
-        .tech-stack {
-            font-size: 1rem;
-            color: #555;
-            font-family: monospace;
-            margin-bottom: 2rem;
-            z-index: 10;
-        }
-
-        /* --- 6. COMPACT BUTTONS --- */
+        /* --- 6. BUTTONS --- */
         .btn-container {
             margin-top: 30px;
             display: flex;
-            gap: 20px; /* Space between buttons if multiple */
+            gap: 20px;
         }
 
         .btn {
@@ -141,10 +140,79 @@
             background: transparent;
             transition: opacity 0.3s;
         }
+        .btn.hovered-state { border-color: transparent; }
+
+        /* --- 7. NEW SKILL SIDEBAR LAYOUT --- */
         
-        /* Hide border when blob is locked on */
-        .btn.hovered-state {
+        /* Left side content of Skill Layer */
+        .skill-left-content {
+            width: 70%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding-left: 10vw;
+        }
+
+        /* The Sliding Sidebar (Right 30%) */
+        .skill-sidebar {
+            width: 30%;
+            height: 100%;
+            background-color: #080808;
+            border-left: 1px solid rgba(255,255,255,0.1);
+            padding: 40px;
+            overflow-y: auto; /* Scrollable if list is long */
+            
+            /* Hidden State */
+            transform: translateX(100%);
+            transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1); /* Smooth 'Pop' */
+        }
+
+        /* The Active Class (Triggered by JS) */
+        #layer-skills.in-view .skill-sidebar {
+            transform: translateX(0);
+        }
+
+        /* Skill Categories */
+        .skill-category {
+            margin-bottom: 40px;
+        }
+        
+        .skill-category h3 {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            color: #555;
+            margin-bottom: 15px;
+            letter-spacing: 2px;
+            border-bottom: 1px solid #222;
+            padding-bottom: 5px;
+        }
+
+        .skill-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        /* The Skill Tags (Buttons) */
+        .skill-tag {
+            display: inline-block;
+            padding: 8px 16px;
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 20px;
+            font-size: 0.75rem;
+            color: #ddd;
+            background: transparent;
+            cursor: none;
+            position: relative;
+            z-index: 20;
+            white-space: nowrap;
+        }
+
+        /* Hide border when blob locks */
+        .skill-tag.hovered-state {
             border-color: transparent;
+            color: #fff; /* Blend mode will invert this to black */
         }
 
     </style>
@@ -165,33 +233,87 @@
         </section>
 
         <section class="layer" id="layer-2">
-            <h2>The Stack</h2>
+            <h2>About</h2>
             <h1>CODE &<br>DESIGN.</h1>
-            <p>Passionate about building accessible, pixel-perfect interfaces that scale.</p>
-            <div class="tech-stack">
-                // React · Next.js · Node.js · TypeScript · Tailwind
-            </div>
+            <p>Passionate about building accessible, pixel-perfect interfaces that scale. I bridge the gap between engineering and aesthetics.</p>
             <div class="btn-container">
-                <a href="#" class="btn magnetic">Read About Me</a>
+                <a href="#" class="btn magnetic">Read Bio</a>
             </div>
         </section>
 
-        <section class="layer" id="layer-3">
-            <h2>Selected Work</h2>
-            <h1>FEATURED<br>PROJECTS.</h1>
-            <p>From complex backend systems to fluid frontend interactions.</p>
-            <div class="btn-container">
-                <a href="https://github.com/achyut07" target="_blank" class="btn magnetic">GitHub Profile</a>
-                <a href="https://portfolio-achyut07.vercel.app" target="_blank" class="btn magnetic">Live Demo</a>
+        <section class="layer" id="layer-skills">
+            
+            <div class="skill-left-content">
+                <h2>My Arsenal</h2>
+                <h1>TECHNICAL<br>PROFICIENCY.</h1>
+                <p>A comprehensive list of tools and languages I use to solve problems.</p>
+                <div class="btn-container">
+                    <a href="https://github.com/achyut07" target="_blank" class="btn magnetic">View GitHub</a>
+                </div>
             </div>
+
+            <aside class="skill-sidebar">
+                
+                <div class="skill-category">
+                    <h3>Frontend</h3>
+                    <div class="skill-grid">
+                        <div class="skill-tag magnetic">CSS3</div>
+                        <div class="skill-tag magnetic">JavaScript</div>
+                        <div class="skill-tag magnetic">HTML5</div>
+                        <div class="skill-tag magnetic">TailwindCSS</div>
+                    </div>
+                </div>
+
+                <div class="skill-category">
+                    <h3>Backend & Systems</h3>
+                    <div class="skill-grid">
+                        <div class="skill-tag magnetic">Flask</div>
+                        <div class="skill-tag magnetic">SQL</div>
+                        <div class="skill-tag magnetic">PostgreSQL</div>
+                        <div class="skill-tag magnetic">Data Structures</div>
+                        <div class="skill-tag magnetic">Bash Automation</div>
+                    </div>
+                </div>
+
+                <div class="skill-category">
+                    <h3>Languages</h3>
+                    <div class="skill-grid">
+                        <div class="skill-tag magnetic">C</div>
+                        <div class="skill-tag magnetic">C++</div>
+                        <div class="skill-tag magnetic">Python</div>
+                        <div class="skill-tag magnetic">JavaScript</div>
+                        <div class="skill-tag magnetic">Bash</div>
+                        <div class="skill-tag magnetic">SQL</div>
+                    </div>
+                </div>
+
+                <div class="skill-category">
+                    <h3>Learning</h3>
+                    <div class="skill-grid">
+                        <div class="skill-tag magnetic">Java</div>
+                        <div class="skill-tag magnetic">Cybersecurity</div>
+                        <div class="skill-tag magnetic">Web Security</div>
+                        <div class="skill-tag magnetic">Power Queries</div>
+                    </div>
+                </div>
+
+            </aside>
         </section>
 
         <section class="layer" id="layer-4">
+            <h2>Work</h2>
+            <h1>FEATURED<br>PROJECTS.</h1>
+            <p>From complex backend systems to fluid frontend interactions.</p>
+            <div class="btn-container">
+                <a href="https://portfolio-achyut07.vercel.app" target="_blank" class="btn magnetic">Live Demos</a>
+            </div>
+        </section>
+
+        <section class="layer" id="layer-5">
             <h2>Contact</h2>
             <h1>LET'S<br>COLLABORATE.</h1>
-            <p>Currently open for freelance projects and new opportunities.</p>
             <div class="btn-container">
-                <a href="mailto:your-email@example.com" class="btn magnetic">Send Email</a>
+                <a href="mailto:email@example.com" class="btn magnetic">Send Email</a>
                 <a href="https://linkedin.com/in/achyut07" class="btn magnetic">LinkedIn</a>
             </div>
         </section>
@@ -199,11 +321,14 @@
 
     <script>
         const blob = document.getElementById('cursor-blob');
-        const buttons = document.querySelectorAll('.magnetic');
         
-        // --- PHYSICS CONFIG ---
-        const MAGNET_RANGE = 100; // Distance to start pulling
-        const LERP_SPEED = 0.1;   // Smoothness (Lower = smoother/heavier)
+        // We select ALL elements with 'magnetic' class (buttons AND skill tags)
+        // Note: querySelectorAll returns a static NodeList, so we query it dynamically inside loop if needed, 
+        // but here it's fine to query once on load.
+        let magneticElements = document.querySelectorAll('.magnetic');
+        
+        const MAGNET_RANGE = 100;
+        const LERP_SPEED = 0.1;
         
         let mouseX = window.innerWidth / 2;
         let mouseY = window.innerHeight / 2;
@@ -215,6 +340,26 @@
             mouseY = e.clientY;
         });
 
+        /* --- TRIGGER FOR SIDEBAR ANIMATION --- */
+        // We use IntersectionObserver to check when the Skill Layer is visible
+        const skillLayer = document.getElementById('layer-skills');
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                // If 20% of the layer is visible, trigger the slide-in
+                if (entry.isIntersecting) {
+                    skillLayer.classList.add('in-view');
+                } else {
+                    // Optional: remove class if you want it to slide out when scrolling away
+                     skillLayer.classList.remove('in-view');
+                }
+            });
+        }, { threshold: 0.2 });
+
+        observer.observe(skillLayer);
+
+
+        /* --- PHYSICS LOOP --- */
         function animate() {
             let targetX = mouseX;
             let targetY = mouseY;
@@ -222,9 +367,13 @@
             let height = 150;
             let borderRadius = '50%';
 
-            // MAGNETIC LOGIC
-            buttons.forEach(btn => {
+            // Check all magnetic elements (Buttons + Skill Tags)
+            magneticElements.forEach(btn => {
                 const rect = btn.getBoundingClientRect();
+                
+                // Optimization: Only calculate if element is actually on screen
+                if (rect.bottom < 0 || rect.top > window.innerHeight) return;
+
                 const btnCenterX = rect.left + rect.width / 2;
                 const btnCenterY = rect.top + rect.height / 2;
                 const dist = Math.hypot(mouseX - btnCenterX, mouseY - btnCenterY);
@@ -232,20 +381,17 @@
                 if (dist < MAGNET_RANGE) {
                     const pullFactor = 1 - (dist / MAGNET_RANGE);
                     
-                    // 1. Pull the target towards button center
                     targetX = mouseX + (btnCenterX - mouseX) * (pullFactor * 0.8);
                     targetY = mouseY + (btnCenterY - mouseY) * (pullFactor * 0.8);
 
-                    // 2. Stretch effect (Tension)
                     if (dist > rect.width / 2) {
-                        width = 130; height = 130; // Shrink slightly before snap
+                        width = 130; height = 130; 
                     } 
                     
-                    // 3. Snap effect (Locked)
                     if (dist < rect.width) {
                         width = rect.width;
                         height = rect.height;
-                        borderRadius = '30px'; // Match button radius
+                        borderRadius = '30px'; 
                         targetX = btnCenterX;
                         targetY = btnCenterY;
                         btn.classList.add('hovered-state');
@@ -257,11 +403,9 @@
                 }
             });
 
-            // INERTIA
             blobX += (targetX - blobX) * LERP_SPEED;
             blobY += (targetY - blobY) * LERP_SPEED;
 
-            // RENDER
             blob.style.left = blobX + 'px';
             blob.style.top = blobY + 'px';
             blob.style.width = width + 'px';
