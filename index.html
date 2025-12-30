@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ice & Ember: Golden Hour</title>
+    <title>Ice & Ember: Ultimate Transparency</title>
     <script type="importmap">
         {
             "imports": {
@@ -15,7 +15,7 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@300;600&display=swap');
 
-        :root { --accent: #ff9d00; --bg: #030303; }
+        :root { --accent: #ff9d00; --bg: #020202; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background: var(--bg); color: white; font-family: 'Montserrat', sans-serif; overflow: hidden; height: 100vh; }
 
@@ -50,11 +50,11 @@
         .parallax-ui {
             position: absolute; width: 100%; height: 100%; 
             display: flex; justify-content: space-between; align-items: center;
-            padding: 0 8%; pointer-events: none; z-index: 10;
+            padding: 0 10%; pointer-events: none; z-index: 10;
         }
         .float-card {
             background: rgba(10,10,10,0.85); border-top: 2px solid var(--accent);
-            padding: 30px; border-radius: 4px; width: 280px;
+            padding: 30px; border-radius: 4px; width: 300px;
             backdrop-filter: blur(15px); box-shadow: 0 30px 60px rgba(0,0,0,0.5);
             opacity: 0; transition: 0.5s ease-out;
         }
@@ -128,85 +128,94 @@
         }
         animateIce();
 
-        // --- THE 3D SCENE ---
+        // --- 3D ENGINE ---
         const canvas = document.querySelector('#webgl-canvas');
-        const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+        const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        renderer.toneMappingExposure = 2.5; // High exposure for liquid visibility
+        renderer.toneMappingExposure = 1.8;
 
         const scene = new THREE.Scene();
         scene.background = new THREE.Color(0x020202);
 
-        // Environment for reflections
         const pmrem = new THREE.PMREMGenerator(renderer);
         scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
 
-        // Centered Camera
         const camera = new THREE.PerspectiveCamera(35, window.innerWidth/window.innerHeight, 0.1, 100);
-        camera.position.set(0, 2, 12);
+        camera.position.set(0, 2, 11);
 
         const glassGroup = new THREE.Group();
-        glassGroup.position.y = -1.5; // Perfectly centered
+        glassGroup.position.y = -1.8; 
         scene.add(glassGroup);
 
         // --- MATERIALS ---
         const glassMat = new THREE.MeshPhysicalMaterial({
-            transmission: 1.0, thickness: 0.5, ior: 1.5, roughness: 0.0,
-            transparent: true, opacity: 1, side: THREE.DoubleSide
+            transmission: 1.0, 
+            thickness: 0.2, // Keep thickness low to allow visibility
+            ior: 1.5, 
+            roughness: 0.0,
+            metalness: 0.0,
+            transparent: true,
+            opacity: 1,
+            side: THREE.DoubleSide,
+            depthWrite: true // Ensure glass writes to depth buffer properly
         });
 
         const liquidMat = new THREE.MeshPhysicalMaterial({
             color: 0xff8800, 
-            transmission: 0.95, // 95% Transparent
+            transmission: 0.7, 
             ior: 1.33, 
-            thickness: 1.0,
-            emissive: 0xff4400, // Forces the orange to glow in the dark
-            emissiveIntensity: 0.2,
+            thickness: 1.5,
+            roughness: 0.1,
+            attenuationColor: new THREE.Color(0x442200),
+            attenuationDistance: 1,
             transparent: true,
-            opacity: 0.8
+            opacity: 0.9
         });
 
         const iceMat = new THREE.MeshPhysicalMaterial({
-            transmission: 1.0, roughness: 0.1, ior: 1.31, color: 0xffffff,
-            transparent: true, opacity: 0.5
+            transmission: 0.95, roughness: 0.3, ior: 1.31, color: 0xffffff,
+            transparent: true, opacity: 0.7
         });
 
         // --- GEOMETRY ---
-        // Shorter, Wider Double Old Fashioned Glass
+        // Double Old Fashioned Glass
         const profile = [
-            new THREE.Vector2(0, 0), new THREE.Vector2(3.2, 0),   // Base
-            new THREE.Vector2(3.5, 4.0), new THREE.Vector2(3.3, 4.0), // Rim
-            new THREE.Vector2(3.0, 0.5), new THREE.Vector2(0, 0.5)    // Inside
+            new THREE.Vector2(0, 0), new THREE.Vector2(2.8, 0),   
+            new THREE.Vector2(3.0, 4.2), new THREE.Vector2(2.8, 4.2), 
+            new THREE.Vector2(2.5, 0.6), new THREE.Vector2(0, 0.6)
         ];
         const cup = new THREE.Mesh(new THREE.LatheGeometry(profile, 64), glassMat);
+        cup.renderOrder = 2; // Render Glass AFTER Liquid for sorting
         glassGroup.add(cup);
 
-        // Whiskey Liquid
-        const liquid = new THREE.Mesh(new THREE.CylinderGeometry(3.2, 3.0, 1.8, 64), liquidMat);
-        liquid.position.y = 1.4;
+        // Whiskey Liquid (Slightly smaller than glass interior)
+        const liquid = new THREE.Mesh(new THREE.CylinderGeometry(2.75, 2.45, 1.8, 64), liquidMat);
+        liquid.position.y = 1.6;
+        liquid.renderOrder = 1; // Liquid renders first
         glassGroup.add(liquid);
 
-        // The "Rock" (Ice)
-        const ice = new THREE.Mesh(new THREE.IcosahedronGeometry(1.4, 3), iceMat);
-        ice.position.set(0, 1.6, 0);
+        // Ice Rock
+        const ice = new THREE.Mesh(new THREE.IcosahedronGeometry(1.3, 3), iceMat);
+        ice.position.set(0, 1.8, 0);
+        ice.renderOrder = 3; // Ice renders last
         glassGroup.add(ice);
 
-        // --- STUDIO LIGHTING ---
-        // Backlight shining THROUGH the liquid
-        const backLight = new THREE.PointLight(0xffffff, 100);
-        backLight.position.set(0, 3, -6);
+        // --- LIGHTING (The Visibility Solution) ---
+        // Backlight: Critical for seeing through the glass
+        const backLight = new THREE.PointLight(0xffffff, 80);
+        backLight.position.set(0, 4, -8);
         scene.add(backLight);
 
-        // Orange Rim Light to catch the whiskey edges
-        const amberLight = new THREE.PointLight(0xffaa00, 50);
-        amberLight.position.set(-5, 2, 2);
-        scene.add(amberLight);
+        // Interior Glow: Forces color through the glass walls
+        const amberLight = new THREE.PointLight(0xffaa00, 40);
+        amberLight.position.set(0, 1, 0);
+        glassGroup.add(amberLight);
 
-        // Top Light
-        const topLight = new THREE.SpotLight(0xffffff, 40);
-        topLight.position.set(0, 10, 5);
-        scene.add(topLight);
+        // Side Rim Light
+        const rimLight = new THREE.PointLight(0xffffff, 30);
+        rimLight.position.set(-6, 3, 2);
+        scene.add(rimLight);
 
         // --- ANIMATION & PARALLAX ---
         const cL = document.getElementById('card-left');
@@ -215,18 +224,18 @@
         function render() {
             requestAnimationFrame(render);
             if(currentTab === 'projects') {
-                // Smooth Glass Interaction
+                // Interactive Rotation
                 glassGroup.rotation.y += (mouse.x * 0.8 - glassGroup.rotation.y) * 0.05;
                 glassGroup.rotation.x += (mouse.y * 0.2 - glassGroup.rotation.x) * 0.05;
 
                 // Parallax Side Tabs
-                cL.style.transform = `translate(${mouse.x * -70}px, ${mouse.y * -30}px)`;
-                cR.style.transform = `translate(${mouse.x * -110}px, ${mouse.y * -50}px)`;
+                cL.style.transform = `translate(${mouse.x * -60}px, ${mouse.y * -30}px)`;
+                cR.style.transform = `translate(${mouse.x * -100}px, ${mouse.y * -50}px)`;
 
-                // Slosh & Float
-                liquid.rotation.z = Math.sin(Date.now()*0.002)*0.02 + (mouse.x * 0.1);
-                ice.rotation.y += 0.005;
-                ice.position.y = 1.6 + Math.sin(Date.now()*0.001)*0.05;
+                // Liquid Slosh & Ice Float
+                liquid.rotation.z = Math.sin(Date.now()*0.002)*0.03 + (mouse.x * 0.08);
+                ice.rotation.y += 0.004;
+                ice.position.y = 1.8 + Math.sin(Date.now()*0.001)*0.05;
 
                 renderer.render(scene, camera);
             }
