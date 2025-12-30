@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Achyut | Living Portfolio</title>
+    <title>Achyut | Portfolio</title>
     <style>
         /* --- 1. RESET & CORE --- */
         * {
@@ -56,38 +56,43 @@
             z-index: 10000;
             transform: translate(-50%, -50%);
             
-            /* Smooth transitions for shape and size */
+            /* Standard Morphing Transitions */
             transition: 
                 width 0.4s cubic-bezier(0.2, 0.8, 0.2, 1),
                 height 0.4s cubic-bezier(0.2, 0.8, 0.2, 1),
-                border-radius 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+                border-radius 0.4s cubic-bezier(0.2, 0.8, 0.2, 1),
+                transform 0.2s ease-out; /* Slight lag for movement */
             
             will-change: left, top, width, height, transform;
         }
 
-        /* EXPANDED STATE (The Portal) */
+        /* --- 4. EXPANSION & BREAKING STATES --- */
+        
+        /* State A: EXPANDED (The Layer) */
         #cursor-blob.expanded {
-            width: 250vmax !important; /* Huge to cover screen */
+            width: 250vmax !important; 
             height: 250vmax !important;
-            border-radius: 0 !important; /* Become a square/rectangle */
-            transition: all 1.2s cubic-bezier(0.7, 0, 0.3, 1); /* Slow, dramatic expansion */
+            border-radius: 0 !important; 
+            /* Slow, smooth expansion */
+            transition: width 1s ease-in-out, height 1s ease-in-out, border-radius 1s ease-in-out;
         }
 
-        /* --- 4. RIPPLE --- */
-        .ripple {
-            position: fixed;
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            pointer-events: none;
-            mix-blend-mode: difference;
-            border: 1px solid rgba(255, 255, 255, 0.4); 
-            animation: rippleAnim 1s ease-out forwards;
-            z-index: 9999;
+        /* State B: BREAKING (The Shatter Effect) */
+        #cursor-blob.breaking {
+            /* Override transition for instant snap effect */
+            transition: all 0.1s ease !important; 
+            animation: shatterEffect 0.4s forwards;
         }
 
-        @keyframes rippleAnim {
-            0% { width: 0; height: 0; opacity: 0.6; }
-            100% { width: 100vmax; height: 100vmax; opacity: 0; }
+        @keyframes shatterEffect {
+            0% { transform: translate(-50%, -50%) scale(1); }
+            20% { transform: translate(-52%, -48%) scale(1.02); } /* Shake Left */
+            40% { transform: translate(-48%, -52%) scale(1.02); } /* Shake Right */
+            60% { transform: translate(-50%, -50%) scale(1.05); } /* Tension swell */
+            100% { 
+                transform: translate(-50%, -50%) scale(0); /* IMPLOSION */
+                opacity: 0;
+            }
         }
 
         /* --- 5. LAYERS & SPACERS --- */
@@ -104,7 +109,6 @@
             overflow: hidden;
             box-shadow: 0 -50px 100px rgba(0,0,0,0.8);
         }
-
         .spacer { width: 100%; height: 40vh; background: transparent; pointer-events: none; }
 
         #layer-1 { background-color: #050505; z-index: 1; }
@@ -120,39 +124,53 @@
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: 10001; /* Above the blob */
+            z-index: 10001; /* Above blob */
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             opacity: 0;
             pointer-events: none;
-            transition: opacity 0.5s ease 0.8s; /* Wait for blob to expand */
-            color: #000; /* Text is black because background (blob) is white */
+            transition: opacity 0.3s ease;
+            color: #000; 
             text-align: center;
         }
 
         #final-layer.active {
             opacity: 1;
             pointer-events: auto;
+            /* Delay appearing until blob expands */
+            transition-delay: 0.8s; 
+        }
+
+        #final-layer.hiding {
+            opacity: 0;
+            transition-delay: 0s; /* Hide instantly when breaking */
         }
         
-        #final-layer h1 { color: #000; }
-        #final-layer p { color: #333; }
-        #final-layer .close-btn {
-            margin-top: 40px;
-            padding: 15px 40px;
-            border: 2px solid #000;
-            border-radius: 30px;
-            color: #000;
-            font-weight: bold;
-            text-transform: uppercase;
-            cursor: pointer; /* Force pointer here */
-            background: transparent;
-            transition: 0.3s;
-            pointer-events: auto;
+        #final-layer h1 { color: #000; font-size: 5vw; }
+        #final-layer p { color: #333; font-size: 1.5rem; }
+        
+        /* The invisible full-screen click trigger to break the layer */
+        #break-trigger {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1; /* Behind text but clickable */
+            cursor: pointer;
         }
-        #final-layer .close-btn:hover { background: #000; color: #fff; }
+
+        .action-hint {
+            margin-top: 50px;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #666;
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse { 0%,100%{opacity:0.5} 50%{opacity:1} }
 
 
         /* --- 7. TYPOGRAPHY & UI --- */
@@ -179,6 +197,10 @@
         .skill-tag { display: inline-block; padding: 8px 14px; border: 1px solid rgba(255,255,255,0.15); border-radius: 20px; font-size: 0.7rem; color: #ddd; background: transparent; font-weight: 600; position: relative; z-index: 20; white-space: nowrap; }
         .skill-tag.hovered-state { border-color: transparent; color: #fff; }
 
+        /* RIPPLE (Standard) */
+        .ripple { position: fixed; border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; mix-blend-mode: difference; border: 1px solid rgba(255, 255, 255, 0.4); animation: rippleAnim 1s ease-out forwards; z-index: 9999; }
+        @keyframes rippleAnim { 0% { width: 0; height: 0; opacity: 0.6; } 100% { width: 100vmax; height: 100vmax; opacity: 0; } }
+
         @media (max-width: 768px) { 
             h1 { font-size: 3.5rem; line-height: 1; margin-bottom: 1rem; } 
             p { font-size: 1.1rem; max-width: 100%; }
@@ -198,10 +220,12 @@
     <div id="cursor-blob"></div>
 
     <div id="final-layer">
-        <h1>ACCESS GRANTED</h1>
+        <div id="break-trigger" onclick="breakLayer()"></div>
+        
+        <h1>TERMINAL OPEN</h1>
         <p>Achyut | Full Stack Developer</p>
-        <p>+91 98765 43210<br>achyut@devmail.com</p>
-        <button class="close-btn" onclick="toggleSecretMode()">Close Terminal</button>
+        <p>achyut@devmail.com</p>
+        <div class="action-hint">Click anywhere to break</div>
     </div>
 
     <main>
@@ -245,7 +269,7 @@
                 <p>Fling the blob to the right edge to reveal.</p>
             </div>
             <aside class="skill-sidebar" id="skillSidebar">
-                <div class="skill-category">
+                 <div class="skill-category">
                     <h3>Frontend</h3>
                     <div class="skill-grid">
                         <div class="skill-tag magnetic">React</div>
@@ -269,7 +293,7 @@
             <h2>Contact</h2>
             <h1>LET'S<br>COLLABORATE.</h1>
             <div class="btn-container">
-                <button class="btn magnetic" onclick="toggleSecretMode()">UNLOCK TERMINAL</button>
+                <button class="btn magnetic" onclick="expandLayer()">UNLOCK TERMINAL</button>
             </div>
         </section>
         <div class="spacer" style="height: 20vh;"></div>
@@ -289,7 +313,7 @@
         let mouseY = window.innerHeight / 2;
         
         let isMouseMode = true; 
-        let isSecretMode = false; // Flag for the expansion state
+        let isSecretMode = false;
 
         // CONFIG
         const FRICTION = 0.93; 
@@ -297,32 +321,52 @@
         const REPULSION_FORCE = 120; 
         const MAGNET_RANGE = 80;
 
-        // --- SECRET MODE TOGGLE ---
-        window.toggleSecretMode = function() {
-            isSecretMode = !isSecretMode;
+        // --- EXPAND FUNCTION ---
+        window.expandLayer = function() {
+            if (isSecretMode) return;
+            isSecretMode = true;
             
-            if (isSecretMode) {
-                // LOCK BLOB
-                blob.classList.add('expanded');
-                finalLayer.classList.add('active');
+            // 1. Center the blob
+            blob.style.left = '50%';
+            blob.style.top = '50%';
+            
+            // 2. Expand smoothly
+            blob.classList.add('expanded');
+            finalLayer.classList.remove('hiding');
+            finalLayer.classList.add('active');
+        };
+
+        // --- BREAK FUNCTION (The Shatter) ---
+        window.breakLayer = function() {
+            if (!isSecretMode) return;
+            
+            // 1. Hide Text Instantly
+            finalLayer.classList.add('hiding');
+            finalLayer.classList.remove('active');
+
+            // 2. Add Breaking Animation (Shake & Implode)
+            blob.classList.add('breaking');
+            blob.classList.remove('expanded');
+
+            // 3. Reset after animation finishes (0.4s)
+            setTimeout(() => {
+                isSecretMode = false;
                 
-                // Move blob to center of screen regardless of mouse position
-                blob.style.left = '50%';
-                blob.style.top = '50%';
-            } else {
-                // RELEASE BLOB
-                blob.classList.remove('expanded');
-                finalLayer.classList.remove('active');
+                // Clean up classes
+                blob.classList.remove('breaking');
                 
-                // Reset position to current mouse to prevent jump
+                // Reset Blob Position to prevent jump
                 blobX = window.innerWidth / 2;
                 blobY = window.innerHeight / 2;
-            }
+                blob.style.left = blobX + 'px';
+                blob.style.top = blobY + 'px';
+                
+            }, 400); // Matches animation duration
         };
 
         // --- INPUT HANDLING ---
         document.addEventListener('mousemove', (e) => {
-            if(isSecretMode) return; // Ignore input if in secret mode
+            if(isSecretMode) return;
             isMouseMode = true;
             mouseX = e.clientX;
             mouseY = e.clientY;
@@ -364,7 +408,6 @@
 
         // --- MAIN LOOP ---
         function animate() {
-            // IF SECRET MODE IS ON, SKIP PHYSICS
             if (isSecretMode) {
                 requestAnimationFrame(animate);
                 return;
@@ -389,17 +432,13 @@
                 velY *= FRICTION;
             }
 
-            // 2. IDLE LIFE (BREATHING & DRIFTING)
-            // If velocity is very low, add organic drift
+            // 2. IDLE LIFE (BREATHING)
             const speed = Math.hypot(velX, velY);
             if (speed < 0.5) {
                 const time = Date.now() * 0.002;
-                // Gentle drift
                 blobX += Math.sin(time) * 0.2;
                 blobY += Math.cos(time * 1.5) * 0.2;
-                
-                // Gentle breathing (size)
-                const breathe = Math.sin(time * 2) * 5; // +/- 5px
+                const breathe = Math.sin(time * 2) * 5; 
                 width += breathe;
                 height += breathe;
             }
@@ -450,14 +489,13 @@
                 magneticElements.forEach(btn => btn.classList.remove('hovered-state'));
             }
 
-            // 5. UPDATE POSITION
+            // 5. RENDER
             blobX += velX;
             blobY += velY;
 
             if (blobX < 0) { blobX = 0; velX *= -0.6; }
             if (blobX > window.innerWidth) { blobX = window.innerWidth; velX *= -0.6; }
 
-            // 6. RENDER
             blob.style.left = blobX + 'px';
             blob.style.top = blobY + 'px';
             blob.style.width = width + 'px';
