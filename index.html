@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ice & Ember: Photorealistic</title>
+    <title>Ice & Ember: Ultimate Reality</title>
     <script type="importmap">
         {
             "imports": {
@@ -16,8 +16,8 @@
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@300;500&display=swap');
 
         :root {
-            --bg-dark: #050505;
-            --accent: #d48c26;
+            --bg-dark: #020202;
+            --accent: #ffae00;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -31,488 +31,330 @@
             width: 100vw;
         }
 
-        /* --- NAVIGATION --- */
+        /* --- UI LAYER --- */
         nav {
             position: fixed;
             top: 30px; left: 50%;
             transform: translateX(-50%);
             z-index: 1000;
             display: flex;
-            gap: 10px;
-            background: rgba(20,20,20,0.8);
-            padding: 8px 10px;
+            gap: 15px;
+            background: rgba(30,30,30,0.6);
+            padding: 10px 30px;
             border-radius: 50px;
             border: 1px solid rgba(255,255,255,0.1);
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(12px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
         .nav-btn {
             background: none;
             border: none;
-            color: rgba(255,255,255,0.4);
+            color: rgba(255,255,255,0.6);
             font-family: 'Montserrat', sans-serif;
-            font-weight: 500;
+            font-weight: 600;
             font-size: 0.9rem;
-            padding: 10px 25px;
-            border-radius: 30px;
             cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+            transition: 0.3s;
         }
+        .nav-btn.active { color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.5); }
 
-        .nav-btn.active {
-            background: rgba(255,255,255,0.1);
-            color: #fff;
-            box-shadow: 0 0 15px rgba(255,255,255,0.05);
-        }
-
-        /* --- SECTIONS --- */
         .section {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            opacity: 0;
-            pointer-events: none;
+            opacity: 0; pointer-events: none;
             transition: opacity 0.8s ease;
         }
         .section.active { opacity: 1; pointer-events: all; }
 
-        /* --- PORTFOLIO: ICE SLAB --- */
+        /* --- PORTFOLIO (Ice Slab) --- */
         #portfolio-section {
-            perspective: 1000px;
-            background: radial-gradient(circle at center, #1a1a1a 0%, #000000 100%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            perspective: 1200px;
+            background: radial-gradient(circle at center, #111 0%, #000 100%);
+            display: flex; justify-content: center; align-items: center;
         }
-
-        .ice-stage {
-            transform-style: preserve-3d;
-            transform: rotateX(25deg);
-            position: relative;
-        }
-
+        
         .ice-slab {
-            width: 60vw;
-            height: 70vh;
-            background: linear-gradient(135deg, rgba(200, 235, 255, 0.08), rgba(200, 235, 255, 0.02));
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 4px;
-            box-shadow: 
-                0 0 30px rgba(165, 216, 255, 0.1),
-                inset 0 0 100px rgba(0,0,0,0.8);
-            backdrop-filter: blur(8px);
-            position: relative;
+            width: 65vw; height: 65vh;
+            background: linear-gradient(135deg, rgba(200, 240, 255, 0.05), rgba(200, 240, 255, 0.02));
+            border: 1px solid rgba(255,255,255,0.1);
+            border-top: 1px solid rgba(255,255,255,0.3);
+            border-radius: 8px;
+            transform: rotateX(35deg);
             transform-style: preserve-3d;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.8), inset 0 0 50px rgba(100,200,255,0.05);
+            position: relative;
         }
 
         .content-layer {
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%) translateZ(80px); 
-            text-align: center;
-            width: 100%;
-        }
-
-        h1 {
-            font-family: 'Playfair Display', serif;
-            font-size: 5rem;
-            margin: 0;
-            background: linear-gradient(to bottom, #fff 40%, #a5d8ff 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 10px 20px rgba(0,0,0,0.5);
-        }
-
-        p.subtitle {
-            font-size: 1.2rem;
-            letter-spacing: 2px;
-            color: rgba(255,255,255,0.6);
-            margin-top: 10px;
-        }
-
-        /* --- PROJECTS: PHOTOREALISTIC SCENE --- */
-        #projects-section {
-            /* A dark, moody background image to give reflections */
-            background-image: url('https://images.unsplash.com/photo-1543006762-829575100d16?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
-            background-size: cover;
-            background-position: center;
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%) translateZ(60px);
+            text-align: center; pointer-events: none;
         }
         
-        /* Darken and blur the background image */
-        #projects-section::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.7);
-            backdrop-filter: blur(15px);
-            z-index: 0;
-        }
+        h1 { font-family: 'Playfair Display'; font-size: 5rem; color: transparent; background: linear-gradient(to bottom, #fff, #88ccee); -webkit-background-clip: text; margin: 0; }
+        p.sub { letter-spacing: 4px; color: #88ccee; font-size: 0.9rem; margin-top: 10px; text-transform: uppercase; }
 
-        #webgl-canvas {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 1;
+        /* --- PROJECTS (WebGL) --- */
+        #projects-section { background: #000; }
+        #webgl-canvas { position: absolute; width: 100%; height: 100%; z-index: 1; }
+        
+        .project-card {
+            position: absolute; top: 50%; transform: translateY(-50%);
+            width: 280px; padding: 30px;
+            background: rgba(10,10,10,0.8);
+            border-left: 2px solid var(--accent);
+            backdrop-filter: blur(10px);
+            z-index: 2; color: #ddd;
+            transition: all 0.5s ease;
         }
-
-        .overlay-ui {
-            position: absolute;
-            z-index: 2;
-            width: 100%; height: 100%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 10%;
-            pointer-events: none;
-        }
-
-        .card {
-            background: rgba(20, 20, 20, 0.6);
-            border: 1px solid rgba(255,255,255,0.1);
-            padding: 30px;
-            border-radius: 12px;
-            max-width: 300px;
-            backdrop-filter: blur(20px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-            transform: translateY(50px);
-            opacity: 0;
-            transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
-        }
-
-        .section.active .card {
-            transform: translateY(0);
-            opacity: 1;
-        }
-
-        .card h2 {
-            font-family: 'Playfair Display', serif;
-            color: var(--accent);
-            margin-bottom: 10px;
-            font-size: 1.8rem;
-        }
-        .card p { font-size: 0.9rem; color: #ccc; line-height: 1.6; }
+        .card-left { left: 10%; transform: translateX(-50px) translateY(-50%); opacity: 0; }
+        .card-right { right: 10%; transform: translateX(50px) translateY(-50%); opacity: 0; text-align: right; border-left: none; border-right: 2px solid var(--accent); }
+        
+        .section.active .card-left, .section.active .card-right { transform: translateX(0) translateY(-50%); opacity: 1; }
+        h2 { color: var(--accent); font-family: 'Playfair Display'; margin-bottom: 10px; }
+        p { font-size: 0.85rem; line-height: 1.6; color: #aaa; }
 
     </style>
 </head>
 <body>
 
     <nav>
-        <button class="nav-btn active" onclick="switchTab('portfolio')">Portfolio</button>
-        <button class="nav-btn" onclick="switchTab('projects')">Projects</button>
+        <button class="nav-btn active" onclick="switchTab('portfolio')">PORTFOLIO</button>
+        <button class="nav-btn" onclick="switchTab('projects')">PROJECTS</button>
     </nav>
 
     <section id="portfolio-section" class="section active">
-        <div class="ice-stage" id="ice-stage">
-            <div class="ice-slab">
-                <canvas id="frost-canvas" style="position:absolute; width:100%; height:100%; top:0; left:0; mix-blend-mode: overlay; opacity: 0.6;"></canvas>
-                <div class="content-layer">
-                    <h1>JOHN DOE</h1>
-                    <p class="subtitle">CREATIVE DEVELOPER</p>
-                </div>
+        <div class="ice-slab" id="ice-slab">
+            <canvas id="frost-canvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0.5; mix-blend-mode: overlay;"></canvas>
+            <div class="content-layer">
+                <h1>JOHN DOE</h1>
+                <p class="sub">Digital Craftsman</p>
             </div>
         </div>
     </section>
 
     <section id="projects-section" class="section">
         <canvas id="webgl-canvas"></canvas>
-        <div class="overlay-ui">
-            <div class="card" style="transition-delay: 0.1s">
-                <h2>Alpha Trade</h2>
-                <p>Algorithmic trading platform utilizing Python and WebSockets for real-time data visualization.</p>
-            </div>
-            <div class="card" style="transition-delay: 0.3s">
-                <h2>Neuro Vision</h2>
-                <p>Medical imaging AI that detects anomalies in X-rays with 99% accuracy using TensorFlow.</p>
-            </div>
+        <div class="project-card card-left">
+            <h2>Algorithmic Trading</h2>
+            <p>Real-time Python dashboard visualization using WebSockets.</p>
+        </div>
+        <div class="project-card card-right">
+            <h2>Neural Imaging</h2>
+            <p>AI-powered medical diagnostics interface with 99% accuracy.</p>
         </div>
     </section>
 
     <script type="module">
         import * as THREE from 'three';
-        import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
+        import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
-        // --- GLOBAL VARIABLES ---
+        // --- GLOBAL STATE ---
         let currentTab = 'portfolio';
         let mouseX = 0, mouseY = 0;
-        
-        // --- 1. PORTFOLIO ICE INTERACTIVITY ---
-        const iceStage = document.getElementById('ice-stage');
+
+        // --- 1. PORTFOLIO INTERACTIVITY ---
+        const slab = document.getElementById('ice-slab');
         document.addEventListener('mousemove', (e) => {
-            mouseX = (e.clientX - window.innerWidth / 2) * 0.001;
-            mouseY = (e.clientY - window.innerHeight / 2) * 0.001;
+            mouseX = (e.clientX - window.innerWidth/2) * 0.0005;
+            mouseY = (e.clientY - window.innerHeight/2) * 0.0005;
 
             if(currentTab === 'portfolio') {
-                const x = (window.innerWidth / 2 - e.clientX) / 40;
-                const y = (window.innerHeight / 2 - e.clientY) / 40;
-                iceStage.style.transform = `rotateX(${25 + y}deg) rotateY(${x}deg)`;
+                slab.style.transform = `rotateX(${35 - mouseY * 20}deg) rotateY(${mouseX * 20}deg)`;
             }
         });
 
+        // Frost Effect
         const frostC = document.getElementById('frost-canvas');
         const fCtx = frostC.getContext('2d');
-        function resizeFrost() {
-            const rect = frostC.getBoundingClientRect();
-            frostC.width = rect.width;
-            frostC.height = rect.height;
-        }
+        function resizeFrost() { frostC.width = frostC.offsetWidth; frostC.height = frostC.offsetHeight; }
         window.addEventListener('resize', resizeFrost);
-        setTimeout(resizeFrost, 100);
+        setTimeout(resizeFrost, 0);
 
         let trails = [];
         frostC.addEventListener('mousemove', (e) => {
-            const rect = frostC.getBoundingClientRect();
-            trails.push({ x: e.clientX - rect.left, y: e.clientY - rect.top, age: 0 });
+            const r = frostC.getBoundingClientRect();
+            trails.push({x: e.clientX - r.left, y: e.clientY - r.top, a: 1});
         });
-
         function animateFrost() {
-            fCtx.clearRect(0,0, frostC.width, frostC.height);
-            fCtx.fillStyle = 'rgba(255,255,255,0.15)'; 
+            fCtx.clearRect(0,0,frostC.width, frostC.height);
             trails.forEach((t, i) => {
-                t.age++;
-                fCtx.beginPath();
-                fCtx.arc(t.x, t.y, 25 - t.age*0.2, 0, Math.PI*2);
-                fCtx.fill();
+                t.a -= 0.01;
+                fCtx.beginPath(); fCtx.arc(t.x, t.y, 20, 0, 7);
+                fCtx.fillStyle = `rgba(255,255,255,${t.a * 0.2})`; fCtx.fill();
             });
-            trails = trails.filter(t => t.age < 120);
+            trails = trails.filter(t => t.a > 0);
             requestAnimationFrame(animateFrost);
         }
         animateFrost();
 
 
-        // --- 2. PHOTOREALISTIC 3D SCENE ---
-        
+        // --- 2. THE REALISTIC GLASS ENGINE ---
         const canvas = document.querySelector('#webgl-canvas');
-        const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+        const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false }); // Alpha false for better refraction
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        // Important for realism: Filmic Tone Mapping
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        renderer.toneMappingExposure = 1.5;
+        renderer.toneMappingExposure = 1.2;
         renderer.shadowMap.enabled = true;
-        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        renderer.shadowMap.type = THREE.SoftShadowMap;
 
         const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(35, window.innerWidth/window.innerHeight, 0.1, 100);
-        camera.position.set(0, 4, 14);
+        // Dark background so glass has contrast
+        scene.background = new THREE.Color(0x050505);
 
-        // --- LOAD HDRI ENVIRONMENT ---
-        // This is the key to realistic glass. It provides the reflections.
-        const rgbeLoader = new RGBELoader();
-        rgbeLoader.load('https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/empty_warehouse_01_1k.hdr', function (texture) {
-            texture.mapping = THREE.EquirectangularReflectionMapping;
-            scene.environment = texture;
-            // We don't set it as background, we want our CSS background to show
+        // ENVIRONMENT (Crucial for Glass)
+        const pmremGenerator = new THREE.PMREMGenerator(renderer);
+        scene.environment = pmremGenerator.fromScene(new RoomEnvironment(), 0.04).texture;
+
+        const camera = new THREE.PerspectiveCamera(40, window.innerWidth/window.innerHeight, 0.1, 100);
+        camera.position.set(0, 5, 12);
+
+        // MATERIALS
+        // 1. Crystal Glass
+        const glassMat = new THREE.MeshPhysicalMaterial({
+            color: 0xffffff,
+            metalness: 0, roughness: 0,
+            transmission: 1, thickness: 1.5,
+            ior: 1.5, envMapIntensity: 1.5,
+            clearcoat: 1, transparent: true
         });
 
+        // 2. Amber Whiskey (Transparent)
+        const liquidMat = new THREE.MeshPhysicalMaterial({
+            color: 0xffae00,
+            metalness: 0, roughness: 0.1,
+            transmission: 0.6, // Allow light through
+            thickness: 2,
+            ior: 1.4, // Alcohol index
+            attenuationColor: new THREE.Color(0x8a4b08),
+            attenuationDistance: 5,
+            transparent: true, opacity: 0.9
+        });
+
+        // 3. Frosty Ice (Visible!)
+        const iceMat = new THREE.MeshPhysicalMaterial({
+            color: 0xffffff,
+            metalness: 0.1, roughness: 0.7, // High roughness = Frosty
+            transmission: 0.8, thickness: 2,
+            ior: 1.31,
+            clearcoat: 0.5
+        });
+
+        // OBJECTS
         const glassGroup = new THREE.Group();
         scene.add(glassGroup);
 
-        // --- MATERIALS ---
-        const glassMaterial = new THREE.MeshPhysicalMaterial({
-            color: 0xffffff,
-            transmission: 1.0,
-            opacity: 1.0,
-            metalness: 0.0,
-            roughness: 0.0, // Perfectly smooth
-            ior: 1.52,      // Accurate for crystal glass
-            thickness: 0.5,
-            specularIntensity: 1.0,
-            clearcoat: 1.0,
-            envMapIntensity: 1.5 // Boost reflections
-        });
+        // Glass Shape
+        const points = [];
+        for (let i = 0; i < 12; i++) {
+            points.push(new THREE.Vector2(Math.sin(i * 0.2) * 1.5 + 0.1, (i - 5) * 0.6));
+        }
+        const latheGeo = new THREE.LatheGeometry([
+            new THREE.Vector2(0, 0), new THREE.Vector2(1.5, 0), 
+            new THREE.Vector2(1.8, 5), new THREE.Vector2(1.6, 5), 
+            new THREE.Vector2(1.3, 0.4), new THREE.Vector2(0, 0.4)
+        ], 64);
+        const cup = new THREE.Mesh(latheGeo, glassMat);
+        cup.position.y = -2;
+        cup.castShadow = true; cup.receiveShadow = true;
+        glassGroup.add(cup);
 
-        // Advanced Liquid Material
-        const liquidMaterial = new THREE.MeshPhysicalMaterial({
-            color: 0xaa5500, // Richer amber
-            transmission: 0.8,
-            opacity: 0.95,
-            metalness: 0.0,
-            roughness: 0.1,
-            ior: 1.33, // Water/Alcohol IOR
-            attenuationColor: new THREE.Color(0x6a3b08), 
-            attenuationDistance: 1.5,
-            envMapIntensity: 1.2
-        });
-
-        // Frosty Ice Material
-        const iceMaterial = new THREE.MeshPhysicalMaterial({
-            color: 0xffffff,
-            transmission: 0.7,
-            roughness: 0.5, // Frosty surface
-            metalness: 0.1,
-            ior: 1.31,
-            thickness: 2.0,
-            clearcoat: 0.5,
-            envMapIntensity: 1.0
-        });
-
-        // --- GEOMETRY ---
-        
-        // 1. The Glass (Lathe Geometry for a nice profile)
-        const profile = [
-            new THREE.Vector2(0, 0),
-            new THREE.Vector2(1.6, 0.1),
-            new THREE.Vector2(1.8, 4.5),
-            new THREE.Vector2(1.6, 4.5),
-            new THREE.Vector2(1.4, 0.5),
-            new THREE.Vector2(0, 0.5)
-        ];
-        const glassGeo = new THREE.LatheGeometry(profile, 64); 
-        const glass = new THREE.Mesh(glassGeo, glassMaterial);
-        glass.position.y = -2.5;
-        glass.castShadow = true;
-        glass.receiveShadow = true;
-        glassGroup.add(glass);
-
-        // 2. The Liquid with realistic wave physics
-        const liquidGeo = new THREE.CylinderGeometry(1.55, 1.35, 2.5, 64, 32);
-        // Store original positions for simulation
-        const posAttribute = liquidGeo.attributes.position;
-        const originalPositions = posAttribute.array.slice();
-
-        const liquid = new THREE.Mesh(liquidGeo, liquidMaterial);
-        liquid.position.y = -1.2;
-        liquid.castShadow = true;
+        // Liquid Shape
+        const liqGeo = new THREE.CylinderGeometry(1.5, 1.25, 2.5, 32);
+        const liquid = new THREE.Mesh(liqGeo, liquidMat);
+        liquid.position.y = -1;
         glassGroup.add(liquid);
 
-        // 3. Detailed Ice Cubes with rounded edges
-        function createIceCube(size) {
-            // A box with many segments so we can round it
-            const geo = new THREE.BoxGeometry(size, size, size, 8, 8, 8);
-            const pos = geo.attributes.position;
-            // Simple rounding algorithm
-            for (let i = 0; i < pos.count; i++) {
-                let x = pos.getX(i), y = pos.getY(i), z = pos.getZ(i);
-                // Normalize to a sphere then blend back to a box
-                const len = Math.sqrt(x*x + y*y + z*z);
-                const blend = 0.3; // How round it is
-                pos.setX(i, x * (1-blend) + (x/len * size*0.5) * blend);
-                pos.setY(i, y * (1-blend) + (y/len * size*0.5) * blend);
-                pos.setZ(i, z * (1-blend) + (z/len * size*0.5) * blend);
-                // Add some random noise for realism
-                pos.setY(i, pos.getY(i) + (Math.random()-0.5)*0.05);
-            }
-            geo.computeVertexNormals();
-            const mesh = new THREE.Mesh(geo, iceMaterial);
-            mesh.castShadow = true;
-            return mesh;
+        // Bubbles (Particle System)
+        const bubbleGeo = new THREE.SphereGeometry(0.05, 8, 8);
+        const bubbles = [];
+        for(let i=0; i<40; i++) {
+            const b = new THREE.Mesh(bubbleGeo, new THREE.MeshBasicMaterial({color: 0xffaa00, opacity: 0.6, transparent: true}));
+            b.position.set((Math.random()-0.5)*2, -2 + Math.random()*2, (Math.random()-0.5)*2);
+            b.userData = { speed: 0.02 + Math.random()*0.03, limit: 0 }; // Float up
+            glassGroup.add(b);
+            bubbles.push(b);
         }
 
-        const cube1 = createIceCube(1.0);
-        cube1.position.set(0.4, -0.8, 0.4);
-        cube1.rotation.set(Math.random(), Math.random(), Math.random());
-        glassGroup.add(cube1);
+        // Ice Cubes
+        const iceGeo = new THREE.BoxGeometry(1.1, 1.1, 1.1);
+        const c1 = new THREE.Mesh(iceGeo, iceMat); c1.position.set(0.3, -1, 0.3); c1.rotation.set(1,1,0); glassGroup.add(c1);
+        const c2 = new THREE.Mesh(iceGeo, iceMat); c2.position.set(-0.4, 0, -0.2); c2.rotation.set(2,0.5,1); glassGroup.add(c2);
 
-        const cube2 = createIceCube(1.1);
-        cube2.position.set(-0.3, 0.2, -0.2);
-        cube2.rotation.set(Math.random(), Math.random(), Math.random());
-        glassGroup.add(cube2);
+        // Background Particles (To give glass something to refract)
+        const starGeo = new THREE.BufferGeometry();
+        const starCount = 500;
+        const starPos = new Float32Array(starCount * 3);
+        for(let i=0; i<starCount*3; i++) starPos[i] = (Math.random() - 0.5) * 30;
+        starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
+        const stars = new THREE.Points(starGeo, new THREE.PointsMaterial({color: 0x555555, size: 0.1}));
+        scene.add(stars);
 
-        // --- LIGHTING ---
-        const mainLight = new THREE.SpotLight(0xffe0b5, 80); // Warm main light
-        mainLight.position.set(10, 15, 10);
-        mainLight.angle = Math.PI / 6;
-        mainLight.penumbra = 0.5;
-        mainLight.castShadow = true;
-        mainLight.shadow.bias = -0.001;
-        scene.add(mainLight);
-
-        const rimLight = new THREE.PointLight(0x4466ff, 30); // Cool rim light
-        rimLight.position.set(-10, 5, -10);
-        scene.add(rimLight);
-
-        const fillLight = new THREE.AmbientLight(0x404040, 2);
-        scene.add(fillLight);
+        // Lighting
+        const spot = new THREE.SpotLight(0xffaa00, 100);
+        spot.position.set(5, 10, 5); spot.angle = 0.5; spot.penumbra = 1; spot.castShadow = true;
+        scene.add(spot);
+        const blueRim = new THREE.PointLight(0x0044ff, 20);
+        blueRim.position.set(-5, 2, -5); scene.add(blueRim);
 
 
-        // --- ANIMATION & PHYSICS ---
-        let time = 0;
-        let glassRotX = 0, glassRotY = 0;
-        let liquidVelX = 0, liquidVelZ = 0;
-        let liquidRotX = 0, liquidRotZ = 0;
-
+        // ANIMATION LOOP
         function animate() {
             requestAnimationFrame(animate);
+            if(currentTab !== 'projects') return;
 
-            if (currentTab === 'projects') {
-                time += 0.05;
+            // Rotate Glass based on mouse
+            glassGroup.rotation.x += (mouseY * 0.5 - glassGroup.rotation.x) * 0.1;
+            glassGroup.rotation.y += (mouseX * 0.5 - glassGroup.rotation.y) * 0.1;
 
-                // 1. Glass Movement (Smoothly follows mouse)
-                glassRotX += (mouseY * 0.8 - glassRotX) * 0.08;
-                glassRotY += (mouseX * 0.8 - glassRotY) * 0.08;
-                glassGroup.rotation.x = glassRotX;
-                glassGroup.rotation.y = glassRotY;
-
-                // 2. Advanced Liquid Physics Simulation
-                // Calculate acceleration based on glass tilt difference
-                const accelX = (glassRotX - liquidRotX) * 0.15;
-                const accelZ = (glassRotY - liquidRotZ) * 0.15;
-                
-                // Add to velocity with damping
-                liquidVelX += accelX;
-                liquidVelZ += accelZ;
-                liquidVelX *= 0.92; // Damping (viscosity)
-                liquidVelZ *= 0.92;
-
-                // Update liquid rotation
-                liquidRotX += liquidVelX;
-                liquidRotZ += liquidVelZ;
-
-                // Apply rotation to liquid mesh, with a slight lag/overshoot
-                liquid.rotation.x = liquidRotX + Math.sin(time*0.5)*0.02;
-                liquid.rotation.z = liquidRotZ + Math.cos(time*0.6)*0.02;
-
-                // 3. Vertex Displacement for Surface Waves
-                const positions = liquidGeo.attributes.position.array;
-                for (let i = 0; i < positions.length; i += 3) {
-                    const x = originalPositions[i];
-                    const y = originalPositions[i+1];
-                    const z = originalPositions[i+2];
-
-                    // Only displace vertices on the top surface
-                    if(y > 1.2) {
-                        // Combine several sine waves based on position and time
-                        const wave1 = Math.sin(x * 2 + time + liquidRotZ*5) * 0.05;
-                        const wave2 = Math.cos(z * 2 + time + liquidRotX*5) * 0.05;
-                        const slosh = (x * liquidRotZ - z * liquidRotX) * 0.5; // Slosh height based on tilt
-
-                        positions[i+1] = y + wave1 + wave2 + slosh;
-                    }
+            // Wobbly Liquid (Vertex Physics)
+            const time = Date.now() * 0.003;
+            const positions = liqGeo.attributes.position;
+            for(let i=0; i<positions.count; i++) {
+                if(positions.getY(i) > 1.2) { // Top surface only
+                    const x = positions.getX(i);
+                    const z = positions.getZ(i);
+                    // Wave math
+                    const wave = Math.sin(x * 2 + time) * 0.1 + Math.cos(z * 1.5 + time) * 0.1;
+                    // Tilt influence
+                    const tilt = (x * -glassGroup.rotation.z + z * glassGroup.rotation.x) * 0.5;
+                    
+                    positions.setY(i, 1.25 + wave + tilt);
                 }
-                liquidGeo.attributes.position.needsUpdate = true;
-                liquidGeo.computeVertexNormals();
-
-                // Ice floating physics
-                cube2.position.y = 0.2 + Math.sin(time * 0.3) * 0.08;
-                cube2.rotation.x += 0.005;
-                cube2.rotation.z += 0.003;
-                cube1.position.y = -0.8 + Math.cos(time * 0.4) * 0.04;
-
-                // Subtle camera parallax
-                camera.position.x = mouseX * 2;
-                camera.position.y = 4 + mouseY * 1;
-                camera.lookAt(0, 0, 0);
-
-                renderer.render(scene, camera);
             }
+            positions.needsUpdate = true;
+
+            // Animate Bubbles
+            bubbles.forEach(b => {
+                b.position.y += b.userData.speed;
+                if(b.position.y > 0.5) b.position.y = -2; // Reset to bottom
+            });
+
+            // Float Ice
+            c2.position.y = 0 + Math.sin(time*0.5)*0.05;
+            c2.rotation.x += 0.002;
+
+            renderer.render(scene, camera);
         }
         animate();
 
-
-        // --- UI LOGIC ---
-        window.switchTab = function(tabName) {
-            currentTab = tabName;
+        // Switch Logic
+        window.switchTab = (t) => {
+            currentTab = t;
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.getElementById(t+'-section').classList.add('active');
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
             event.target.classList.add('active');
-            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-            document.getElementById(tabName + '-section').classList.add('active');
-        };
+        }
 
         window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.aspect = window.innerWidth/window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
-            resizeFrost();
         });
 
     </script>
 </body>
 </html>
+
