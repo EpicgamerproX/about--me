@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ice & Ember: Rocks Glass Edition</title>
+    <title>Ice & Ember: The Perfect Pour</title>
     <script type="importmap">
         {
             "imports": {
@@ -23,7 +23,7 @@
         nav {
             position: fixed; top: 30px; left: 50%; transform: translateX(-50%);
             z-index: 1000; display: flex; gap: 10px;
-            background: rgba(20,20,20,0.7); padding: 8px; border-radius: 50px;
+            background: rgba(20,20,20,0.8); padding: 8px; border-radius: 50px;
             border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(15px);
         }
         .nav-btn {
@@ -36,33 +36,33 @@
         .section.active { opacity: 1; pointer-events: all; }
 
         /* --- PORTFOLIO --- */
-        #portfolio-section { display: flex; justify-content: center; align-items: center; perspective: 1000px; }
+        #portfolio-section { display: flex; justify-content: center; align-items: center; perspective: 1200px; }
         .ice-slab {
-            width: 70vw; height: 60vh; border-radius: 12px;
-            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.02));
-            border: 1px solid rgba(255,255,255,0.2); transform: rotateX(25deg);
-            box-shadow: 0 50px 100px rgba(0,0,0,0.5); position: relative;
+            width: 75vw; height: 60vh; border-radius: 8px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.01));
+            border: 1px solid rgba(255,255,255,0.2); transform: rotateX(20deg);
+            box-shadow: 0 50px 100px rgba(0,0,0,0.8); position: relative;
         }
-        .ice-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) translateZ(50px); text-align: center; }
+        .ice-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) translateZ(80px); text-align: center; }
         h1 { font-family: 'Playfair Display'; font-size: 5rem; line-height: 1; }
 
         /* --- PROJECTS --- */
         #webgl-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
-        .side-tabs {
+        .parallax-container {
             position: absolute; width: 100%; height: 100%; 
             display: flex; justify-content: space-between; align-items: center;
-            padding: 0 8%; pointer-events: none; z-index: 10;
+            padding: 0 10%; pointer-events: none; z-index: 10;
         }
-        .tab-box {
-            background: rgba(10,10,10,0.8); border-left: 3px solid var(--accent);
-            padding: 25px; border-radius: 8px; width: 280px;
-            backdrop-filter: blur(10px); opacity: 0; transform: translateX(-30px);
-            transition: 1s cubic-bezier(0.16, 1, 0.3, 1);
+        .project-tab {
+            background: rgba(15,15,15,0.85); border-top: 2px solid var(--accent);
+            padding: 30px; border-radius: 4px; width: 300px;
+            backdrop-filter: blur(12px); opacity: 0;
+            transition: opacity 1s ease;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
         }
-        .section.active .tab-box { opacity: 1; transform: translateX(0); }
-        .box-right { border-left: none; border-right: 3px solid var(--accent); transform: translateX(30px); }
-        h3 { color: var(--accent); font-family: 'Playfair Display'; margin-bottom: 8px; }
-        p { font-size: 0.85rem; color: #999; line-height: 1.5; }
+        .section.active .project-tab { opacity: 1; }
+        h3 { color: var(--accent); font-family: 'Playfair Display'; margin-bottom: 10px; font-size: 1.5rem; }
+        p { font-size: 0.9rem; color: #bbb; line-height: 1.6; }
     </style>
 </head>
 <body>
@@ -74,24 +74,24 @@
 
     <section id="portfolio-section" class="section active">
         <div class="ice-slab">
-            <canvas id="frost-canvas" style="position:absolute; width:100%; height:100%;"></canvas>
+            <canvas id="frost-canvas" style="position:absolute; width:100%; height:100%; opacity: 0.5;"></canvas>
             <div class="ice-text">
-                <h1>Creative</h1>
-                <p style="letter-spacing: 5px; color: #88ccee;">DESIGNER & DEVELOPER</p>
+                <h1>The Vision</h1>
+                <p style="letter-spacing: 6px; color: #a5d8ff; font-weight: 300;">ARTISTRY IN CODE</p>
             </div>
         </div>
     </section>
 
     <section id="projects-section" class="section">
         <canvas id="webgl-canvas"></canvas>
-        <div class="side-tabs">
-            <div class="tab-box">
+        <div class="parallax-container">
+            <div class="project-tab" id="tab-left">
                 <h3>VINTAGE UI</h3>
-                <p>A deep-dive into skeuomorphic design and interactive 3D interfaces.</p>
+                <p>Designing interfaces that feel tactile, physical, and timeless. A bridge between 2D and 3D.</p>
             </div>
-            <div class="tab-box box-right">
+            <div class="project-tab" id="tab-right">
                 <h3>LIQUID ENGINE</h3>
-                <p>Custom WebGL shaders for realistic fluid simulation and refraction.</p>
+                <p>Advanced WebGL shaders simulating the physics of light through glass and liquid.</p>
             </div>
         </div>
     </section>
@@ -106,127 +106,133 @@
         const fCanvas = document.getElementById('frost-canvas');
         const fCtx = fCanvas.getContext('2d');
         let trails = [];
-        window.addEventListener('resize', () => {
-            fCanvas.width = fCanvas.offsetWidth;
-            fCanvas.height = fCanvas.offsetHeight;
-        });
-        fCanvas.width = fCanvas.offsetWidth; fCanvas.height = fCanvas.offsetHeight;
+        const resizeF = () => { fCanvas.width = fCanvas.offsetWidth; fCanvas.height = fCanvas.offsetHeight; };
+        window.addEventListener('resize', resizeF); resizeF();
 
         fCanvas.addEventListener('mousemove', (e) => {
             const r = fCanvas.getBoundingClientRect();
-            trails.push({ x: e.clientX - r.left, y: e.clientY - r.top, size: 25, opacity: 0.3 });
+            trails.push({ x: e.clientX - r.left, y: e.clientY - r.top, opacity: 0.4 });
         });
 
-        function drawIce() {
+        function animateIce() {
             fCtx.clearRect(0,0, fCanvas.width, fCanvas.height);
+            fCtx.fillStyle = 'white';
             trails.forEach((t, i) => {
                 t.opacity -= 0.005;
-                fCtx.beginPath();
-                fCtx.arc(t.x, t.y, t.size, 0, Math.PI*2);
-                fCtx.fillStyle = `rgba(255,255,255,${t.opacity})`;
-                fCtx.fill();
+                fCtx.globalAlpha = t.opacity;
+                fCtx.beginPath(); fCtx.arc(t.x, t.y, 20, 0, Math.PI*2); fCtx.fill();
             });
             trails = trails.filter(t => t.opacity > 0);
-            requestAnimationFrame(drawIce);
+            requestAnimationFrame(animateIce);
         }
-        drawIce();
+        animateIce();
 
         // --- 3D WHISKEY ENGINE ---
         const canvas = document.querySelector('#webgl-canvas');
         const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        renderer.toneMappingExposure = 1.2;
+        renderer.toneMappingExposure = 1.4;
 
         const scene = new THREE.Scene();
         scene.background = new THREE.Color(0x020202);
 
-        // Environment for reflections
+        // Environment for REALISTIC Reflections
         const pmrem = new THREE.PMREMGenerator(renderer);
         scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
 
-        const camera = new THREE.PerspectiveCamera(35, window.innerWidth/window.innerHeight, 0.1, 100);
-        camera.position.set(0, 3, 12); // Backed up to see the whole glass
+        const camera = new THREE.PerspectiveCamera(38, window.innerWidth/window.innerHeight, 0.1, 100);
+        camera.position.set(0, 2, 11); 
 
         const glassGroup = new THREE.Group();
-        glassGroup.position.y = -1.5; // Centered vertically
+        glassGroup.position.y = -1.8; // Centered the glass vertically
         scene.add(glassGroup);
 
-        // Materials
+        // --- TRANSPARENT MATERIALS ---
         const glassMat = new THREE.MeshPhysicalMaterial({
-            transmission: 1, thickness: 2, ior: 1.5, roughness: 0.02,
-            specularIntensity: 1, clearcoat: 1
-        });
-        const liquidMat = new THREE.MeshPhysicalMaterial({
-            color: 0xff8800, transmission: 0.5, ior: 1.35, thickness: 3,
-            attenuationColor: new THREE.Color(0x442200), attenuationDistance: 2
-        });
-        const iceMat = new THREE.MeshPhysicalMaterial({
-            transmission: 0.9, roughness: 0.4, ior: 1.31, color: 0xffffff
+            transmission: 1, 
+            thickness: 1.2, 
+            ior: 1.52, 
+            roughness: 0.01,
+            metalness: 0,
+            transparent: true,
+            opacity: 1,
+            side: THREE.DoubleSide
         });
 
-        // Rocks Glass Geometry (Short & Wide)
-        const profile = [
+        const liquidMat = new THREE.MeshPhysicalMaterial({
+            color: 0xff7700, 
+            transmission: 0.8, 
+            ior: 1.34, 
+            thickness: 2.0,
+            roughness: 0.05,
+            attenuationColor: new THREE.Color(0x331100),
+            attenuationDistance: 0.8,
+            transparent: true
+        });
+
+        const iceMat = new THREE.MeshPhysicalMaterial({
+            transmission: 0.9, roughness: 0.2, ior: 1.31, color: 0xccddff, thickness: 1
+        });
+
+        // GEOMETRY
+        const points = [
             new THREE.Vector2(0, 0),
-            new THREE.Vector2(2.5, 0),   // Base
-            new THREE.Vector2(2.7, 4.5), // Top Rim
-            new THREE.Vector2(2.5, 4.5), // Inner Top
-            new THREE.Vector2(2.2, 0.8), // Inner Bottom
-            new THREE.Vector2(0, 0.8)    // Inner Center
+            new THREE.Vector2(2.6, 0),   // Extra Wide Base
+            new THREE.Vector2(2.8, 4.2), // Shorter, wider rim
+            new THREE.Vector2(2.5, 4.2), 
+            new THREE.Vector2(2.3, 0.8), 
+            new THREE.Vector2(0, 0.8)
         ];
-        const cup = new THREE.Mesh(new THREE.LatheGeometry(profile, 64), glassMat);
+        const cup = new THREE.Mesh(new THREE.LatheGeometry(points, 64), glassMat);
         glassGroup.add(cup);
 
-        // The "Rock" (One large clear ice sphere)
-        const theRock = new THREE.Mesh(new THREE.IcosahedronGeometry(1.4, 3), iceMat);
-        theRock.position.set(0, 1.8, 0);
-        glassGroup.add(theRock);
+        const liquid = new THREE.Mesh(new THREE.CylinderGeometry(2.4, 2.2, 1.6, 64), liquidMat);
+        liquid.position.y = 1.7;
+        glassGroup.add(liquid);
 
-        // The Pour (Liquid)
-        const pour = new THREE.Mesh(new THREE.CylinderGeometry(2.35, 2.1, 1.8, 32), liquidMat);
-        pour.position.y = 1.7;
-        glassGroup.add(pour);
+        const rock = new THREE.Mesh(new THREE.IcosahedronGeometry(1.3, 2), iceMat);
+        rock.position.set(0.2, 1.8, 0.2);
+        glassGroup.add(rock);
 
-        // Ground/Table for context reflections
-        const floor = new THREE.Mesh(
-            new THREE.PlaneGeometry(50, 50),
-            new THREE.MeshStandardMaterial({ color: 0x050505, roughness: 0.1, metalness: 0.5 })
-        );
-        floor.rotation.x = -Math.PI / 2;
-        floor.position.y = 0;
-        glassGroup.add(floor);
+        // LIGHTING
+        const topLight = new THREE.SpotLight(0xffffff, 60);
+        topLight.position.set(5, 12, 5);
+        scene.add(topLight);
+        
+        const rimLight = new THREE.PointLight(0xff8800, 30);
+        rimLight.position.set(-6, 4, -4);
+        scene.add(rimLight);
 
-        // Lighting
-        const light1 = new THREE.SpotLight(0xffffff, 50);
-        light1.position.set(5, 10, 5);
-        scene.add(light1);
-        const light2 = new THREE.PointLight(0xff9d00, 20);
-        light2.position.set(-5, 5, 2);
-        scene.add(light2);
+        // INTERACTIVITY & PARALLAX
+        let mouse = { x: 0, y: 0 };
+        const tabLeft = document.getElementById('tab-left');
+        const tabRight = document.getElementById('tab-right');
 
-        // Interactivity
-        let targetX = 0, targetY = 0;
         document.addEventListener('mousemove', (e) => {
-            targetX = (e.clientX - window.innerWidth/2) * 0.0005;
-            targetY = (e.clientY - window.innerHeight/2) * 0.0005;
+            mouse.x = (e.clientX - window.innerWidth/2) / (window.innerWidth/2);
+            mouse.y = (e.clientY - window.innerHeight/2) / (window.innerHeight/2);
         });
 
-        function render() {
-            requestAnimationFrame(render);
+        function renderLoop() {
+            requestAnimationFrame(renderLoop);
             if(currentTab === 'projects') {
-                // Parallax/Interaction
-                glassGroup.rotation.y += (targetX * 2 - glassGroup.rotation.y) * 0.05;
-                glassGroup.rotation.x += (targetY - glassGroup.rotation.x) * 0.05;
+                // Glass Animation
+                glassGroup.rotation.y += (mouse.x * 0.8 - glassGroup.rotation.y) * 0.05;
+                glassGroup.rotation.x += (mouse.y * 0.3 - glassGroup.rotation.x) * 0.05;
 
-                // Subtle slosh
-                pour.rotation.z = Math.sin(Date.now()*0.002) * 0.02 + (targetX * 0.5);
-                theRock.position.y = 1.8 + Math.sin(Date.now()*0.0015) * 0.05;
-                theRock.rotation.y += 0.005;
+                // UI Parallax Effect
+                tabLeft.style.transform = `translate(${mouse.x * -40}px, ${mouse.y * -20}px)`;
+                tabRight.style.transform = `translate(${mouse.x * -60}px, ${mouse.y * -30}px)`;
+
+                // Liquid Slosh
+                liquid.rotation.z = Math.sin(Date.now()*0.002)*0.03 + (mouse.x * 0.1);
+                rock.rotation.y += 0.005;
 
                 renderer.render(scene, camera);
             }
         }
-        render();
+        renderLoop();
 
         window.setTab = (t) => {
             currentTab = t;
