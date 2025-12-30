@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ice & Ember: Organic Fluid</title>
+    <title>Ice & Ember: Soft Body Physics</title>
     <script type="importmap">
         {
             "imports": {
@@ -13,7 +13,6 @@
         }
     </script>
     <style>
-        /* --- STYLES --- */
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@300;600&display=swap');
         
         :root { --accent: #ffae00; --bg: #050505; }
@@ -46,7 +45,6 @@
         }
         .section.active { opacity: 1; pointer-events: all; }
 
-        /* PORTFOLIO */
         #portfolio-section { display: flex; justify-content: center; align-items: center; perspective: 1000px; }
         .ice-slab {
             width: 70vw; height: 60vh;
@@ -59,7 +57,6 @@
         .ice-text { text-align: center; }
         h1 { font-family: 'Playfair Display'; font-size: 4rem; margin-bottom: 10px; }
         
-        /* PROJECTS */
         #webgl-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
         
         .ui-layer {
@@ -104,8 +101,8 @@
                 <p>Interfaces that feel physical. Tactile depth, realistic lighting, and glassmorphism.</p>
             </div>
             <div class="card" id="card-right">
-                <h3>FLUID ENGINE</h3>
-                <p>Organic liquid simulation using multi-layered noise algorithms for natural movement.</p>
+                <h3>SOFT BODY</h3>
+                <p>Full volumetric vertex displacement simulating liquid inertia and surface tension.</p>
             </div>
         </div>
     </section>
@@ -115,11 +112,16 @@
         import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 
         let currentTab = 'portfolio';
+        // Physics variables for Inertia
         let mouse = { x: 0, y: 0 };
+        let prevMouse = { x: 0, y: 0 };
+        let acceleration = { x: 0, y: 0 };
+        let velocity = { x: 0, y: 0 };
+
         const windowHalfX = window.innerWidth / 2;
         const windowHalfY = window.innerHeight / 2;
 
-        // --- 1. FROST CANVAS (2D) ---
+        // --- 1. FROST CANVAS ---
         const fC = document.getElementById('frost-canvas');
         const fX = fC.getContext('2d');
         let trails = [];
@@ -127,6 +129,7 @@
         window.addEventListener('resize', resizeFrost); resizeFrost();
 
         document.addEventListener('mousemove', (e) => {
+            // Update Mouse Logic
             mouse.x = (e.clientX - windowHalfX) / windowHalfX;
             mouse.y = (e.clientY - windowHalfY) / windowHalfY;
             
@@ -154,11 +157,11 @@
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        renderer.toneMappingExposure = 1.5; // Brightness boost
+        renderer.toneMappingExposure = 1.8;
 
         const scene = new THREE.Scene();
 
-        // HDRI Environment
+        // HDRI
         new RGBELoader()
             .setPath('https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/')
             .load('studio_small_09_1k.hdr', function (texture) {
@@ -167,44 +170,44 @@
             });
 
         const camera = new THREE.PerspectiveCamera(40, window.innerWidth/window.innerHeight, 0.1, 100);
-        camera.position.set(0, 4, 14);
+        camera.position.set(0, 3, 14);
 
         const glassGroup = new THREE.Group();
         glassGroup.position.y = -2.5; 
         scene.add(glassGroup);
 
-        // --- MATERIALS ---
-        
-        // FIX: Pure White Glass (removes "Metal" look)
+        // --- MATERIALS (Visibility & Clarity Fix) ---
         const glassMat = new THREE.MeshPhysicalMaterial({
-            color: 0xffffff,    // Pure white for clarity
+            color: 0xffffff,
             transmission: 1.0,  
-            thickness: 0.1,     // Thin walls
-            roughness: 0,       // Perfectly smooth
+            thickness: 0.05, // Ultra thin for clarity
+            roughness: 0,
             ior: 1.5,
             clearcoat: 1.0,
             transparent: true,
-            side: THREE.FrontSide 
+            side: THREE.FrontSide
         });
 
         const liquidMat = new THREE.MeshPhysicalMaterial({
-            color: 0xffaa00,
-            transmission: 0.6, 
+            color: 0xff9900,
+            transmission: 0.8, 
             thickness: 1.5,    
-            roughness: 0.2,
-            ior: 1.33,
-            attenuationColor: new THREE.Color(0x8a4b08), 
-            attenuationDistance: 3.0, // See deeper into the liquid
-            transparent: true
+            roughness: 0.1,
+            ior: 1.2, // Slightly lower IOR helps visibility inside glass
+            attenuationColor: new THREE.Color(0xcc6600), 
+            attenuationDistance: 5.0,
+            transparent: true,
+            side: THREE.DoubleSide // Ensure we see back and front of waves
         });
 
         const iceMat = new THREE.MeshPhysicalMaterial({
-            transmission: 0.9, roughness: 0.3, thickness: 1.5, ior: 1.31,
+            transmission: 0.9, roughness: 0.1, thickness: 1.5, ior: 1.31,
             color: 0xffffff, clearcoat: 0.5
         });
 
         // --- GEOMETRY ---
 
+        // Glass Cup
         const cupProfile = [
             new THREE.Vector2(0, 0),    
             new THREE.Vector2(3, 0),    
@@ -215,18 +218,31 @@
         ];
         const cupGeo = new THREE.LatheGeometry(cupProfile, 64);
         const cup = new THREE.Mesh(cupGeo, glassMat);
-        cup.renderOrder = 2; // Glass renders last
+        cup.renderOrder = 2; 
         glassGroup.add(cup);
 
-        // --- NEW FLUID METHOD: High-Res Mesh + Noise Math ---
-        // Instead of Radial Segments, we use a high-poly cylinder and distort vertices
-        // using superimposed sine waves (Pseudo-Perlin).
-        const liquidGeo = new THREE.CylinderGeometry(2.9, 2.7, 2.5, 128, 32); // High resolution
+        // LIQUID - HIGH POLY FOR SOFT BODY PHYSICS
+        // RadiusTop, RadiusBot, Height, RadialSegments, HeightSegments (Important!)
+        // HeightSegments = 20 means we have 20 layers of nodes to bend!
+        const liquidGeo = new THREE.CylinderGeometry(2.85, 2.65, 2.8, 64, 20);
+        
+        // Store original positions for physics calculations
+        const posAttribute = liquidGeo.attributes.position;
+        const originalPositions = [];
+        for (let i = 0; i < posAttribute.count; i++) {
+            originalPositions.push({
+                x: posAttribute.getX(i),
+                y: posAttribute.getY(i),
+                z: posAttribute.getZ(i)
+            });
+        }
+
         const liquid = new THREE.Mesh(liquidGeo, liquidMat);
         liquid.position.y = 1.8; 
-        liquid.renderOrder = 1; // Liquid renders first
+        liquid.renderOrder = 1;  
         glassGroup.add(liquid);
 
+        // Ice Cube
         const iceGeo = new THREE.BoxGeometry(1.6, 1.6, 1.6);
         const iceCube = new THREE.Mesh(iceGeo, iceMat);
         iceCube.position.set(0, 1.5, 0);
@@ -234,9 +250,13 @@
         glassGroup.add(iceCube);
 
         // --- LIGHTING ---
-        const backLight = new THREE.PointLight(0xffffff, 80);
+        const backLight = new THREE.PointLight(0xffffff, 60);
         backLight.position.set(0, 5, -10);
         scene.add(backLight);
+
+        const innerLight = new THREE.PointLight(0xffaa00, 20);
+        innerLight.position.set(0, 2, 0); // Inside the drink
+        glassGroup.add(innerLight);
 
         const fillLight = new THREE.DirectionalLight(0xffaa00, 3);
         fillLight.position.set(-5, 5, 5);
@@ -245,56 +265,94 @@
         const cardL = document.getElementById('card-left');
         const cardR = document.getElementById('card-right');
 
-        // Simple pseudo-noise function
-        function noise(x, z, t) {
-            return Math.sin(x * 0.8 + t) * Math.cos(z * 0.8 + t) + 
-                   Math.sin(x * 2.5 + t * 2) * 0.1 + 
-                   Math.cos(z * 3.0 + t * 1.5) * 0.1; 
-        }
-
         function animate() {
             requestAnimationFrame(animate);
 
             if(currentTab === 'projects') {
-                glassGroup.rotation.y += (mouse.x * 0.5 - glassGroup.rotation.y) * 0.05;
-                glassGroup.rotation.x += (mouse.y * 0.2 - glassGroup.rotation.x) * 0.05;
+                // --- 1. CALCULATE INERTIA ---
+                // Calculate acceleration based on mouse change
+                acceleration.x = (mouse.x - prevMouse.x) * 0.05;
+                acceleration.y = (mouse.y - prevMouse.y) * 0.05;
 
-                // --- ORGANIC FLUID SIMULATION ---
-                const time = Date.now() * 0.002;
-                const pos = liquidGeo.attributes.position;
-                
-                for(let i=0; i<pos.count; i++){
-                    // Only animate top surface (y > 1.0)
-                    if(pos.getY(i) > 1.0) {
-                        const x = pos.getX(i);
-                        const z = pos.getZ(i);
-                        
-                        // Use "Noise" function instead of simple sine waves
-                        const organicWave = noise(x, z, time) * 0.2;
-                        
-                        // Slosh logic (Mouse influence)
-                        const slosh = (x * mouse.x * 0.4) + (z * -mouse.y * 0.2);
+                // Add to velocity with damping (spring effect)
+                velocity.x += acceleration.x;
+                velocity.x *= 0.95; // Decay
+                velocity.y += acceleration.y;
+                velocity.y *= 0.95; // Decay
 
-                        // Base height + Wave + Slosh
-                        pos.setY(i, 1.25 + organicWave + slosh);
+                // Save prev mouse
+                prevMouse.x = mouse.x;
+                prevMouse.y = mouse.y;
+
+                // --- 2. SOFT BODY ALGORITHM ---
+                const time = Date.now() * 0.003;
+                const positions = liquidGeo.attributes.position;
+
+                for (let i = 0; i < positions.count; i++) {
+                    const orig = originalPositions[i];
+                    
+                    // "Height Factor": 0 at bottom, 1 at top.
+                    // This ensures the bottom stays stuck to the glass, top moves most.
+                    const heightFactor = (orig.y + 1.4) / 2.8; 
+                    const normalizedHeight = Math.max(0, heightFactor); 
+
+                    // Wave Noise
+                    const noise = Math.sin(orig.x * 2 + time) * 0.05 + Math.cos(orig.z * 1.5 + time) * 0.05;
+                    
+                    // --- THE ALGORITHM: AFFECT NODES THROUGHOUT ---
+                    
+                    // 1. Shear/Slosh: Top moves opposite to velocity (lag)
+                    const shearX = -velocity.x * normalizedHeight * 8.0; 
+                    const shearZ = velocity.y * normalizedHeight * 4.0; // Y mouse maps to Z depth
+
+                    // 2. Bulge: When liquid sloshes, sides expand outward
+                    // We calculate distance from center to know which way is "out"
+                    const angle = Math.atan2(orig.z, orig.x);
+                    const dist = Math.sqrt(orig.x*orig.x + orig.z*orig.z);
+                    
+                    // Dynamic Bulge based on velocity
+                    const bulgeAmount = (Math.abs(velocity.x) + Math.abs(velocity.y)) * normalizedHeight * 0.5;
+                    const bulgeX = Math.cos(angle) * bulgeAmount * Math.sin(normalizedHeight * Math.PI); // Sin ensures bulge is in middle
+                    const bulgeZ = Math.sin(angle) * bulgeAmount * Math.sin(normalizedHeight * Math.PI);
+
+                    // 3. Top Surface Turbulence (Only if y is high)
+                    let surfaceY = 0;
+                    if(orig.y > 1.3) {
+                        surfaceY = noise + (orig.x * -velocity.x * 2); // Tilt surface
                     }
-                }
-                pos.needsUpdate = true;
-                liquidGeo.computeVertexNormals(); 
 
+                    // Apply New Positions
+                    positions.setX(i, orig.x + shearX + bulgeX);
+                    positions.setZ(i, orig.z + shearZ + bulgeZ);
+                    positions.setY(i, orig.y + surfaceY);
+                }
+
+                positions.needsUpdate = true;
+                liquidGeo.computeVertexNormals();
+
+                // Rotate Glass
+                glassGroup.rotation.y += (mouse.x * 0.3 - glassGroup.rotation.y) * 0.05;
+                glassGroup.rotation.x += (mouse.y * 0.1 - glassGroup.rotation.x) * 0.05;
+
+                // Ice Physics
                 iceCube.rotation.y += 0.005;
                 iceCube.position.y = 1.5 + Math.sin(time * 0.5) * 0.1;
+                // Ice reacts to inertia too
+                iceCube.position.x += (shearX_Calc(1) - iceCube.position.x) * 0.1;
 
+                // Parallax UI
                 cardL.style.transform = `translate(${mouse.x * -40}px, ${mouse.y * -20}px)`;
                 cardR.style.transform = `translate(${mouse.x * -60}px, ${mouse.y * -30}px)`;
 
                 renderer.render(scene, camera);
             }
         }
+        
+        // Helper for ice physics
+        function shearX_Calc(h) { return -velocity.x * h * 4.0; }
+
         animate();
 
-
-        // --- UI LOGIC ---
         window.setTab = (t) => {
             currentTab = t;
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
