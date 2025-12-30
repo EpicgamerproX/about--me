@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Achyut | Portfolio</title>
+    <title>Achyut | Living Portfolio</title>
     <style>
         /* --- 1. RESET & CORE --- */
         * {
@@ -55,8 +55,22 @@
             pointer-events: none;
             z-index: 10000;
             transform: translate(-50%, -50%);
-            transition: width 0.3s ease, height 0.3s ease, border-radius 0.3s ease;
-            will-change: left, top;
+            
+            /* Smooth transitions for shape and size */
+            transition: 
+                width 0.4s cubic-bezier(0.2, 0.8, 0.2, 1),
+                height 0.4s cubic-bezier(0.2, 0.8, 0.2, 1),
+                border-radius 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+            
+            will-change: left, top, width, height, transform;
+        }
+
+        /* EXPANDED STATE (The Portal) */
+        #cursor-blob.expanded {
+            width: 250vmax !important; /* Huge to cover screen */
+            height: 250vmax !important;
+            border-radius: 0 !important; /* Become a square/rectangle */
+            transition: all 1.2s cubic-bezier(0.7, 0, 0.3, 1); /* Slow, dramatic expansion */
         }
 
         /* --- 4. RIPPLE --- */
@@ -76,12 +90,11 @@
             100% { width: 100vmax; height: 100vmax; opacity: 0; }
         }
 
-        /* --- 5. LAYERS & SPACERS (THE FIX) --- */
-        
+        /* --- 5. LAYERS & SPACERS --- */
         .layer {
             position: sticky;
             top: 0;
-            height: 100vh; /* Full viewport height */
+            height: 100vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -89,41 +102,71 @@
             background-color: #050505;
             border-top: 1px solid rgba(255,255,255,0.08);
             overflow: hidden;
-            /* Shadow makes the cut effect more obvious */
-            box-shadow: 0 -50px 100px rgba(0,0,0,0.8); 
+            box-shadow: 0 -50px 100px rgba(0,0,0,0.8);
         }
 
-        /* THE INVISIBLE BRAKE */
-        .spacer {
-            width: 100%;
-            /* 40vh = You have to scroll 40% of the screen height 
-               before the next layer even starts moving up. */
-            height: 40vh; 
-            background: transparent;
-            pointer-events: none;
-        }
+        .spacer { width: 100%; height: 40vh; background: transparent; pointer-events: none; }
 
-        /* Layer Colors & Z-Index */
         #layer-1 { background-color: #050505; z-index: 1; }
         #layer-2 { background-color: #080808; z-index: 2; }
         #layer-3 { background-color: #000000; z-index: 3; }
         #layer-skills { background-color: #050505; z-index: 4; padding: 0; flex-direction: row; position: sticky; }
         #layer-5 { background-color: #020202; z-index: 5; }
 
-        /* --- 6. TYPOGRAPHY --- */
+        /* --- 6. HIDDEN FINAL CONTENT --- */
+        #final-layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10001; /* Above the blob */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease 0.8s; /* Wait for blob to expand */
+            color: #000; /* Text is black because background (blob) is white */
+            text-align: center;
+        }
+
+        #final-layer.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        #final-layer h1 { color: #000; }
+        #final-layer p { color: #333; }
+        #final-layer .close-btn {
+            margin-top: 40px;
+            padding: 15px 40px;
+            border: 2px solid #000;
+            border-radius: 30px;
+            color: #000;
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer; /* Force pointer here */
+            background: transparent;
+            transition: 0.3s;
+            pointer-events: auto;
+        }
+        #final-layer .close-btn:hover { background: #000; color: #fff; }
+
+
+        /* --- 7. TYPOGRAPHY & UI --- */
         h1 { font-size: 7vw; line-height: 0.9; font-weight: 800; letter-spacing: -3px; margin-bottom: 1.5rem; color: #fff; position: relative; z-index: 10; }
         h2 { font-size: 0.9rem; font-weight: 600; text-transform: uppercase; letter-spacing: 3px; color: #666; margin-bottom: 1.5rem; z-index: 10; }
         p { font-size: 1.5rem; max-width: 600px; line-height: 1.4; color: #bbb; margin-bottom: 1rem; z-index: 10; }
         .mobile-hint { display: none; font-size: 0.75rem; color: #444; margin-top: 10px; text-transform: uppercase; letter-spacing: 1px; }
 
-        /* --- 7. BUTTONS --- */
         .btn-container { margin-top: 30px; display: flex; flex-wrap: wrap; gap: 15px; }
         .btn { display: inline-block; padding: 12px 28px; border: 1px solid rgba(255,255,255,0.3); border-radius: 30px; color: white; text-decoration: none; text-transform: uppercase; letter-spacing: 1px; font-size: 0.75rem; font-weight: 700; position: relative; z-index: 20; background: transparent; transition: opacity 0.3s; pointer-events: auto; }
         .btn.hovered-state { border-color: transparent; }
 
         /* --- 8. SIDEBAR --- */
         .skill-left { width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; padding-left: 10vw; transition: opacity 0.3s; }
-        
         .pull-indicator { position: absolute; right: 20px; top: 50%; transform: translateY(-50%); z-index: 40; display: flex; flex-direction: column; align-items: center; opacity: 0.6; animation: pulseLeft 2s infinite; }
         .arrow-icon { width: 0; height: 0; border-top: 8px solid transparent; border-bottom: 8px solid transparent; border-right: 12px solid #fff; margin-bottom: 8px; }
         .pull-text { writing-mode: vertical-rl; text-orientation: mixed; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 2px; }
@@ -145,8 +188,6 @@
             #cursor-blob { width: 80px; height: 80px; }
             .pull-indicator { right: 10px; }
             .pull-text { display: none; }
-            
-            /* Smaller spacer on mobile so it doesn't feel like you are scrolling forever */
             .spacer { height: 25vh; }
         }
     </style>
@@ -156,6 +197,13 @@
     <div class="noise-overlay"></div>
     <div id="cursor-blob"></div>
 
+    <div id="final-layer">
+        <h1>ACCESS GRANTED</h1>
+        <p>Achyut | Full Stack Developer</p>
+        <p>+91 98765 43210<br>achyut@devmail.com</p>
+        <button class="close-btn" onclick="toggleSecretMode()">Close Terminal</button>
+    </div>
+
     <main>
         <section class="layer" id="layer-1">
             <h2>Portfolio</h2>
@@ -163,7 +211,6 @@
             <p>Full Stack Developer.</p>
             <div class="mobile-hint">Tap screen to interact</div>
         </section>
-
         <div class="spacer"></div>
 
         <section class="layer" id="layer-2">
@@ -174,7 +221,6 @@
                 <a href="#" class="btn magnetic">Read Bio</a>
             </div>
         </section>
-
         <div class="spacer"></div>
 
         <section class="layer" id="layer-3">
@@ -186,7 +232,6 @@
                 <a href="https://github.com/achyut07" target="_blank" class="btn magnetic">GitHub</a>
             </div>
         </section>
-
         <div class="spacer"></div>
 
         <section class="layer" id="layer-skills">
@@ -194,62 +239,47 @@
                 <div class="arrow-icon"></div>
                 <span class="pull-text">PULL OPEN</span>
             </div>
-
             <div class="skill-left">
                 <h2>Capabilities</h2>
                 <h1>TECHNICAL<br>ARSENAL.</h1>
                 <p>Fling the blob to the right edge to reveal.</p>
             </div>
-
             <aside class="skill-sidebar" id="skillSidebar">
                 <div class="skill-category">
                     <h3>Frontend</h3>
                     <div class="skill-grid">
-                        <div class="skill-tag magnetic">CSS3</div>
-                        <div class="skill-tag magnetic">HTML5</div>
-                        <div class="skill-tag magnetic">JavaScript</div>
-                        <div class="skill-tag magnetic">TailwindCSS</div>
                         <div class="skill-tag magnetic">React</div>
+                        <div class="skill-tag magnetic">Tailwind</div>
+                        <div class="skill-tag magnetic">TypeScript</div>
                     </div>
                 </div>
-                <div class="skill-category">
+                 <div class="skill-category">
                     <h3>Backend</h3>
                     <div class="skill-grid">
-                        <div class="skill-tag magnetic">Flask</div>
-                        <div class="skill-tag magnetic">SQL</div>
-                        <div class="skill-tag magnetic">PostgreSQL</div>
-                    </div>
-                </div>
-                <div class="skill-category">
-                    <h3>Core</h3>
-                    <div class="skill-grid">
-                        <div class="skill-tag magnetic">C++</div>
+                        <div class="skill-tag magnetic">Node</div>
                         <div class="skill-tag magnetic">Python</div>
-                        <div class="skill-tag magnetic">Bash</div>
+                        <div class="skill-tag magnetic">PostgreSQL</div>
                     </div>
                 </div>
             </aside>
         </section>
-
         <div class="spacer"></div>
 
         <section class="layer" id="layer-5">
             <h2>Contact</h2>
             <h1>LET'S<br>COLLABORATE.</h1>
             <div class="btn-container">
-                <a href="mailto:email@example.com" class="btn magnetic">Send Email</a>
-                <a href="https://linkedin.com/in/achyut07" class="btn magnetic">LinkedIn</a>
+                <button class="btn magnetic" onclick="toggleSecretMode()">UNLOCK TERMINAL</button>
             </div>
         </section>
-        
         <div class="spacer" style="height: 20vh;"></div>
-
     </main>
 
     <script>
         const blob = document.getElementById('cursor-blob');
         const skillLayer = document.getElementById('layer-skills');
         const sidebar = document.getElementById('skillSidebar');
+        const finalLayer = document.getElementById('final-layer');
         
         let blobX = window.innerWidth / 2;
         let blobY = window.innerHeight / 2;
@@ -259,6 +289,7 @@
         let mouseY = window.innerHeight / 2;
         
         let isMouseMode = true; 
+        let isSecretMode = false; // Flag for the expansion state
 
         // CONFIG
         const FRICTION = 0.93; 
@@ -266,18 +297,44 @@
         const REPULSION_FORCE = 120; 
         const MAGNET_RANGE = 80;
 
+        // --- SECRET MODE TOGGLE ---
+        window.toggleSecretMode = function() {
+            isSecretMode = !isSecretMode;
+            
+            if (isSecretMode) {
+                // LOCK BLOB
+                blob.classList.add('expanded');
+                finalLayer.classList.add('active');
+                
+                // Move blob to center of screen regardless of mouse position
+                blob.style.left = '50%';
+                blob.style.top = '50%';
+            } else {
+                // RELEASE BLOB
+                blob.classList.remove('expanded');
+                finalLayer.classList.remove('active');
+                
+                // Reset position to current mouse to prevent jump
+                blobX = window.innerWidth / 2;
+                blobY = window.innerHeight / 2;
+            }
+        };
+
         // --- INPUT HANDLING ---
         document.addEventListener('mousemove', (e) => {
+            if(isSecretMode) return; // Ignore input if in secret mode
             isMouseMode = true;
             mouseX = e.clientX;
             mouseY = e.clientY;
         });
 
         document.addEventListener('mousedown', (e) => {
+            if(isSecretMode) return;
             triggerRipple(e.clientX, e.clientY);
         });
 
         document.addEventListener('touchstart', (e) => {
+            if(isSecretMode) return;
             isMouseMode = false;
             const touchX = e.touches[0].clientX;
             const touchY = e.touches[0].clientY;
@@ -286,8 +343,6 @@
             mouseY = touchY;
         }, { passive: false });
 
-
-        // --- BLAST FUNCTION ---
         function triggerRipple(x, y) {
             const ripple = document.createElement('div');
             ripple.classList.add('ripple');
@@ -296,7 +351,6 @@
             document.body.appendChild(ripple);
             setTimeout(() => { ripple.remove(); }, 1000);
 
-            // PHYSICS BLAST
             let dx = blobX - x;
             let dy = blobY - y;
             let dist = Math.hypot(dx, dy);
@@ -304,17 +358,19 @@
             
             const dirX = dx / dist;
             const dirY = dy / dist;
-
-            // Apply massive impulse
             velX += dirX * REPULSION_FORCE;
             velY += dirY * REPULSION_FORCE;
         }
 
-
         // --- MAIN LOOP ---
         function animate() {
+            // IF SECRET MODE IS ON, SKIP PHYSICS
+            if (isSecretMode) {
+                requestAnimationFrame(animate);
+                return;
+            }
+
             const magneticElements = document.querySelectorAll('.magnetic');
-            
             const isMobile = window.innerWidth < 768;
             const baseSize = isMobile ? 80 : 150;
 
@@ -333,10 +389,23 @@
                 velY *= FRICTION;
             }
 
-            // 2. SIDEBAR LOGIC (Responsive)
+            // 2. IDLE LIFE (BREATHING & DRIFTING)
+            // If velocity is very low, add organic drift
+            const speed = Math.hypot(velX, velY);
+            if (speed < 0.5) {
+                const time = Date.now() * 0.002;
+                // Gentle drift
+                blobX += Math.sin(time) * 0.2;
+                blobY += Math.cos(time * 1.5) * 0.2;
+                
+                // Gentle breathing (size)
+                const breathe = Math.sin(time * 2) * 5; // +/- 5px
+                width += breathe;
+                height += breathe;
+            }
+
+            // 3. SIDEBAR LOGIC
             const skillsRect = skillLayer.getBoundingClientRect();
-            // Since we added spacers, checking 'top' is still valid because
-            // position:sticky keeps the layer at top:0 even while scrolling through the spacer.
             const isLayerActive = Math.abs(skillsRect.top) < 50; 
 
             if (isLayerActive) { 
@@ -356,9 +425,8 @@
                 sidebar.style.transform = `translateX(100%)`;
             }
 
-            // 3. MAGNETISM
-            const currentSpeed = Math.hypot(velX, velY);
-            if (currentSpeed < 25) {
+            // 4. MAGNETISM
+            if (speed < 25) {
                 magneticElements.forEach(btn => {
                     const rect = btn.getBoundingClientRect();
                     if (rect.bottom < 0 || rect.top > window.innerHeight) return;
@@ -382,14 +450,14 @@
                 magneticElements.forEach(btn => btn.classList.remove('hovered-state'));
             }
 
-            // 4. UPDATE POSITION
+            // 5. UPDATE POSITION
             blobX += velX;
             blobY += velY;
 
             if (blobX < 0) { blobX = 0; velX *= -0.6; }
             if (blobX > window.innerWidth) { blobX = window.innerWidth; velX *= -0.6; }
 
-            // 5. RENDER
+            // 6. RENDER
             blob.style.left = blobX + 'px';
             blob.style.top = blobY + 'px';
             blob.style.width = width + 'px';
