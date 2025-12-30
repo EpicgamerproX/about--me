@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ice & Ember: Ultimate Transparency</title>
+    <title>Ice & Ember: Masterpiece</title>
     <script type="importmap">
         {
             "imports": {
@@ -15,7 +15,7 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@300;600&display=swap');
 
-        :root { --accent: #ff9d00; --bg: #020202; }
+        :root { --accent: #ffae00; --bg: #020202; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background: var(--bg); color: white; font-family: 'Montserrat', sans-serif; overflow: hidden; height: 100vh; }
 
@@ -34,26 +34,26 @@
         .section { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; pointer-events: none; transition: 0.8s; }
         .section.active { opacity: 1; pointer-events: all; }
 
-        /* --- PORTFOLIO --- */
+        /* --- ICE SLAB --- */
         #portfolio-section { display: flex; justify-content: center; align-items: center; perspective: 1200px; }
         .ice-slab {
-            width: 70vw; height: 60vh; border-radius: 12px;
-            background: rgba(255,255,255,0.05);
+            width: 70vw; height: 60vh; border-radius: 8px;
+            background: rgba(255,255,255,0.03);
             border: 1px solid rgba(255,255,255,0.2); transform: rotateX(25deg);
             box-shadow: 0 50px 100px rgba(0,0,0,0.8); position: relative;
         }
         .ice-content { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) translateZ(100px); text-align: center; }
-        h1 { font-family: 'Playfair Display'; font-size: 5rem; text-transform: uppercase; letter-spacing: -2px; }
+        h1 { font-family: 'Playfair Display'; font-size: 5rem; letter-spacing: -2px; }
 
         /* --- PROJECTS --- */
         #webgl-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
-        .parallax-ui {
+        .ui-parallax {
             position: absolute; width: 100%; height: 100%; 
             display: flex; justify-content: space-between; align-items: center;
             padding: 0 10%; pointer-events: none; z-index: 10;
         }
         .float-card {
-            background: rgba(10,10,10,0.85); border-top: 2px solid var(--accent);
+            background: rgba(10,10,10,0.9); border-left: 3px solid var(--accent);
             padding: 30px; border-radius: 4px; width: 300px;
             backdrop-filter: blur(15px); box-shadow: 0 30px 60px rgba(0,0,0,0.5);
             opacity: 0; transition: 0.5s ease-out;
@@ -74,22 +74,22 @@
         <div class="ice-slab">
             <canvas id="frost-canvas" style="position:absolute; width:100%; height:100%;"></canvas>
             <div class="ice-content">
-                <h1>The Ice</h1>
-                <p style="letter-spacing: 12px; color: #a5d8ff; font-weight: 300;">CRYSTAL PRECISION</p>
+                <h1>The Frost</h1>
+                <p style="letter-spacing: 12px; color: #a5d8ff;">PORTFOLIO 2025</p>
             </div>
         </div>
     </section>
 
     <section id="projects-section" class="section">
         <canvas id="webgl-canvas"></canvas>
-        <div class="parallax-ui">
-            <div class="float-card" id="card-left">
-                <h3>VINTAGE UI</h3>
-                <p>Designing interfaces with real-world physics, lighting, and tactile depth.</p>
+        <div class="ui-parallax">
+            <div class="float-card" id="card-l">
+                <h3>VINTAGE CRAFT</h3>
+                <p>High-fidelity interaction models focusing on depth, lighting, and crystal textures.</p>
             </div>
-            <div class="float-card" id="card-right">
-                <h3>LIQUID ENGINE</h3>
-                <p>Custom WebGL shaders for realistic fluid refraction and light scattering.</p>
+            <div class="float-card" id="card-r">
+                <h3>OPTIC ENGINE</h3>
+                <p>Custom WebGL implementation of physics-based light refraction and liquid volume.</p>
             </div>
         </div>
     </section>
@@ -101,7 +101,7 @@
         let currentTab = 'portfolio';
         let mouse = { x: 0, y: 0 };
 
-        // --- ICE SLAB TRAILS ---
+        // --- ICE SLAB ---
         const fC = document.getElementById('frost-canvas');
         const fX = fC.getContext('2d');
         let trails = [];
@@ -117,130 +117,132 @@
             }
         });
 
-        function animateIce() {
+        function drawIce() {
             fX.clearRect(0,0, fC.width, fC.height);
             trails.forEach(t => {
-                t.o -= 0.005; fX.beginPath(); fX.arc(t.x, t.y, 20, 0, 7);
+                t.o -= 0.005; fX.beginPath(); fX.arc(t.x, t.y, 25, 0, 7);
                 fX.fillStyle = `rgba(255,255,255,${t.o})`; fX.fill();
             });
             trails = trails.filter(t => t.o > 0);
-            requestAnimationFrame(animateIce);
+            requestAnimationFrame(drawIce);
         }
-        animateIce();
+        drawIce();
 
         // --- 3D ENGINE ---
         const canvas = document.querySelector('#webgl-canvas');
         const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        renderer.toneMappingExposure = 1.8;
+        renderer.toneMappingExposure = 1.5;
 
         const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x020202);
 
+        // THE SECRET INGREDIENT: A HIGH-CONTRAST ENVIRONMENT
+        // This gives the glass "highlights" to reflect so it doesn't look like grey plastic
         const pmrem = new THREE.PMREMGenerator(renderer);
         scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
 
         const camera = new THREE.PerspectiveCamera(35, window.innerWidth/window.innerHeight, 0.1, 100);
-        camera.position.set(0, 2, 11);
+        camera.position.set(0, 3, 12);
 
         const glassGroup = new THREE.Group();
-        glassGroup.position.y = -1.8; 
+        glassGroup.position.y = -1.5;
         scene.add(glassGroup);
 
-        // --- MATERIALS ---
+        // --- REALISTIC MATERIALS ---
         const glassMat = new THREE.MeshPhysicalMaterial({
             transmission: 1.0, 
-            thickness: 0.2, // Keep thickness low to allow visibility
-            ior: 1.5, 
-            roughness: 0.0,
-            metalness: 0.0,
+            thickness: 1.5, // Simulates the volume of the glass walls
+            ior: 1.52, // Index of Refraction for Crown Glass
+            roughness: 0.02,
+            metalness: 0,
             transparent: true,
             opacity: 1,
             side: THREE.DoubleSide,
-            depthWrite: true // Ensure glass writes to depth buffer properly
+            specularIntensity: 2.0,
+            clearcoat: 1.0
         });
 
         const liquidMat = new THREE.MeshPhysicalMaterial({
-            color: 0xff8800, 
-            transmission: 0.7, 
-            ior: 1.33, 
-            thickness: 1.5,
-            roughness: 0.1,
+            color: 0xffaa00, 
+            transmission: 0.8, 
+            ior: 1.34, 
+            thickness: 2.5,
             attenuationColor: new THREE.Color(0x442200),
-            attenuationDistance: 1,
+            attenuationDistance: 1.5,
             transparent: true,
-            opacity: 0.9
+            opacity: 0.9,
+            roughness: 0.05
         });
 
-        const iceMat = new THREE.MeshPhysicalMaterial({
-            transmission: 0.95, roughness: 0.3, ior: 1.31, color: 0xffffff,
-            transparent: true, opacity: 0.7
-        });
-
-        // --- GEOMETRY ---
-        // Double Old Fashioned Glass
+        // --- GEOMETRY: THE HEAVY ROCKS GLASS ---
         const profile = [
-            new THREE.Vector2(0, 0), new THREE.Vector2(2.8, 0),   
-            new THREE.Vector2(3.0, 4.2), new THREE.Vector2(2.8, 4.2), 
-            new THREE.Vector2(2.5, 0.6), new THREE.Vector2(0, 0.6)
+            new THREE.Vector2(0, 0),     // Center bottom
+            new THREE.Vector2(2.8, 0),   // Outside bottom edge
+            new THREE.Vector2(3.0, 4.5), // Outside rim
+            new THREE.Vector2(2.8, 4.5), // Inside rim
+            new THREE.Vector2(2.5, 1.2), // THE FIX: Thick solid glass bottom starts here
+            new THREE.Vector2(0, 1.2)    // Inside bottom center
         ];
-        const cup = new THREE.Mesh(new THREE.LatheGeometry(profile, 64), glassMat);
-        cup.renderOrder = 2; // Render Glass AFTER Liquid for sorting
+        const latheGeo = new THREE.LatheGeometry(profile, 64);
+        const cup = new THREE.Mesh(latheGeo, glassMat);
         glassGroup.add(cup);
 
-        // Whiskey Liquid (Slightly smaller than glass interior)
-        const liquid = new THREE.Mesh(new THREE.CylinderGeometry(2.75, 2.45, 1.8, 64), liquidMat);
-        liquid.position.y = 1.6;
-        liquid.renderOrder = 1; // Liquid renders first
+        // THE LIQUID (Slightly smaller to avoid flickering/clipping)
+        const liqPoints = [
+            new THREE.Vector2(0, 1.3),   // Bottom center (sitting just above the glass floor)
+            new THREE.Vector2(2.45, 1.3), // Bottom edge
+            new THREE.Vector2(2.55, 3.2), // Top edge
+            new THREE.Vector2(0, 3.25)    // THE MENISCUS: Top center is slightly raised
+        ];
+        const liqGeo = new THREE.LatheGeometry(liqPoints, 64);
+        const liquid = new THREE.Mesh(liqGeo, liquidMat);
         glassGroup.add(liquid);
 
-        // Ice Rock
-        const ice = new THREE.Mesh(new THREE.IcosahedronGeometry(1.3, 3), iceMat);
-        ice.position.set(0, 1.8, 0);
-        ice.renderOrder = 3; // Ice renders last
+        // THE ICE (Single clear block)
+        const ice = new THREE.Mesh(
+            new THREE.IcosahedronGeometry(1.4, 2),
+            new THREE.MeshPhysicalMaterial({
+                transmission: 1.0, roughness: 0.1, ior: 1.31, color: 0xffffff, transparent: true, opacity: 0.7
+            })
+        );
+        ice.position.set(0.2, 2.2, 0);
         glassGroup.add(ice);
 
-        // --- LIGHTING (The Visibility Solution) ---
-        // Backlight: Critical for seeing through the glass
-        const backLight = new THREE.PointLight(0xffffff, 80);
-        backLight.position.set(0, 4, -8);
-        scene.add(backLight);
+        // LIGHTING
+        const mainLight = new THREE.SpotLight(0xffffff, 50);
+        mainLight.position.set(5, 10, 5);
+        scene.add(mainLight);
 
-        // Interior Glow: Forces color through the glass walls
-        const amberLight = new THREE.PointLight(0xffaa00, 40);
-        amberLight.position.set(0, 1, 0);
-        glassGroup.add(amberLight);
-
-        // Side Rim Light
-        const rimLight = new THREE.PointLight(0xffffff, 30);
-        rimLight.position.set(-6, 3, 2);
+        const rimLight = new THREE.PointLight(0xffaa00, 30);
+        rimLight.position.set(-5, 2, -5); // Injects color into the liquid from the back
         scene.add(rimLight);
 
-        // --- ANIMATION & PARALLAX ---
-        const cL = document.getElementById('card-left');
-        const cR = document.getElementById('card-right');
+        // --- RENDER LOOP ---
+        const cardL = document.getElementById('card-l');
+        const cardR = document.getElementById('card-r');
 
-        function render() {
-            requestAnimationFrame(render);
+        function loop() {
+            requestAnimationFrame(loop);
             if(currentTab === 'projects') {
-                // Interactive Rotation
+                // Smooth Glass Interaction
                 glassGroup.rotation.y += (mouse.x * 0.8 - glassGroup.rotation.y) * 0.05;
                 glassGroup.rotation.x += (mouse.y * 0.2 - glassGroup.rotation.x) * 0.05;
 
-                // Parallax Side Tabs
-                cL.style.transform = `translate(${mouse.x * -60}px, ${mouse.y * -30}px)`;
-                cR.style.transform = `translate(${mouse.x * -100}px, ${mouse.y * -50}px)`;
+                // Parallax Content Tabs
+                cardL.style.transform = `translate(${mouse.x * -70}px, ${mouse.y * -30}px)`;
+                cardR.style.transform = `translate(${mouse.x * -110}px, ${mouse.y * -50}px)`;
 
-                // Liquid Slosh & Ice Float
-                liquid.rotation.z = Math.sin(Date.now()*0.002)*0.03 + (mouse.x * 0.08);
+                // Liquid Inertia
+                liquid.rotation.z = Math.sin(Date.now()*0.002)*0.01 + (mouse.x * 0.05);
                 ice.rotation.y += 0.004;
-                ice.position.y = 1.8 + Math.sin(Date.now()*0.001)*0.05;
+                ice.position.y = 2.2 + Math.sin(Date.now()*0.001)*0.05;
 
                 renderer.render(scene, camera);
             }
         }
-        render();
+        loop();
 
         window.setTab = (t) => {
             currentTab = t;
