@@ -13,6 +13,8 @@
             cursor: none; /* Hide default cursor */
             -webkit-user-select: none;
             user-select: none; 
+            /* Stop tap highlight on mobile */
+            -webkit-tap-highlight-color: transparent;
         }
 
         body::-webkit-scrollbar { display: none; }
@@ -25,6 +27,7 @@
             overflow-x: hidden;
             width: 100%;
             height: 100%;
+            overscroll-behavior: none; /* Stop bounce scroll on Mac/iOS */
         }
 
         /* --- 2. GRAIN TEXTURE --- */
@@ -53,28 +56,36 @@
             pointer-events: none;
             z-index: 10000;
             transform: translate(-50%, -50%);
-            /* Transition only shape, position is raw physics */
             transition: 
                 width 0.2s ease,
                 height 0.2s ease,
                 border-radius 0.2s ease;
         }
 
-        /* --- 4. RIPPLE EFFECT --- */
+        /* --- 4. SUBTLE RIPPLE EFFECT --- */
         .ripple {
             position: fixed;
             border-radius: 50%;
             transform: translate(-50%, -50%);
             pointer-events: none;
             mix-blend-mode: difference;
-            border: 4px solid #fff;
-            animation: rippleAnim 0.8s ease-out forwards; /* Faster, punchier animation */
+            /* Thinner and more transparent for subtlety */
+            border: 1px solid rgba(255, 255, 255, 0.5); 
+            animation: rippleAnim 1s ease-out forwards;
             z-index: 9999;
         }
 
         @keyframes rippleAnim {
-            0% { width: 0; height: 0; opacity: 1; border-width: 8px; }
-            100% { width: 120vmax; height: 120vmax; opacity: 0; border-width: 0px; }
+            0% {
+                width: 0;
+                height: 0;
+                opacity: 0.6; /* Start semi-transparent */
+            }
+            100% {
+                width: 100vmax;
+                height: 100vmax;
+                opacity: 0;
+            }
         }
 
         /* --- 5. LAYERS --- */
@@ -116,17 +127,16 @@
         .btn { display: inline-block; padding: 10px 24px; border: 1px solid rgba(255,255,255,0.3); border-radius: 30px; color: white; text-decoration: none; text-transform: uppercase; letter-spacing: 1px; font-size: 0.75rem; font-weight: 700; position: relative; z-index: 20; background: transparent; transition: opacity 0.3s; pointer-events: auto; }
         .btn.hovered-state { border-color: transparent; }
 
-        /* --- 8. SIDEBAR (MANUAL PULL) --- */
+        /* --- 8. SIDEBAR --- */
         .skill-left { width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; padding-left: 10vw; transition: opacity 0.3s; }
         
-        /* The Pull Indicator (Visual Hint) */
         .pull-hint {
             position: absolute;
             right: 0;
             top: 0;
             height: 100%;
-            width: 10px;
-            background: linear-gradient(to right, transparent, rgba(255,255,255,0.2));
+            width: 20px;
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.1));
             z-index: 40;
         }
 
@@ -134,7 +144,7 @@
             position: absolute; 
             right: 0; 
             top: 0; 
-            width: 35%; 
+            width: 35%; /* Desktop Width */
             min-width: 300px; 
             height: 100vh; 
             background-color: #111; 
@@ -142,11 +152,7 @@
             padding: 50px 30px; 
             overflow-y: auto; 
             z-index: 50; 
-            
-            /* Start hidden fully to the right */
             transform: translateX(100%);
-            
-            /* NO TRANSITION in CSS! We handle movement in JS for instant physics response */
             will-change: transform; 
             box-shadow: -20px 0 50px rgba(0,0,0,0.8);
         }
@@ -157,9 +163,14 @@
         .skill-tag { display: inline-block; padding: 8px 14px; border: 1px solid rgba(255,255,255,0.15); border-radius: 20px; font-size: 0.7rem; color: #ddd; background: transparent; font-weight: 600; position: relative; z-index: 20; white-space: nowrap; }
         .skill-tag.hovered-state { border-color: transparent; color: #fff; }
 
+        /* --- MOBILE ADJUSTMENTS --- */
         @media (max-width: 768px) { 
             h1 { font-size: 12vw; } 
-            .skill-sidebar { width: 85%; } /* Covers most of screen on mobile */
+            /* Sidebar takes most of screen on mobile */
+            .skill-sidebar { width: 85%; min-width: unset; } 
+            
+            /* Hide the visual hint on mobile as it's cleaner */
+            .pull-hint { display: none; }
         }
     </style>
 </head>
@@ -172,7 +183,7 @@
         <section class="layer" id="layer-1">
             <h2>Portfolio</h2>
             <h1>HI, I'M<br>ACHYUT.</h1>
-            <p>Full Stack Developer. I craft high-performance digital experiences.</p>
+            <p>Full Stack Developer. <br><span style="font-size: 0.8em; color: #555">Desktop: Drag Blob / Mobile: Tap to Fling</span></p>
         </section>
 
         <section class="layer" id="layer-2">
@@ -196,11 +207,10 @@
 
         <section class="layer" id="layer-skills">
             <div class="pull-hint"></div>
-
             <div class="skill-left">
                 <h2>Capabilities</h2>
                 <h1>TECHNICAL<br>ARSENAL.</h1>
-                <p>Drag the blob to the right edge to reveal skills.</p>
+                <p>Move the blob to the right edge to open.</p>
             </div>
 
             <aside class="skill-sidebar" id="skillSidebar">
@@ -236,7 +246,6 @@
         <section class="layer" id="layer-5">
             <h2>Contact</h2>
             <h1>LET'S<br>COLLABORATE.</h1>
-            <p>Ready to start the next big thing?</p>
             <div class="btn-container">
                 <a href="mailto:email@example.com" class="btn magnetic">Send Email</a>
                 <a href="https://linkedin.com/in/achyut07" class="btn magnetic">LinkedIn</a>
@@ -249,7 +258,6 @@
         const skillLayer = document.getElementById('layer-skills');
         const sidebar = document.getElementById('skillSidebar');
         
-        // --- VARIABLES ---
         let blobX = window.innerWidth / 2;
         let blobY = window.innerHeight / 2;
         let velX = 0;
@@ -259,10 +267,9 @@
         
         let isMouseMode = true; 
 
-        // --- CONFIG ---
         const FRICTION = 0.93; 
         const FOLLOW_SPEED = 0.08; 
-        const REPULSION_FORCE = 120; // Massive Blast Power (Was 40)
+        const REPULSION_FORCE = 120; // Strong Blast
         const MAGNET_RANGE = 80;
 
         // --- INPUT HANDLING ---
@@ -278,22 +285,27 @@
 
         document.addEventListener('touchstart', (e) => {
             isMouseMode = false;
+            // Get the first touch point
             const touchX = e.touches[0].clientX;
             const touchY = e.touches[0].clientY;
+            
             triggerRipple(touchX, touchY);
+            
+            // We update mouse coordinates so if the user switches to mouse later it's seamless,
+            // but we don't enable mouse mode.
             mouseX = touchX;
             mouseY = touchY;
         }, { passive: false });
 
 
-        // --- BLAST FUNCTION ---
+        // --- RIPPLE & BLAST ---
         function triggerRipple(x, y) {
             const ripple = document.createElement('div');
             ripple.classList.add('ripple');
             ripple.style.left = x + 'px';
             ripple.style.top = y + 'px';
             document.body.appendChild(ripple);
-            setTimeout(() => { ripple.remove(); }, 800);
+            setTimeout(() => { ripple.remove(); }, 1000);
 
             // PHYSICS BLAST
             let dx = blobX - x;
@@ -317,53 +329,49 @@
             let height = 150;
             let borderRadius = '50%';
             
-            // 1. PHYSICS (Follow vs Inertia)
+            // 1. PHYSICS
             if (isMouseMode) {
+                // Mouse: Follow
                 const dx = mouseX - blobX;
                 const dy = mouseY - blobY;
                 velX += (dx * FOLLOW_SPEED - velX) * 0.5;
                 velY += (dy * FOLLOW_SPEED - velY) * 0.5;
             } else {
+                // Touch: Inertia / Slide
                 velX *= FRICTION;
                 velY *= FRICTION;
             }
 
-            // 2. SIDEBAR PULL LOGIC
-            // Check if Skills Layer is the active sticky one
+            // 2. SIDEBAR LOGIC (Responsive)
             const skillsRect = skillLayer.getBoundingClientRect();
             
-            // If the layer is currently stuck to top (active) or visibly centered
-            if (Math.abs(skillsRect.top) < 10) { 
-                
-                // Distance from right edge
+            // Logic: Is the user looking at the skills layer?
+            // On Mobile, the sticky logic might behave differently depending on browser,
+            // so we check if the layer is roughly centralized or pinned.
+            const isLayerActive = Math.abs(skillsRect.top) < 50; 
+
+            if (isLayerActive) { 
                 const distFromRight = window.innerWidth - blobX;
-                // How far out to start pulling (pixels)
-                const pullStartZone = 400; 
+                
+                // Adjust Pull Zone based on device
+                // Mobile: shorter pull zone so it opens easier when flung
+                const isMobile = window.innerWidth < 768;
+                const pullStartZone = isMobile ? 250 : 400; 
 
                 if (distFromRight < pullStartZone) {
-                    // Calculate pull percentage (0 to 1)
-                    // 1 = at edge, 0 = at 400px away
                     const pullFactor = 1 - (distFromRight / pullStartZone);
-                    
-                    // Move sidebar based on pull. 
-                    // 100% = Hidden. 0% = Fully visible.
-                    // We map pullFactor so if you hit edge, it's fully open.
                     const translateVal = 100 - (pullFactor * 100);
-                    
                     sidebar.style.transform = `translateX(${translateVal}%)`;
                 } else {
-                    // Reset if far away
                      sidebar.style.transform = `translateX(100%)`;
                 }
             } else {
-                // Ensure it's closed if layer is not active
                 sidebar.style.transform = `translateX(100%)`;
             }
 
-
-            // 3. MAGNETISM (Only if slow)
+            // 3. MAGNETISM (Disabled if moving fast)
             const currentSpeed = Math.hypot(velX, velY);
-            if (currentSpeed < 20) {
+            if (currentSpeed < 25) {
                 magneticElements.forEach(btn => {
                     const rect = btn.getBoundingClientRect();
                     if (rect.bottom < 0 || rect.top > window.innerHeight) return;
@@ -387,11 +395,11 @@
                 magneticElements.forEach(btn => btn.classList.remove('hovered-state'));
             }
 
-            // 4. UPDATE POSITION
+            // 4. POSITION UPDATE
             blobX += velX;
             blobY += velY;
 
-            // Bounce off walls
+            // Wall Bouncing
             if (blobX < 0) { blobX = 0; velX *= -0.6; }
             if (blobX > window.innerWidth) { blobX = window.innerWidth; velX *= -0.6; }
 
