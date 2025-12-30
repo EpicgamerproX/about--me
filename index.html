@@ -3,242 +3,164 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ice & Ember: Clean</title>
-    <script type="importmap">
-        {
-            "imports": {
-                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
-            }
-        }
-    </script>
+    <title>My Portfolio</title>
     <style>
-        /* --- CLEAN TYPOGRAPHY & LAYOUT --- */
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Inter:wght@300;500&display=swap');
-        
-        body { margin: 0; overflow: hidden; background: #050505; font-family: 'Inter', sans-serif; }
-        
-        nav {
-            position: fixed; top: 30px; left: 50%; transform: translateX(-50%); z-index: 10;
-            display: flex; gap: 20px; background: rgba(20,20,20,0.8); 
-            padding: 10px 30px; border-radius: 50px; border: 1px solid rgba(255,255,255,0.1);
+        /* --- RESET & TYPOGRAPHY --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        button {
-            background: none; border: none; color: #888; cursor: pointer; font-size: 1rem; transition: 0.3s;
+
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            color: #ffffff;
+            background-color: #000; /* Fallback */
         }
-        button.active { color: white; }
+
+        /* --- THE MAGIC (LAYER SYSTEM) --- */
+        .layer-container {
+            /* This holds all your cards */
+            width: 100%;
+        }
 
         .layer {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none; opacity: 0; transition: opacity 0.5s;
+            /* position: sticky is what makes the layer 'stick' 
+               to the top until the next layer covers it.
+            */
+            position: sticky; 
+            top: 0;
+            
+            /* Forces each layer to take up the full screen */
+            height: 100vh; 
+            
+            /* Center the content */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            
+            /* Visual Separation */
+            box-shadow: 0 -10px 30px rgba(0,0,0,0.5); /* Shadow creates the depth */
+            overflow: hidden; /* Keeps content inside */
         }
-        .layer.active { opacity: 1; pointer-events: all; }
 
-        /* TAB 1: ICE */
-        #ice-layer { display: flex; justify-content: center; align-items: center; }
-        .ice-card {
-            width: 600px; height: 400px;
-            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
-            backdrop-filter: blur(10px); transform: rotateX(20deg);
-            display: flex; justify-content: center; align-items: center; color: #a5d8ff;
-        }
+        /* --- STYLING INDIVIDUAL LAYERS --- */
         
-        /* TAB 2: WHISKEY UI */
-        #project-layer { padding: 50px; display: flex; justify-content: space-between; align-items: center; }
-        .info-card {
-            width: 250px; color: #ccc; transform: translateY(20px); transition: 0.5s;
+        /* Layer 1: Intro */
+        #intro {
+            background-color: #111111;
+            z-index: 1;
         }
-        .layer.active .info-card { transform: translateY(0); }
-        h2 { font-family: 'Playfair Display', serif; color: #d48c26; margin-bottom: 10px; }
 
-        canvas { display: block; width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: -1; }
+        /* Layer 2: About */
+        #about {
+            background-color: #1a1a1a; 
+            z-index: 2;
+        }
+
+        /* Layer 3: Projects */
+        #projects {
+            background-color: #252525; 
+            z-index: 3;
+        }
+
+        /* Layer 4: Contact */
+        #contact {
+            background-color: #E63946; /* A pop of color for the finale */
+            z-index: 4;
+        }
+
+        /* --- CONTENT STYLING --- */
+        h1 {
+            font-size: 5rem;
+            font-weight: 800;
+            letter-spacing: -2px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        p {
+            font-size: 1.2rem;
+            max-width: 600px;
+            text-align: center;
+            line-height: 1.6;
+            color: #cccccc;
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 40px;
+            animation: bounce 2s infinite;
+            opacity: 0.7;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .btn {
+            margin-top: 30px;
+            padding: 15px 30px;
+            background: white;
+            color: black;
+            text-decoration: none;
+            font-weight: bold;
+            border-radius: 30px;
+            transition: transform 0.2s ease;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+        }
+
+        /* --- ANIMATIONS --- */
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+            40% {transform: translateY(-10px);}
+            60% {transform: translateY(-5px);}
+        }
+
+        /* Mobile Adjustments */
+        @media (max-width: 768px) {
+            h1 { font-size: 3rem; }
+            h2 { font-size: 2rem; }
+        }
     </style>
 </head>
 <body>
 
-    <nav>
-        <button class="active" onclick="setTab(0)">Portfolio</button>
-        <button onclick="setTab(1)">Projects</button>
-    </nav>
+    <main class="layer-container">
 
-    <div id="ice-layer" class="layer active">
-        <div class="ice-card">
-            <h1>THE FROST</h1>
-        </div>
-    </div>
+        <section class="layer" id="intro">
+            <h1>HELLO,<br>I'M [NAME].</h1>
+            <p>I build immersive digital experiences.</p>
+            <div class="scroll-indicator">Scroll to explore</div>
+        </section>
 
-    <div id="project-layer" class="layer">
-        <div class="info-card" id="left-card">
-            <h2>Vintage UI</h2>
-            <p>Crafting digital interfaces with tactile depth.</p>
-        </div>
-        <div class="info-card" id="right-card" style="text-align: right;">
-            <h2>Fluid Logic</h2>
-            <p>Physics-based interaction models.</p>
-        </div>
-    </div>
+        <section class="layer" id="about">
+            <h2>The Architect</h2>
+            <p>I am a developer who believes code is art. I specialize in building clean, scalable, and highly interactive applications. I don't just write syntax; I solve problems.</p>
+        </section>
 
-    <canvas id="gl"></canvas>
+        <section class="layer" id="projects">
+            <h2>The Work</h2>
+            <p>From complex backend systems to fluid frontend interfaces. Here lies a collection of projects that define my journey.</p>
+            <a href="#" class="btn">View Github</a>
+        </section>
 
-    <script type="module">
-        import * as THREE from 'three';
-        import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+        <section class="layer" id="contact">
+            <h2>Let's Talk</h2>
+            <p>Have a crazy idea? Let's build it together. I am currently open for new opportunities.</p>
+            <a href="mailto:email@example.com" class="btn">Email Me</a>
+        </section>
 
-        let tab = 0;
-        const mouse = { x: 0, y: 0 };
-        const targetRot = { x: 0, y: 0 };
+    </main>
 
-        // 1. SETUP
-        const canvas = document.querySelector('#gl');
-        const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        renderer.toneMappingExposure = 1.2;
-
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 100);
-        camera.position.set(0, 2, 12);
-
-        // 2. LIGHTING (Studio Setup)
-        const pmrem = new THREE.PMREMGenerator(renderer);
-        scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
-        
-        const spot = new THREE.SpotLight(0xffffff, 20);
-        spot.position.set(5, 10, 5);
-        scene.add(spot);
-        
-        // Backlight makes liquid glow!
-        const backLight = new THREE.PointLight(0xffaa00, 10);
-        backLight.position.set(0, 2, -5);
-        scene.add(backLight);
-
-        // 3. OBJECTS
-        const glassGroup = new THREE.Group();
-        glassGroup.position.y = -2;
-        scene.add(glassGroup);
-
-        // A. THE GLASS
-        const glassMat = new THREE.MeshPhysicalMaterial({
-            transmission: 1, thickness: 0.5, roughness: 0, ior: 1.5,
-            color: 0xffffff, transparent: true, side: THREE.DoubleSide
-        });
-        
-        // Simple, clean cylinder geometry
-        const cupGeo = new THREE.CylinderGeometry(2.5, 2.5, 3.5, 64, 1, true);
-        const cup = new THREE.Mesh(cupGeo, glassMat);
-        glassGroup.add(cup);
-
-        // The solid bottom of the glass
-        const bottomGeo = new THREE.CylinderGeometry(2.5, 2.5, 0.5, 64);
-        const bottom = new THREE.Mesh(bottomGeo, glassMat);
-        bottom.position.y = -1.75;
-        glassGroup.add(bottom);
-
-        // B. THE WHISKEY
-        const liquidMat = new THREE.MeshPhysicalMaterial({
-            color: 0xff8800, transmission: 0.6, roughness: 0.1, ior: 1.4,
-            attenuationColor: new THREE.Color(0x552200), attenuationDistance: 2,
-            transparent: true
-        });
-
-        // Use more segments for the wave effect
-        const liquidGeo = new THREE.CylinderGeometry(2.4, 2.4, 2.0, 64, 32); 
-        const liquid = new THREE.Mesh(liquidGeo, liquidMat);
-        liquid.position.y = -0.5;
-        glassGroup.add(liquid);
-
-        // C. THE ICE
-        const iceMat = new THREE.MeshPhysicalMaterial({
-            transmission: 0.9, roughness: 0.3, thickness: 1.5,
-            color: 0xffffff, ior: 1.31
-        });
-        const ice = new THREE.Mesh(new THREE.BoxGeometry(1.5, 1.5, 1.5), iceMat);
-        ice.position.y = 0;
-        ice.rotation.set(0.5, 0.5, 0);
-        glassGroup.add(ice);
-
-
-        // 4. ANIMATION LOOP
-        window.addEventListener('mousemove', e => {
-            mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
-            mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
-        });
-
-        const liquidPos = liquidGeo.attributes.position;
-        const initialY = [];
-        for(let i=0; i<liquidPos.count; i++) initialY.push(liquidPos.getY(i));
-
-        function animate() {
-            requestAnimationFrame(animate);
-
-            if (tab === 1) { // Projects Tab
-                // Smooth Rotation
-                targetRot.x += (mouse.y * 0.2 - targetRot.x) * 0.05;
-                targetRot.y += (mouse.x * 0.5 - targetRot.y) * 0.05;
-                
-                glassGroup.rotation.x = targetRot.x;
-                glassGroup.rotation.y = targetRot.y;
-
-                // --- FAKE FLUID PHYSICS ---
-                // Instead of simulation, we just tilt the top vertices!
-                const time = Date.now() * 0.003;
-                
-                for(let i=0; i<liquidPos.count; i++){
-                    const x = liquidPos.getX(i);
-                    const z = liquidPos.getZ(i);
-                    const y = initialY[i];
-
-                    // Only animate top surface
-                    if (y > 0.9) { 
-                        // Calculate tilt based on mouse inertia
-                        const tiltX = z * -targetRot.x * 1.5;
-                        const tiltZ = x * targetRot.y * 1.5;
-                        
-                        // Subtle ripple
-                        const ripple = Math.sin(x * 3 + time) * Math.cos(z * 3 + time) * 0.05;
-
-                        liquidPos.setY(i, y + tiltX + tiltZ + ripple);
-                    }
-                }
-                liquidPos.needsUpdate = true;
-                
-                // Ice bobbing
-                ice.position.y = Math.sin(time) * 0.1;
-                ice.rotation.y += 0.005;
-
-                // Parallax UI
-                document.getElementById('left-card').style.transform = `translate(${mouse.x * -20}px, ${mouse.y * -10}px)`;
-                document.getElementById('right-card').style.transform = `translate(${mouse.x * -30}px, ${mouse.y * -15}px)`;
-            }
-            
-            renderer.render(scene, camera);
-        }
-        animate();
-
-        // 5. TAB SWITCHING
-        window.setTab = (idx) => {
-            tab = idx;
-            document.querySelectorAll('button').forEach((b, i) => b.classList.toggle('active', i === idx));
-            document.querySelectorAll('.layer').forEach((l, i) => l.classList.toggle('active', i === idx));
-            
-            // Camera zoom effect
-            if(idx === 1) {
-                glassGroup.visible = true;
-                camera.position.z = 12; // Zoom in for projects
-            } else {
-                glassGroup.visible = false;
-            }
-        };
-        
-        // Init state
-        setTab(0);
-
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
-
-    </script>
 </body>
 </html>
