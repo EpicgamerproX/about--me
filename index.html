@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Magnetic Portfolio</title>
+    <title>Magnetic Field Portfolio</title>
     <style>
         /* --- 1. RESET & CORE --- */
         * {
@@ -13,13 +13,11 @@
             cursor: none; /* Hide default cursor */
         }
 
-        /* HIDE SCROLLBAR (Key Request) */
-        body::-webkit-scrollbar {
-            display: none;
-        }
+        /* Hide scrollbar for immersion */
+        body::-webkit-scrollbar { display: none; }
         body {
-            -ms-overflow-style: none;  /* IE and Edge */
-            scrollbar-width: none;  /* Firefox */
+            -ms-overflow-style: none;
+            scrollbar-width: none;
             font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
             background-color: #050505;
             color: #fff;
@@ -27,7 +25,7 @@
             width: 100%;
         }
 
-        /* --- 2. THE GRAIN OVERLAY --- */
+        /* --- 2. GRAIN TEXTURE --- */
         .noise-overlay {
             position: fixed;
             top: 0;
@@ -40,48 +38,29 @@
             background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='1'/%3E%3C/svg%3E");
         }
 
-        /* --- 3. THE MAGNETIC BLOB --- */
+        /* --- 3. THE SMART BLOB --- */
         #cursor-blob {
             position: fixed;
             top: 0;
             left: 0;
-            /* Default State */
-            width: 200px; 
-            height: 200px;
+            width: 150px; /* Base size */
+            height: 150px;
             background-color: #fff;
             mix-blend-mode: difference;
             border-radius: 50%;
-            transform: translate(-50%, -50%) scale(0); /* Anchor center */
-            z-index: 10000;
             pointer-events: none;
+            z-index: 10000;
             
-            /* The Organic Wobble Animation */
-            animation: wobble 10s infinite ease-in-out;
+            /* Center anchor */
+            transform: translate(-50%, -50%);
             
-            /* SMOOTH TRANSITIONS for the Shape-Shifting */
+            /* Physics Transitions */
+            /* We use a fast transition for width/height (snapping) 
+               and a slightly slower one for transform (movement) */
             transition: 
-                width 0.4s cubic-bezier(0.25, 1, 0.5, 1),
-                height 0.4s cubic-bezier(0.25, 1, 0.5, 1),
-                border-radius 0.4s cubic-bezier(0.25, 1, 0.5, 1),
-                transform 0.2s ease-out;
-            will-change: width, height, border-radius, transform, left, top;
-        }
-
-        #cursor-blob.active {
-            transform: translate(-50%, -50%) scale(1);
-        }
-
-        /* MAGNET STATE: When hovering a button */
-        #cursor-blob.magnet-locked {
-            animation: none; /* Stop wobbling when locked */
-            border-radius: 50px !important; /* Match button corners */
-            mix-blend-mode: difference;
-        }
-
-        @keyframes wobble {
-            0% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
-            50% { border-radius: 50% 50% 60% 40% / 50% 60% 30% 70%; }
-            100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+                width 0.3s cubic-bezier(0.2, 0.8, 0.2, 1),
+                height 0.3s cubic-bezier(0.2, 0.8, 0.2, 1),
+                border-radius 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
 
         /* --- 4. LAYERS --- */
@@ -94,7 +73,7 @@
             justify-content: center;
             padding: 0 10vw;
             background-color: #050505;
-            border-top: 1px solid rgba(255,255,255,0.1);
+            border-top: 1px solid rgba(255,255,255,0.08);
             overflow: hidden;
         }
 
@@ -103,10 +82,10 @@
         #layer-3 { background-color: #000000; z-index: 3; }
         #layer-4 { background-color: #050505; z-index: 4; }
 
-        /* --- 5. TYPOGRAPHY & BUTTONS --- */
+        /* --- 5. TYPOGRAPHY --- */
         h1 {
-            font-size: 8vw;
-            line-height: 0.9;
+            font-size: 7vw;
+            line-height: 0.95;
             font-weight: 800;
             margin-bottom: 2rem;
             color: #fff;
@@ -115,47 +94,51 @@
         }
 
         h2 {
-            font-size: 1.2rem;
-            font-weight: 400;
+            font-size: 0.9rem;
+            font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 4px;
-            color: #888;
-            margin-bottom: 1rem;
+            letter-spacing: 3px;
+            color: #666;
+            margin-bottom: 1.5rem;
             z-index: 10;
         }
 
         p {
-            font-size: 1.5rem;
-            max-width: 600px;
+            font-size: 1.4rem;
+            max-width: 550px;
             line-height: 1.5;
-            color: #ccc;
+            color: #bbb;
             z-index: 10;
         }
 
-        /* BUTTON STYLING */
+        /* --- 6. SMALLER BUTTONS --- */
+        .btn-container {
+            margin-top: 40px;
+        }
+
         .btn {
             display: inline-block;
-            margin-top: 40px;
-            padding: 20px 40px; /* Size of the hit area */
-            border: 1px solid rgba(255,255,255,0.4);
-            border-radius: 50px;
+            /* Compact styling */
+            padding: 12px 28px; 
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 30px; /* Pill shape */
             color: white;
             text-decoration: none;
             text-transform: uppercase;
-            letter-spacing: 2px;
-            font-size: 0.9rem;
-            font-weight: bold;
+            letter-spacing: 1px;
+            font-size: 0.8rem; /* Smaller text */
+            font-weight: 600;
             position: relative;
-            z-index: 20; /* Must be higher than text */
-            
-            /* Remove standard hover because the blob handles it now */
-            background: transparent; 
+            z-index: 20;
+            background: transparent;
+            transition: opacity 0.3s;
+        }
+        
+        /* When we aren't hovering, show border. When hovering, the blob covers it. */
+        .btn.hovered-state {
+            border-color: transparent;
         }
 
-        /* This ensures the button stays white text initially, but difference mode inverts it */
-        .magnetic {
-            /* just a marker class */
-        }
     </style>
 </head>
 <body>
@@ -166,104 +149,131 @@
     <main>
         <section class="layer" id="layer-1">
             <h2>Portfolio</h2>
-            <h1>DIGITAL<br>PRESENCE.</h1>
-            <p>Crafting interactive experiences with precision and flow.</p>
+            <h1>DIGITAL<br>ENTITY.</h1>
+            <p>Precise interactions. Organic flows.</p>
         </section>
 
         <section class="layer" id="layer-2">
             <h2>Philosophy</h2>
-            <h1>SHARP<br>FOCUS.</h1>
-            <p>We strip away the noise to reveal the essential structure.</p>
-            <a href="#" class="btn magnetic">Read Manifesto</a>
+            <h1>ESSENTIAL<br>FORM.</h1>
+            <p>Design is intelligence made visible.</p>
+            <div class="btn-container">
+                <a href="#" class="btn magnetic">Read More</a>
+            </div>
         </section>
 
         <section class="layer" id="layer-3">
-            <h2>Works</h2>
+            <h2>Work</h2>
             <h1>SELECTED<br>PROJECTS.</h1>
-            <p>E-commerce, 3D WebGL, and high-performance applications.</p>
-            <a href="#" class="btn magnetic">View Case Studies</a>
+            <p>WebGL, E-commerce, and immersive interfaces.</p>
+            <div class="btn-container">
+                <a href="#" class="btn magnetic">View Case Studies</a>
+            </div>
         </section>
 
         <section class="layer" id="layer-4">
             <h2>Contact</h2>
-            <h1>LET'S<br>COLLABORATE.</h1>
-            <p>Open for new opportunities and wild ideas.</p>
-            <a href="mailto:email@example.com" class="btn magnetic">Get in touch</a>
+            <h1>LET'S<br>BUILD.</h1>
+            <p>Ready to start the next big thing?</p>
+            <div class="btn-container">
+                <a href="mailto:email@example.com" class="btn magnetic">Email Me</a>
+            </div>
         </section>
     </main>
 
     <script>
         const blob = document.getElementById('cursor-blob');
-        const magneticBtns = document.querySelectorAll('.magnetic');
+        const buttons = document.querySelectorAll('.magnetic');
         
-        // Coordinates
+        // --- CONFIG ---
+        const MAGNET_RANGE = 100; // Pixel distance to start feeling the pull
+        const LERP_SPEED = 0.1;   // How fast the blob follows (0.1 = heavy/smooth)
+        
+        // Mouse State
         let mouseX = window.innerWidth / 2;
         let mouseY = window.innerHeight / 2;
+        
+        // Blob State (Current Position)
         let blobX = window.innerWidth / 2;
         let blobY = window.innerHeight / 2;
-
-        // Flags for Magnetic State
-        let isHovering = false;
-        let hoverTarget = null;
-
-        // 1. Mouse Tracking
+        
+        // Track Mouse
         document.addEventListener('mousemove', (e) => {
             mouseX = e.clientX;
             mouseY = e.clientY;
-            if (!blob.classList.contains('active')) blob.classList.add('active');
         });
 
-        // 2. Setup Magnetic Buttons
-        magneticBtns.forEach(btn => {
-            btn.addEventListener('mouseenter', () => {
-                isHovering = true;
-                hoverTarget = btn;
-                blob.classList.add('magnet-locked');
-            });
-
-            btn.addEventListener('mouseleave', () => {
-                isHovering = false;
-                hoverTarget = null;
-                blob.classList.remove('magnet-locked');
-            });
-        });
-
-        // 3. The Animation Loop
+        // Loop
         function animate() {
             let targetX = mouseX;
             let targetY = mouseY;
-            
-            // Logic: Are we hovering a button?
-            if (isHovering && hoverTarget) {
-                // Get position and size of the button
-                const rect = hoverTarget.getBoundingClientRect();
-                
-                // Calculate Center of the button
-                const centerX = rect.left + rect.width / 2;
-                const centerY = rect.top + rect.height / 2;
+            let width = 150;  // Default blob size
+            let height = 150; // Default blob size
+            let borderRadius = '50%';
+            let isLocked = false;
 
-                // THE MAGNETIC PULL CALCULATION
-                // We don't just lock to center; we allow a little movement 
-                // within the button to make it feel fluid (0.2 factor)
-                targetX = centerX + (mouseX - centerX) * 0.2;
-                targetY = centerY + (mouseY - centerY) * 0.2;
+            // 1. CHECK DISTANCE TO BUTTONS
+            buttons.forEach(btn => {
+                const rect = btn.getBoundingClientRect();
+                const btnCenterX = rect.left + rect.width / 2;
+                const btnCenterY = rect.top + rect.height / 2;
 
-                // MORPH THE BLOB
-                blob.style.width = (rect.width) + 'px';
-                blob.style.height = (rect.height) + 'px';
-            } else {
-                // Reset to default blob size if not hovering
-                blob.style.width = '200px';
-                blob.style.height = '200px';
-            }
+                // Calculate distance from MOUSE to BUTTON CENTER
+                const dist = Math.hypot(mouseX - btnCenterX, mouseY - btnCenterY);
 
-            // INERTIA (Lag)
-            // 0.1 is the speed of the follow.
-            blobX += (targetX - blobX) * 0.1;
-            blobY += (targetY - blobY) * 0.1;
+                // --- LOGIC: THE MAGNETIC PULL ---
+                if (dist < MAGNET_RANGE) {
+                    
+                    // We are within the magnetic field!
+                    
+                    // A. THE PULL
+                    // Instead of going to mouseX, we drift the target towards the button center.
+                    // The closer we get, the stronger the pull.
+                    const pullFactor = 1 - (dist / MAGNET_RANGE); // 0 at edge, 1 at center
+                    
+                    targetX = mouseX + (btnCenterX - mouseX) * (pullFactor * 0.8);
+                    targetY = mouseY + (btnCenterY - mouseY) * (pullFactor * 0.8);
 
+                    // B. THE DEFORMATION (STRETCH)
+                    // If we are close but not "inside" yet, stretch towards it
+                    if (dist > rect.width / 2) {
+                        // Subtle stretch
+                        width = 130; 
+                        height = 130;
+                        // We could do complex transforms, but simple size reduction 
+                        // creates a "tension" look before the snap.
+                    } 
+                    
+                    // C. THE SNAP (LOCK)
+                    // If we are actually hovering/very close
+                    if (dist < rect.width) {
+                        width = rect.width;
+                        height = rect.height;
+                        borderRadius = '30px'; // Match button radius
+                        targetX = btnCenterX;
+                        targetY = btnCenterY;
+                        isLocked = true;
+                        
+                        // Clean up borders
+                        btn.classList.add('hovered-state');
+                    } else {
+                        btn.classList.remove('hovered-state');
+                    }
+                } else {
+                    btn.classList.remove('hovered-state');
+                }
+            });
+
+            // 2. INERTIA (Standard Physics)
+            blobX += (targetX - blobX) * LERP_SPEED;
+            blobY += (targetY - blobY) * LERP_SPEED;
+
+            // 3. APPLY STYLES
             blob.style.left = blobX + 'px';
             blob.style.top = blobY + 'px';
+            blob.style.width = width + 'px';
+            blob.style.height = height + 'px';
+            blob.style.borderRadius = borderRadius;
 
             requestAnimationFrame(animate);
         }
