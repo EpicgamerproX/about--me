@@ -56,39 +56,33 @@
             z-index: 10000;
             transform: translate(-50%, -50%);
             
-            /* Physics & Color Transitions */
+            /* Smooth transitions */
             transition: 
                 width 0.4s cubic-bezier(0.2, 0.8, 0.2, 1),
                 height 0.4s cubic-bezier(0.2, 0.8, 0.2, 1),
                 border-radius 0.4s cubic-bezier(0.2, 0.8, 0.2, 1),
-                background-color 0.5s ease, /* Smooth color fade */
+                background-color 0.5s ease,
                 transform 0.2s ease-out;
             
             will-change: left, top, width, height, transform;
         }
 
-        /* PHASE 1: EXPANSION (White Fill) */
+        /* States */
         #cursor-blob.expanded {
             width: 250vmax !important; 
             height: 250vmax !important;
             border-radius: 0 !important; 
             transition: width 0.8s ease-in-out, height 0.8s ease-in-out, border-radius 0.8s ease-in-out;
-            /* While expanding, it stays white to create the "Wipe" effect */
         }
 
-        /* PHASE 2: BLACKOUT (The Void) */
         #cursor-blob.expanded.blackout {
             background-color: #000;
-            /* We remove difference mode so it becomes opaque black */
             mix-blend-mode: normal; 
         }
 
-        /* PHASE 3: SHATTER (Implosion) */
         #cursor-blob.breaking {
-            /* Flash white again right before breaking for visual impact */
             background-color: #fff !important; 
             mix-blend-mode: difference !important;
-            
             transition: all 0.1s ease !important; 
             animation: shatterEffect 0.4s forwards;
         }
@@ -136,27 +130,22 @@
             justify-content: center;
             align-items: center;
             
-            /* --- THE FIX: Add visibility: hidden --- */
+            /* Hidden State */
             opacity: 0;
-            visibility: hidden; /* Ensures it's not rendered at all */
+            visibility: hidden; /* Fixes overlap issue */
             pointer-events: none;
             
-            /* Transition opacity smoothly, visibility snaps */
             transition: opacity 0.5s ease, visibility 0s linear 0.5s;
             text-align: center;
         }
 
         #final-layer.active {
-            /* --- THE FIX: Make it visible instantly when active --- */
             opacity: 1;
             visibility: visible;
             pointer-events: auto;
-            
-            /* Remove delay on visibility */
-            transition: opacity 0.5s ease;
+            transition: opacity 0.5s ease; /* Instant visibility */
         }
 
-        /* Terminal Text Styling */
         #final-layer h1 { color: #fff; font-family: monospace; font-size: 4vw; margin-bottom: 20px; text-shadow: 0 0 10px rgba(255,255,255,0.5); }
         #final-layer p { color: #888; font-family: monospace; font-size: 1.2rem; margin-bottom: 5px; }
         
@@ -181,8 +170,7 @@
         }
         @keyframes pulse { 0%,100%{opacity:0.3} 50%{opacity:1} }
 
-
-        /* --- 6. TYPOGRAPHY & UI --- */
+        /* --- 6. UI ELEMENTS --- */
         h1 { font-size: 7vw; line-height: 0.9; font-weight: 800; letter-spacing: -3px; margin-bottom: 1.5rem; color: #fff; position: relative; z-index: 10; }
         h2 { font-size: 0.9rem; font-weight: 600; text-transform: uppercase; letter-spacing: 3px; color: #666; margin-bottom: 1.5rem; z-index: 10; }
         p { font-size: 1.5rem; max-width: 600px; line-height: 1.4; color: #bbb; margin-bottom: 1rem; z-index: 10; }
@@ -325,6 +313,9 @@
         
         let isMouseMode = true; 
         let isSecretMode = false;
+        
+        // Track the currently "snapped" button
+        let currentHoveredBtn = null;
 
         // CONFIG
         const FRICTION = 0.93; 
@@ -332,19 +323,13 @@
         const REPULSION_FORCE = 120; 
         const MAGNET_RANGE = 80;
 
-        // --- EXPAND FUNCTION (White -> Black) ---
+        // --- EXPAND FUNCTION ---
         window.expandLayer = function() {
             if (isSecretMode) return;
             isSecretMode = true;
-            
-            // 1. Center blob
             blob.style.left = '50%';
             blob.style.top = '50%';
-            
-            // 2. Start White Expansion
             blob.classList.add('expanded');
-            
-            // 3. Wait for it to cover screen (0.8s), then turn BLACK
             setTimeout(() => {
                 if(isSecretMode) {
                     blob.classList.add('blackout');
@@ -353,28 +338,18 @@
             }, 800);
         };
 
-        // --- BREAK FUNCTION (Shatter) ---
+        // --- BREAK FUNCTION ---
         window.breakLayer = function() {
             if (!isSecretMode) return;
-            
-            // 1. Hide Text
             finalLayer.classList.remove('active');
-
-            // 2. Remove Blackout (Flash White)
             blob.classList.remove('blackout');
-
-            // 3. Trigger Shatter Animation (Wait 50ms for color swap)
             setTimeout(() => {
                 blob.classList.remove('expanded');
                 blob.classList.add('breaking');
             }, 50);
-
-            // 4. Reset Logic
             setTimeout(() => {
                 isSecretMode = false;
                 blob.classList.remove('breaking');
-                
-                // Snap to mouse
                 blobX = window.innerWidth / 2;
                 blobY = window.innerHeight / 2;
                 blob.style.left = blobX + 'px';
@@ -405,6 +380,21 @@
             mouseY = touchY;
         }, { passive: false });
 
+        // --- SMART CLICK (PROXY) ---
+        // If blob is snapped to a button, any click triggers that button
+        document.addEventListener('click', (e) => {
+            if (isSecretMode) return; 
+            
+            // If we are hovering a button magnetically
+            if (currentHoveredBtn) {
+                // If user clicked the actual button, let it be.
+                if (currentHoveredBtn.contains(e.target)) return;
+                
+                // Otherwise, force a click on the button
+                currentHoveredBtn.click();
+            }
+        });
+
         function triggerRipple(x, y) {
             const ripple = document.createElement('div');
             ripple.classList.add('ripple');
@@ -427,6 +417,8 @@
         // --- MAIN LOOP ---
         function animate() {
             if (isSecretMode) {
+                // Ensure tracker is clear in secret mode
+                currentHoveredBtn = null;
                 requestAnimationFrame(animate);
                 return;
             }
@@ -468,7 +460,6 @@
             if (isLayerActive) { 
                 const distFromRight = window.innerWidth - blobX;
                 const pullStartZone = isMobile ? 200 : 400; 
-
                 if (distFromRight < pullStartZone) {
                     const pullFactor = 1 - (distFromRight / pullStartZone);
                     const translateVal = 100 - (pullFactor * 100);
@@ -482,7 +473,9 @@
                 sidebar.style.transform = `translateX(100%)`;
             }
 
-            // MAGNETISM
+            // MAGNETISM & TRACKING
+            let foundBtn = null; // Reset local tracker
+
             if (speed < 25) {
                 magneticElements.forEach(btn => {
                     const rect = btn.getBoundingClientRect();
@@ -500,12 +493,16 @@
                         if (dist < rect.width * 0.8) {
                             width = rect.width; height = rect.height; borderRadius = '20px';
                             btn.classList.add('hovered-state');
+                            foundBtn = btn; // Set current tracked button
                         } else { btn.classList.remove('hovered-state'); }
                     } else { btn.classList.remove('hovered-state'); }
                 });
             } else {
                 magneticElements.forEach(btn => btn.classList.remove('hovered-state'));
             }
+
+            // Update Global Tracker
+            currentHoveredBtn = foundBtn;
 
             // UPDATE
             blobX += velX;
