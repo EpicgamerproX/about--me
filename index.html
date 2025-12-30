@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Magnetic Field Portfolio</title>
+    <title>Achyut | Portfolio</title>
     <style>
         /* --- 1. RESET & CORE --- */
         * {
@@ -13,7 +13,7 @@
             cursor: none; /* Hide default cursor */
         }
 
-        /* Hide scrollbar for immersion */
+        /* HIDE SCROLLBAR */
         body::-webkit-scrollbar { display: none; }
         body {
             -ms-overflow-style: none;
@@ -43,20 +43,16 @@
             position: fixed;
             top: 0;
             left: 0;
-            width: 150px; /* Base size */
+            width: 150px;
             height: 150px;
             background-color: #fff;
             mix-blend-mode: difference;
             border-radius: 50%;
             pointer-events: none;
             z-index: 10000;
-            
-            /* Center anchor */
             transform: translate(-50%, -50%);
             
             /* Physics Transitions */
-            /* We use a fast transition for width/height (snapping) 
-               and a slightly slower one for transform (movement) */
             transition: 
                 width 0.3s cubic-bezier(0.2, 0.8, 0.2, 1),
                 height 0.3s cubic-bezier(0.2, 0.8, 0.2, 1),
@@ -77,17 +73,19 @@
             overflow: hidden;
         }
 
+        /* Minimal depth variations */
         #layer-1 { background-color: #050505; z-index: 1; }
-        #layer-2 { background-color: #0a0a0a; z-index: 2; }
+        #layer-2 { background-color: #080808; z-index: 2; }
         #layer-3 { background-color: #000000; z-index: 3; }
         #layer-4 { background-color: #050505; z-index: 4; }
 
         /* --- 5. TYPOGRAPHY --- */
         h1 {
-            font-size: 7vw;
-            line-height: 0.95;
+            font-size: 8vw;
+            line-height: 0.9;
             font-weight: 800;
-            margin-bottom: 2rem;
+            letter-spacing: -3px;
+            margin-bottom: 1.5rem;
             color: #fff;
             position: relative;
             z-index: 10;
@@ -104,37 +102,47 @@
         }
 
         p {
-            font-size: 1.4rem;
-            max-width: 550px;
+            font-size: 1.5rem;
+            max-width: 600px;
             line-height: 1.5;
             color: #bbb;
+            margin-bottom: 1rem;
             z-index: 10;
         }
 
-        /* --- 6. SMALLER BUTTONS --- */
+        .tech-stack {
+            font-size: 1rem;
+            color: #555;
+            font-family: monospace;
+            margin-bottom: 2rem;
+            z-index: 10;
+        }
+
+        /* --- 6. COMPACT BUTTONS --- */
         .btn-container {
-            margin-top: 40px;
+            margin-top: 30px;
+            display: flex;
+            gap: 20px; /* Space between buttons if multiple */
         }
 
         .btn {
             display: inline-block;
-            /* Compact styling */
-            padding: 12px 28px; 
+            padding: 12px 30px; 
             border: 1px solid rgba(255,255,255,0.3);
-            border-radius: 30px; /* Pill shape */
+            border-radius: 30px; 
             color: white;
             text-decoration: none;
             text-transform: uppercase;
             letter-spacing: 1px;
-            font-size: 0.8rem; /* Smaller text */
-            font-weight: 600;
+            font-size: 0.75rem; 
+            font-weight: 700;
             position: relative;
             z-index: 20;
             background: transparent;
             transition: opacity 0.3s;
         }
         
-        /* When we aren't hovering, show border. When hovering, the blob covers it. */
+        /* Hide border when blob is locked on */
         .btn.hovered-state {
             border-color: transparent;
         }
@@ -149,34 +157,42 @@
     <main>
         <section class="layer" id="layer-1">
             <h2>Portfolio</h2>
-            <h1>DIGITAL<br>ENTITY.</h1>
-            <p>Precise interactions. Organic flows.</p>
+            <h1>HI, I'M<br>ACHYUT.</h1>
+            <p>Full Stack Developer. I craft high-performance digital experiences.</p>
+            <div class="btn-container">
+                <a href="#layer-4" class="btn magnetic">Contact Me</a>
+            </div>
         </section>
 
         <section class="layer" id="layer-2">
-            <h2>Philosophy</h2>
-            <h1>ESSENTIAL<br>FORM.</h1>
-            <p>Design is intelligence made visible.</p>
+            <h2>The Stack</h2>
+            <h1>CODE &<br>DESIGN.</h1>
+            <p>Passionate about building accessible, pixel-perfect interfaces that scale.</p>
+            <div class="tech-stack">
+                // React · Next.js · Node.js · TypeScript · Tailwind
+            </div>
             <div class="btn-container">
-                <a href="#" class="btn magnetic">Read More</a>
+                <a href="#" class="btn magnetic">Read About Me</a>
             </div>
         </section>
 
         <section class="layer" id="layer-3">
-            <h2>Work</h2>
-            <h1>SELECTED<br>PROJECTS.</h1>
-            <p>WebGL, E-commerce, and immersive interfaces.</p>
+            <h2>Selected Work</h2>
+            <h1>FEATURED<br>PROJECTS.</h1>
+            <p>From complex backend systems to fluid frontend interactions.</p>
             <div class="btn-container">
-                <a href="#" class="btn magnetic">View Case Studies</a>
+                <a href="https://github.com/achyut07" target="_blank" class="btn magnetic">GitHub Profile</a>
+                <a href="https://portfolio-achyut07.vercel.app" target="_blank" class="btn magnetic">Live Demo</a>
             </div>
         </section>
 
         <section class="layer" id="layer-4">
             <h2>Contact</h2>
-            <h1>LET'S<br>BUILD.</h1>
-            <p>Ready to start the next big thing?</p>
+            <h1>LET'S<br>COLLABORATE.</h1>
+            <p>Currently open for freelance projects and new opportunities.</p>
             <div class="btn-container">
-                <a href="mailto:email@example.com" class="btn magnetic">Email Me</a>
+                <a href="mailto:your-email@example.com" class="btn magnetic">Send Email</a>
+                <a href="https://linkedin.com/in/achyut07" class="btn magnetic">LinkedIn</a>
             </div>
         </section>
     </main>
@@ -185,76 +201,53 @@
         const blob = document.getElementById('cursor-blob');
         const buttons = document.querySelectorAll('.magnetic');
         
-        // --- CONFIG ---
-        const MAGNET_RANGE = 100; // Pixel distance to start feeling the pull
-        const LERP_SPEED = 0.1;   // How fast the blob follows (0.1 = heavy/smooth)
+        // --- PHYSICS CONFIG ---
+        const MAGNET_RANGE = 100; // Distance to start pulling
+        const LERP_SPEED = 0.1;   // Smoothness (Lower = smoother/heavier)
         
-        // Mouse State
         let mouseX = window.innerWidth / 2;
         let mouseY = window.innerHeight / 2;
-        
-        // Blob State (Current Position)
         let blobX = window.innerWidth / 2;
         let blobY = window.innerHeight / 2;
         
-        // Track Mouse
         document.addEventListener('mousemove', (e) => {
             mouseX = e.clientX;
             mouseY = e.clientY;
         });
 
-        // Loop
         function animate() {
             let targetX = mouseX;
             let targetY = mouseY;
-            let width = 150;  // Default blob size
-            let height = 150; // Default blob size
+            let width = 150; 
+            let height = 150;
             let borderRadius = '50%';
-            let isLocked = false;
 
-            // 1. CHECK DISTANCE TO BUTTONS
+            // MAGNETIC LOGIC
             buttons.forEach(btn => {
                 const rect = btn.getBoundingClientRect();
                 const btnCenterX = rect.left + rect.width / 2;
                 const btnCenterY = rect.top + rect.height / 2;
-
-                // Calculate distance from MOUSE to BUTTON CENTER
                 const dist = Math.hypot(mouseX - btnCenterX, mouseY - btnCenterY);
 
-                // --- LOGIC: THE MAGNETIC PULL ---
                 if (dist < MAGNET_RANGE) {
+                    const pullFactor = 1 - (dist / MAGNET_RANGE);
                     
-                    // We are within the magnetic field!
-                    
-                    // A. THE PULL
-                    // Instead of going to mouseX, we drift the target towards the button center.
-                    // The closer we get, the stronger the pull.
-                    const pullFactor = 1 - (dist / MAGNET_RANGE); // 0 at edge, 1 at center
-                    
+                    // 1. Pull the target towards button center
                     targetX = mouseX + (btnCenterX - mouseX) * (pullFactor * 0.8);
                     targetY = mouseY + (btnCenterY - mouseY) * (pullFactor * 0.8);
 
-                    // B. THE DEFORMATION (STRETCH)
-                    // If we are close but not "inside" yet, stretch towards it
+                    // 2. Stretch effect (Tension)
                     if (dist > rect.width / 2) {
-                        // Subtle stretch
-                        width = 130; 
-                        height = 130;
-                        // We could do complex transforms, but simple size reduction 
-                        // creates a "tension" look before the snap.
+                        width = 130; height = 130; // Shrink slightly before snap
                     } 
                     
-                    // C. THE SNAP (LOCK)
-                    // If we are actually hovering/very close
+                    // 3. Snap effect (Locked)
                     if (dist < rect.width) {
                         width = rect.width;
                         height = rect.height;
                         borderRadius = '30px'; // Match button radius
                         targetX = btnCenterX;
                         targetY = btnCenterY;
-                        isLocked = true;
-                        
-                        // Clean up borders
                         btn.classList.add('hovered-state');
                     } else {
                         btn.classList.remove('hovered-state');
@@ -264,11 +257,11 @@
                 }
             });
 
-            // 2. INERTIA (Standard Physics)
+            // INERTIA
             blobX += (targetX - blobX) * LERP_SPEED;
             blobY += (targetY - blobY) * LERP_SPEED;
 
-            // 3. APPLY STYLES
+            // RENDER
             blob.style.left = blobX + 'px';
             blob.style.top = blobY + 'px';
             blob.style.width = width + 'px';
