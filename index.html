@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flow State Portfolio</title>
+    <title>Cinematic Portfolio</title>
     <style>
         /* --- 1. RESET & CORE --- */
         * {
@@ -14,55 +14,67 @@
         }
 
         body {
-            font-family: 'Inter', -apple-system, sans-serif;
-            background-color: #000;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: #050505;
             color: #fff;
-            overflow-x: hidden; /* Prevent horizontal scroll */
+            overflow-x: hidden;
+            width: 100%;
         }
 
-        /* --- 2. THE LIQUID BLOB --- */
+        /* --- 2. THE GRAIN OVERLAY --- */
+        /* This creates the static TV / Film texture */
+        .noise-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none; /* Let clicks pass through */
+            z-index: 99999;
+            opacity: 0.07; /* Adjust this for more/less grain */
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='1'/%3E%3C/svg%3E");
+        }
+
+        /* --- 3. THE SHARP MERCURY BLOB --- */
         #cursor-blob {
             position: fixed;
             top: 0;
             left: 0;
-            /* Size: Massive to feel atmospheric */
-            width: 450px; 
-            height: 450px;
+            /* SIZE: Tuned to be large but not overwhelming */
+            width: 200px; 
+            height: 200px;
             
-            /* The Color Magic */
-            background-color: white;
-            mix-blend-mode: difference; /* Inverts whatever is behind it */
+            background-color: #fff;
+            mix-blend-mode: difference; /* Inverts colors behind it */
             
-            /* The Flowy/Semi-Solid Look */
+            /* SHAPE: Sharp edges (no blur) */
             border-radius: 50%;
-            filter: blur(60px); /* Softens edges to look like gas/liquid */
             
-            /* Positioning & Animation */
-            transform: translate(-50%, -50%);
-            z-index: 9999;
+            /* Center the anchor point */
+            transform: translate(-50%, -50%) scale(0);
+            
+            z-index: 10000;
             pointer-events: none;
             
-            /* The Morphing Animation */
-            animation: wobble 8s infinite ease-in-out;
-            opacity: 0; /* Starts hidden until mouse moves */
-            transition: opacity 0.5s ease;
+            /* ANIMATIONS */
+            animation: wobble 10s infinite ease-in-out;
+            transition: transform 0.2s ease-out; /* For the pop-in effect */
+            will-change: border-radius, transform;
         }
 
-        /* Active state makes it visible */
         #cursor-blob.active {
-            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
         }
 
-        /* The Organic Wobble Animation */
         @keyframes wobble {
             0% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
-            25% { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; }
-            50% { border-radius: 40% 60% 30% 70% / 60% 30% 70% 40%; }
-            75% { border-radius: 60% 40% 70% 30% / 60% 30% 70% 40%; }
+            25% { border-radius: 45% 55% 50% 50% / 55% 45% 60% 40%; }
+            50% { border-radius: 50% 50% 60% 40% / 50% 60% 30% 70%; }
+            75% { border-radius: 65% 35% 40% 60% / 55% 45% 50% 50%; }
             100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
         }
 
-        /* --- 3. LAYERS (STICKY STACK) --- */
+        /* --- 4. LAYERS (STICKY STACK) --- */
         .layer {
             position: sticky;
             top: 0;
@@ -70,24 +82,24 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
-            padding: 10vw;
-            background-color: #000;
-            border-top: 1px solid rgba(255,255,255,0.05);
+            padding: 0 10vw;
+            background-color: #050505;
+            border-top: 1px solid rgba(255,255,255,0.1);
             overflow: hidden;
         }
 
-        /* Layer Colors */
-        #layer-1 { background-color: #000000; z-index: 1; }
-        #layer-2 { background-color: #050505; z-index: 2; }
-        #layer-3 { background-color: #0a0a0a; z-index: 3; }
-        #layer-4 { background-color: #000000; z-index: 4; }
+        /* Minimalist variations in background for depth */
+        #layer-1 { background-color: #050505; z-index: 1; }
+        #layer-2 { background-color: #0a0a0a; z-index: 2; }
+        #layer-3 { background-color: #000000; z-index: 3; }
+        #layer-4 { background-color: #050505; z-index: 4; }
 
-        /* --- 4. TYPOGRAPHY --- */
+        /* --- 5. TYPOGRAPHY --- */
         h1 {
-            font-size: 9vw;
-            line-height: 0.85;
+            font-size: 8vw;
+            line-height: 0.9;
             font-weight: 800;
-            letter-spacing: -0.05em;
+            letter-spacing: -2px;
             margin-bottom: 2rem;
             color: #fff;
             position: relative;
@@ -95,103 +107,116 @@
         }
 
         h2 {
-            font-size: 2vw;
+            font-size: 1.2rem;
             font-weight: 400;
             text-transform: uppercase;
-            letter-spacing: 0.2em;
-            color: #666;
-            margin-bottom: 2rem;
+            letter-spacing: 4px;
+            color: #888;
+            margin-bottom: 1rem;
             z-index: 10;
         }
 
         p {
             font-size: 1.5rem;
-            max-width: 50vw;
-            line-height: 1.6;
+            max-width: 600px;
+            line-height: 1.5;
             color: #ccc;
             z-index: 10;
         }
 
-        a.btn {
-            display: inline-block;
-            margin-top: 30px;
-            font-size: 1.2rem;
-            text-decoration: none;
-            color: #fff;
-            border: 1px solid rgba(255,255,255,0.3);
-            padding: 15px 40px;
-            border-radius: 100px;
-            transition: all 0.3s;
+        .scroll-hint {
+            position: absolute;
+            bottom: 50px;
+            left: 10vw;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #555;
             z-index: 10;
-            background: transparent;
         }
 
-        a.btn:hover {
-            background: #fff;
-            color: #000;
-            border-color: #fff;
+        .btn {
+            display: inline-block;
+            margin-top: 40px;
+            padding: 15px 40px;
+            border: 1px solid rgba(255,255,255,0.4);
+            border-radius: 50px;
+            color: white;
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 0.9rem;
+            transition: 0.3s;
+            z-index: 10;
         }
 
+        .btn:hover {
+            background: white;
+            color: black;
+        }
     </style>
 </head>
 <body>
+
+    <div class="noise-overlay"></div>
 
     <div id="cursor-blob"></div>
 
     <main>
         <section class="layer" id="layer-1">
-            <h2>Introduction</h2>
-            <h1>DIGITAL<br>ALCHEMY.</h1>
-            <p>I don't just write code. I create digital atmospheres.</p>
+            <h2>Portfolio</h2>
+            <h1>DIGITAL<br>PRESENCE.</h1>
+            <p>Crafting interactive experiences with precision and flow.</p>
+            <div class="scroll-hint">Scroll to explore</div>
         </section>
 
         <section class="layer" id="layer-2">
-            <h2>The Vision</h2>
-            <h1>FORM<br>FOLLOWS<br>FLOW.</h1>
-            <p>Static is dead. The future of web is reactive, organic, and alive.</p>
+            <h2>Philosophy</h2>
+            <h1>SHARP<br>FOCUS.</h1>
+            <p>We strip away the noise to reveal the essential structure.</p>
         </section>
 
         <section class="layer" id="layer-3">
-            <h2>Selected Works</h2>
-            <h1>CASE<br>STUDIES.</h1>
-            <p>Immersive commerce, WebGL experiences, and next-gen interfaces.</p>
-            <a href="#" class="btn">Explore Work</a>
+            <h2>Works</h2>
+            <h1>SELECTED<br>PROJECTS.</h1>
+            <p>E-commerce, 3D WebGL, and high-performance applications.</p>
+            <a href="#" class="btn">View Case Studies</a>
         </section>
 
         <section class="layer" id="layer-4">
             <h2>Contact</h2>
-            <h1>START THE<br>PROJECT.</h1>
-            <a href="mailto:email@example.com" class="btn">Say Hello</a>
+            <h1>LET'S<br>COLLABORATE.</h1>
+            <p>Open for new opportunities and wild ideas.</p>
+            <a href="mailto:email@example.com" class="btn">Get in touch</a>
         </section>
     </main>
 
     <script>
         const blob = document.getElementById('cursor-blob');
         
+        // Coordinates
         let mouseX = window.innerWidth / 2;
         let mouseY = window.innerHeight / 2;
-        
-        // Current position of the blob (for inertia)
         let blobX = window.innerWidth / 2;
         let blobY = window.innerHeight / 2;
 
-        // 1. TRACK MOUSE
+        // 1. Track Mouse
         document.addEventListener('mousemove', (e) => {
             mouseX = e.clientX;
             mouseY = e.clientY;
-            
-            // Fade in on first movement
+
+            // Pop in the blob on first movement
             if (!blob.classList.contains('active')) {
                 blob.classList.add('active');
             }
         });
 
-        // 2. ANIMATION LOOP (PHYSICS)
+        // 2. Physics Loop
         function animate() {
-            // "Lerp" (Linear Interpolation) for the lag effect
-            // 0.08 is the speed. Lower = more sluggish/liquid. Higher = faster.
-            blobX += (mouseX - blobX) * 0.08;
-            blobY += (mouseY - blobY) * 0.08;
+            // LERP: Move blob 10% of the way to the mouse every frame
+            // 0.1 = nice balance of heavy but responsive
+            blobX += (mouseX - blobX) * 0.1;
+            blobY += (mouseY - blobY) * 0.1;
 
             blob.style.left = blobX + 'px';
             blob.style.top = blobY + 'px';
