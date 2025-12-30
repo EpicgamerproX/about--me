@@ -76,11 +76,12 @@
             100% { width: 100vmax; height: 100vmax; opacity: 0; }
         }
 
-        /* --- 5. LAYERS --- */
+        /* --- 5. LAYERS & SPACERS (THE FIX) --- */
+        
         .layer {
             position: sticky;
             top: 0;
-            height: 100vh;
+            height: 100vh; /* Full viewport height */
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -88,9 +89,21 @@
             background-color: #050505;
             border-top: 1px solid rgba(255,255,255,0.08);
             overflow: hidden;
-            z-index: 1;
+            /* Shadow makes the cut effect more obvious */
+            box-shadow: 0 -50px 100px rgba(0,0,0,0.8); 
         }
 
+        /* THE INVISIBLE BRAKE */
+        .spacer {
+            width: 100%;
+            /* 40vh = You have to scroll 40% of the screen height 
+               before the next layer even starts moving up. */
+            height: 40vh; 
+            background: transparent;
+            pointer-events: none;
+        }
+
+        /* Layer Colors & Z-Index */
         #layer-1 { background-color: #050505; z-index: 1; }
         #layer-2 { background-color: #080808; z-index: 2; }
         #layer-3 { background-color: #000000; z-index: 3; }
@@ -98,28 +111,10 @@
         #layer-5 { background-color: #020202; z-index: 5; }
 
         /* --- 6. TYPOGRAPHY --- */
-        h1 {
-            font-size: 7vw;
-            line-height: 0.9;
-            font-weight: 800;
-            letter-spacing: -3px;
-            margin-bottom: 1.5rem;
-            color: #fff;
-            position: relative;
-            z-index: 10;
-        }
+        h1 { font-size: 7vw; line-height: 0.9; font-weight: 800; letter-spacing: -3px; margin-bottom: 1.5rem; color: #fff; position: relative; z-index: 10; }
         h2 { font-size: 0.9rem; font-weight: 600; text-transform: uppercase; letter-spacing: 3px; color: #666; margin-bottom: 1.5rem; z-index: 10; }
         p { font-size: 1.5rem; max-width: 600px; line-height: 1.4; color: #bbb; margin-bottom: 1rem; z-index: 10; }
-        
-        /* Helper text for mobile instructions */
-        .mobile-hint {
-            display: none;
-            font-size: 0.75rem;
-            color: #444;
-            margin-top: 10px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
+        .mobile-hint { display: none; font-size: 0.75rem; color: #444; margin-top: 10px; text-transform: uppercase; letter-spacing: 1px; }
 
         /* --- 7. BUTTONS --- */
         .btn-container { margin-top: 30px; display: flex; flex-wrap: wrap; gap: 15px; }
@@ -129,84 +124,30 @@
         /* --- 8. SIDEBAR --- */
         .skill-left { width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; padding-left: 10vw; transition: opacity 0.3s; }
         
-        /* VISUAL HINT (PULSING ARROW) */
-        .pull-indicator {
-            position: absolute;
-            right: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            z-index: 40;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            opacity: 0.6;
-            animation: pulseLeft 2s infinite;
-        }
-        .arrow-icon {
-            width: 0; 
-            height: 0; 
-            border-top: 8px solid transparent;
-            border-bottom: 8px solid transparent;
-            border-right: 12px solid #fff;
-            margin-bottom: 8px;
-        }
-        .pull-text {
-            writing-mode: vertical-rl;
-            text-orientation: mixed;
-            font-size: 0.6rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
+        .pull-indicator { position: absolute; right: 20px; top: 50%; transform: translateY(-50%); z-index: 40; display: flex; flex-direction: column; align-items: center; opacity: 0.6; animation: pulseLeft 2s infinite; }
+        .arrow-icon { width: 0; height: 0; border-top: 8px solid transparent; border-bottom: 8px solid transparent; border-right: 12px solid #fff; margin-bottom: 8px; }
+        .pull-text { writing-mode: vertical-rl; text-orientation: mixed; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 2px; }
+        @keyframes pulseLeft { 0%, 100% { transform: translateY(-50%) translateX(0); opacity: 0.5; } 50% { transform: translateY(-50%) translateX(-10px); opacity: 1; } }
 
-        @keyframes pulseLeft {
-            0%, 100% { transform: translateY(-50%) translateX(0); opacity: 0.5; }
-            50% { transform: translateY(-50%) translateX(-10px); opacity: 1; }
-        }
-
-        .skill-sidebar { 
-            position: absolute; 
-            right: 0; 
-            top: 0; 
-            width: 35%; 
-            min-width: 300px; 
-            height: 100vh; 
-            /* Glassmorphism for premium feel */
-            background-color: rgba(10, 10, 10, 0.9); 
-            backdrop-filter: blur(15px);
-            border-left: 1px solid rgba(255,255,255,0.1); 
-            padding: 50px 30px; 
-            overflow-y: auto; 
-            z-index: 50; 
-            transform: translateX(100%);
-            will-change: transform; 
-            box-shadow: -20px 0 50px rgba(0,0,0,0.8);
-        }
-
+        .skill-sidebar { position: absolute; right: 0; top: 0; width: 35%; min-width: 300px; height: 100vh; background-color: rgba(10, 10, 10, 0.9); backdrop-filter: blur(15px); border-left: 1px solid rgba(255,255,255,0.1); padding: 50px 30px; overflow-y: auto; z-index: 50; transform: translateX(100%); will-change: transform; box-shadow: -20px 0 50px rgba(0,0,0,0.8); }
         .skill-category { margin-bottom: 40px; }
         .skill-category h3 { font-size: 0.75rem; text-transform: uppercase; color: #555; margin-bottom: 15px; letter-spacing: 2px; border-bottom: 1px solid #333; padding-bottom: 5px; }
         .skill-grid { display: flex; flex-wrap: wrap; gap: 8px; }
         .skill-tag { display: inline-block; padding: 8px 14px; border: 1px solid rgba(255,255,255,0.15); border-radius: 20px; font-size: 0.7rem; color: #ddd; background: transparent; font-weight: 600; position: relative; z-index: 20; white-space: nowrap; }
         .skill-tag.hovered-state { border-color: transparent; color: #fff; }
 
-        /* --- MOBILE POLISH --- */
         @media (max-width: 768px) { 
-            /* Tighter text for vertical screens */
             h1 { font-size: 3.5rem; line-height: 1; margin-bottom: 1rem; } 
             p { font-size: 1.1rem; max-width: 100%; }
             .layer { padding: 0 8vw; }
-            
-            /* Show hint text */
             .mobile-hint { display: block; }
-
-            /* Sidebar takes most of screen */
             .skill-sidebar { width: 85%; min-width: unset; padding: 80px 30px 40px 30px; } 
-
-            /* Shrink blob so it doesn't block text */
             #cursor-blob { width: 80px; height: 80px; }
-            
-            /* Hide arrow on mobile if it clutters, OR keep it small. Let's keep it. */
             .pull-indicator { right: 10px; }
-            .pull-text { display: none; } /* Hide text, keep arrow */
+            .pull-text { display: none; }
+            
+            /* Smaller spacer on mobile so it doesn't feel like you are scrolling forever */
+            .spacer { height: 25vh; }
         }
     </style>
 </head>
@@ -223,6 +164,8 @@
             <div class="mobile-hint">Tap screen to interact</div>
         </section>
 
+        <div class="spacer"></div>
+
         <section class="layer" id="layer-2">
             <h2>About</h2>
             <h1>CODE &<br>DESIGN.</h1>
@@ -231,6 +174,8 @@
                 <a href="#" class="btn magnetic">Read Bio</a>
             </div>
         </section>
+
+        <div class="spacer"></div>
 
         <section class="layer" id="layer-3">
             <h2>Work</h2>
@@ -241,6 +186,8 @@
                 <a href="https://github.com/achyut07" target="_blank" class="btn magnetic">GitHub</a>
             </div>
         </section>
+
+        <div class="spacer"></div>
 
         <section class="layer" id="layer-skills">
             <div class="pull-indicator">
@@ -284,6 +231,8 @@
             </aside>
         </section>
 
+        <div class="spacer"></div>
+
         <section class="layer" id="layer-5">
             <h2>Contact</h2>
             <h1>LET'S<br>COLLABORATE.</h1>
@@ -292,6 +241,9 @@
                 <a href="https://linkedin.com/in/achyut07" class="btn magnetic">LinkedIn</a>
             </div>
         </section>
+        
+        <div class="spacer" style="height: 20vh;"></div>
+
     </main>
 
     <script>
@@ -363,7 +315,6 @@
         function animate() {
             const magneticElements = document.querySelectorAll('.magnetic');
             
-            // Adjust blob size dynamically based on device
             const isMobile = window.innerWidth < 768;
             const baseSize = isMobile ? 80 : 150;
 
@@ -384,18 +335,18 @@
 
             // 2. SIDEBAR LOGIC (Responsive)
             const skillsRect = skillLayer.getBoundingClientRect();
+            // Since we added spacers, checking 'top' is still valid because
+            // position:sticky keeps the layer at top:0 even while scrolling through the spacer.
             const isLayerActive = Math.abs(skillsRect.top) < 50; 
 
             if (isLayerActive) { 
                 const distFromRight = window.innerWidth - blobX;
-                // Easier to open on mobile
                 const pullStartZone = isMobile ? 200 : 400; 
 
                 if (distFromRight < pullStartZone) {
                     const pullFactor = 1 - (distFromRight / pullStartZone);
                     const translateVal = 100 - (pullFactor * 100);
                     sidebar.style.transform = `translateX(${translateVal}%)`;
-                    // Fade out hint when opening
                     document.querySelector('.pull-indicator').style.opacity = 1 - pullFactor;
                 } else {
                     sidebar.style.transform = `translateX(100%)`;
@@ -435,7 +386,6 @@
             blobX += velX;
             blobY += velY;
 
-            // Wall Bouncing
             if (blobX < 0) { blobX = 0; velX *= -0.6; }
             if (blobX > window.innerWidth) { blobX = window.innerWidth; velX *= -0.6; }
 
