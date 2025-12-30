@@ -3,700 +3,574 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dev Portfolio | Developer</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Ice & Ember Portfolio</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        
-        * {
-            font-family: 'Inter', sans-serif;
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Montserrat:wght@300;400&display=swap');
+
+        :root {
+            --bg-dark: #0a0a0a;
+            --ice-color: #a5d8ff;
+            --sand-color: #dcb183;
+            --whiskey-color: #d48c26;
+            --glass-shine: rgba(255, 255, 255, 0.2);
         }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
-            background-color: #0a0a0a;
-            color: #e5e5e5;
-            overflow-x: hidden;
+            background-color: var(--bg-dark);
+            color: white;
+            font-family: 'Montserrat', sans-serif;
+            overflow: hidden; /* We handle scroll manually for effects */
+            height: 100vh;
+            width: 100vw;
         }
-        
-        /* Consistent dark theme */
-        .dark-section {
-            background: #0a0a0a;
-        }
-        
-        .darker-section {
-            background: #080808;
-        }
-        
-        /* Hollow skill cards with consistent dark theme but colored icons */
-        .hollow-card {
-            background: rgba(20, 20, 20, 0.3);
-            border: 1px solid rgba(40, 40, 40, 0.8);
-            border-radius: 12px;
-            padding: 1.5rem;
-            transition: all 0.4s ease;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 
-                inset 0 0 25px rgba(0, 0, 0, 0.9),
-                0 5px 15px rgba(0, 0, 0, 0.4);
-        }
-        
-        .hollow-card:hover {
-            transform: translateY(-5px);
-            border-color: rgba(60, 60, 60, 1);
-            box-shadow: 
-                inset 0 0 35px rgba(0, 0, 0, 0.95),
-                0 8px 25px rgba(0, 0, 0, 0.6);
-            background: rgba(25, 25, 25, 0.4);
-        }
-        
-        .hollow-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(60, 60, 60, 0.8), transparent);
-        }
-        
-        .hollow-card::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(60, 60, 60, 0.8), transparent);
-        }
-        
-        /* Section dividers - dark */
-        .section-divider {
-            height: 1px;
-            background: linear-gradient(90deg, transparent, #1a1a1a, #222, #1a1a1a, transparent);
-            margin: 3rem 0;
-        }
-        
-        /* Project cards - dark */
-        .project-card {
-            background: rgba(20, 20, 20, 0.4);
-            border: 1px solid rgba(40, 40, 40, 0.8);
-            transition: all 0.4s ease;
-            box-shadow: 
-                inset 0 0 15px rgba(0, 0, 0, 0.8),
-                0 5px 15px rgba(0, 0, 0, 0.3);
-        }
-        
-        .project-card:hover {
-            transform: translateY(-8px);
-            border-color: rgba(60, 60, 60, 1);
-            box-shadow: 
-                inset 0 0 25px rgba(0, 0, 0, 0.95),
-                0 10px 25px rgba(0, 0, 0, 0.5);
-        }
-        
-        /* Subtle accent colors - not bright */
-        .accent-text {
-            color: #a0a0a0;
-        }
-        
-        .subtle-gradient-text {
-            background: linear-gradient(90deg, #888, #aaa, #888);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            background-size: 200% auto;
-        }
-        
-        /* Contact form - dark */
-        .input-field {
-            background: rgba(15, 15, 15, 0.8);
-            border: 1px solid rgba(40, 40, 40, 0.8);
-            color: #e5e5e5;
-            transition: all 0.3s ease;
-        }
-        
-        .input-field:focus {
-            outline: none;
-            border-color: rgba(80, 80, 80, 1);
-            box-shadow: 0 0 0 1px rgba(80, 80, 80, 0.3);
-            background: rgba(20, 20, 20, 0.9);
-        }
-        
-        /* Email automation card - dark */
-        .email-automation-card {
-            background: rgba(20, 20, 25, 0.4);
-            border: 1px solid rgba(40, 40, 50, 0.8);
-            box-shadow: 
-                inset 0 0 30px rgba(0, 0, 0, 0.9),
-                0 10px 30px rgba(0, 0, 0, 0.4);
-        }
-        
-        /* Navigation - dark */
-        .nav-dark {
-            background: rgba(10, 10, 10, 0.95);
+
+        /* --- Navigation --- */
+        nav {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            display: flex;
+            gap: 40px;
+            background: rgba(255,255,255,0.05);
+            padding: 15px 30px;
+            border-radius: 50px;
             backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(40, 40, 40, 0.8);
+            border: 1px solid rgba(255,255,255,0.1);
         }
-        
-        /* Button styles - dark theme with subtle color */
-        .dark-btn {
-            background: linear-gradient(90deg, #222, #333, #222);
-            color: #e5e5e5;
-            border: 1px solid rgba(60, 60, 60, 0.8);
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .dark-btn:hover {
+
+        .nav-btn {
+            background: none;
+            border: none;
+            color: rgba(255,255,255,0.6);
+            font-family: 'Playfair Display', serif;
+            font-size: 1.2rem;
             cursor: pointer;
-            background: linear-gradient(90deg, #2a2a2a, #3a3a3a, #2a2a2a);
-            border-color: rgba(80, 80, 80, 1);
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+            transition: all 0.3s ease;
         }
-        
-        .dark-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
+
+        .nav-btn.active {
+            color: #fff;
+            text-shadow: 0 0 10px rgba(255,255,255,0.5);
+        }
+
+        /* --- Main Container --- */
+        .content-wrapper {
+            position: relative;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(100, 100, 100, 0.1), transparent);
-            transition: left 0.7s ease;
+        }
+
+        .tab-section {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.8s ease-in-out;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .tab-section.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        /* --- PORTFOLIO TAB (ICE & SAND) --- */
+        #portfolio-tab {
+            overflow-y: auto;
+            overflow-x: hidden;
+            display: block; /* Overrides flex for scrolling */
+            perspective: 1000px;
+        }
+
+        /* The Ice Slab Scene */
+        .ice-container {
+            height: 100vh;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            /* The angled view from bottom-up */
+            transform-style: preserve-3d;
+            background: radial-gradient(circle at center, #1a2a3a 0%, #000 100%);
+            z-index: 2;
+        }
+
+        .ice-slab {
+            width: 80%;
+            height: 70%;
+            background: linear-gradient(135deg, rgba(165, 216, 255, 0.1), rgba(165, 216, 255, 0.05));
+            border: 1px solid rgba(255,255,255,0.3);
+            backdrop-filter: blur(5px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5), inset 0 0 30px rgba(165, 216, 255, 0.2);
+            /* Angled perspective */
+            transform: rotateX(20deg) scale(0.9); 
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        /* Canvas for frost trails */
+        #frost-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none; /* Let clicks pass through */
+            mix-blend-mode: overlay;
+        }
+
+        .ice-content h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 4rem;
+            color: var(--ice-color);
+            text-shadow: 0 0 20px rgba(165, 216, 255, 0.6);
+            pointer-events: none;
+        }
+
+        .scroll-hint {
+            position: absolute;
+            bottom: 40px;
+            opacity: 0.7;
+            animation: bounce 2s infinite;
+        }
+
+        /* The Sand Scene */
+        .sand-container {
+            height: 100vh;
+            background: radial-gradient(circle, #2b2319 0%, #0a0a0a 100%);
+            position: relative;
+            z-index: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
         }
         
-        .dark-btn:hover::before {
-            cursor: pointer;
-            left: 100%;
+        /* Sand Texture overlay */
+        .sand-texture {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPgo8cmVjdCB3aWR0aD0iNCIgaGVpZ2h0PSI0IiBmaWxsPSIjMmIyMzE5Ii8+CjxyZWN0IHdpZHRoPSIxIiBoZWlnaHQ9IjEiIGZpbGw9IiMzZDM0MmIiLz4KPC9zdmc+');
+            opacity: 0.2;
+            pointer-events: none;
         }
-        
-        /* Email button - subtle accent */
-        .email-btn {
-            background: linear-gradient(90deg, #1e3a8a, #3730a3, #1e3a8a);
-            color: #e5e5e5;
-            border: 1px solid rgba(60, 80, 120, 0.8);
+
+        #sand-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
         }
-        
-        .email-btn:hover {
-            cursor: pointer;
-            background: linear-gradient(90deg, #1e40af, #4338ca, #1e40af);
-            border-color: rgba(80, 100, 150, 1);
+
+        .sand-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            max-width: 600px;
         }
-        
-        /* Skill icons - COLORED as requested! */
-        .skill-icon {
-            transition: all 0.3s ease;
+
+        .sand-content h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            color: var(--sand-color);
+            margin-bottom: 20px;
         }
-        
-        .skill-icon:hover {
-            transform: scale(1.1);
-            filter: brightness(1.3);
+
+        .sand-content p {
+            line-height: 1.6;
+            color: rgba(255,255,255,0.8);
         }
-        
-        /* Colored skill category icons */
-        .category-icon-frontend {
-            color: #3b82f6; /* Blue */
+
+        /* --- PROJECTS TAB (WHISKEY) --- */
+        #projects-tab {
+            background: #050505;
+            perspective: 1200px;
+            overflow: hidden;
         }
-        
-        .category-icon-backend {
-            color: #10b981; /* Green */
+
+        .projects-stage {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
-        
-        .category-icon-languages {
-            color: #8b5cf6; /* Purple */
+
+        /* The Glass */
+        .glass-container {
+            width: 250px;
+            height: 300px;
+            position: relative;
+            z-index: 10;
+            transform-style: preserve-3d;
         }
-        
-        .category-icon-tools {
-            color: #ef4444; /* Red */
+
+        .whiskey-glass {
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border-left: 1px solid rgba(255,255,255,0.2);
+            border-right: 1px solid rgba(255,255,255,0.2);
+            border-bottom: 5px solid rgba(255,255,255,0.3);
+            border-radius: 10px 10px 40px 40px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.8);
         }
-        
-        /* Project card icons - colored */
-        .project-icon-1 {
-            color: #3b82f6; /* Blue */
+
+        .liquid {
+            position: absolute;
+            bottom: 10px;
+            left: 5px;
+            right: 5px;
+            height: 60%;
+            background: linear-gradient(to bottom, #d48c26, #8a4b08);
+            border-radius: 5px 5px 30px 30px;
+            opacity: 0.9;
+            transform-origin: bottom center;
+            transition: transform 0.1s ease-out;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
         }
-        
-        .project-icon-2 {
-            color: #10b981; /* Green */
+
+        /* Top surface of liquid */
+        .liquid::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            transform: scaleY(0.5);
         }
-        
-        .project-icon-3 {
-            color: #8b5cf6; /* Purple */
+
+        .ice-cube {
+            position: absolute;
+            background: rgba(255,255,255,0.3);
+            border: 1px solid rgba(255,255,255,0.4);
+            backdrop-filter: blur(3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            border-radius: 4px;
         }
-        
-        /* Footer */
-        .footer-dark {
-            cursor: pointer;
-            background: #0a0a0a;
-            border-top: 1px solid rgba(40, 40, 40, 0.8);
+
+        .cube1 { width: 60px; height: 60px; bottom: 30px; left: 40px; transform: rotate(15deg); }
+        .cube2 { width: 50px; height: 50px; bottom: 70px; right: 50px; transform: rotate(-10deg); }
+
+        /* Floating Project Cards */
+        .card-floater {
+            position: absolute;
+            width: 250px;
+            background: rgba(20, 20, 20, 0.8);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            transition: transform 0.2s ease-out;
         }
-        
-        /* Subtle text highlights */
-        .text-subtle-highlight {
-            color: #d0d0d0;
+
+        .card-left {
+            left: 15%;
+            top: 30%;
+            animation: float 6s ease-in-out infinite;
         }
-        
-        /* Colored contact icons */
-        .contact-icon-email {
-            color: #3b82f6; /* Blue */
+
+        .card-right {
+            right: 15%;
+            top: 40%;
+            animation: float 6s ease-in-out infinite reverse;
         }
-        
-        .contact-icon-phone {
-            color: #10b981; /* Green */
+
+        .card-floater h3 {
+            color: var(--whiskey-color);
+            margin-bottom: 10px;
+            font-family: 'Playfair Display', serif;
         }
-        
-        .contact-icon-location {
-            color: #ef4444; /* Red */
+
+        .card-floater p {
+            font-size: 0.85rem;
+            color: #ccc;
         }
-        
-        /* Colored social icons */
-        .social-icon-github {
-            color: #f5f5f5; /* White for GitHub */
+
+        /* --- Animations --- */
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(10px); }
         }
-        
-        .social-icon-linkedin {
-            color: #0a66c2; /* LinkedIn blue */
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
         }
-        
-        .social-icon-twitter {
-            color: #1da1f2; /* Twitter blue */
-        }
+
     </style>
 </head>
-<body class="min-h-screen">
-    <!-- Navigation -->
-    <nav class="nav-dark fixed w-full z-10 py-4">
-        <div class="container mx-auto px-6 flex justify-between items-center">
-            <a href="#" class="text-xl font-bold text-subtle-highlight">DevPortfolio</a>
-            <div class="hidden md:flex space-x-8">
-                <a href="#home" class="accent-text hover:text-gray-300 transition duration-300">Home</a>
-                <a href="#about" class="accent-text hover:text-gray-300 transition duration-300">About</a>
-                <a href="#skills" class="accent-text hover:text-gray-300 transition duration-300">Skills</a>
-                <a href="#projects" class="accent-text hover:text-gray-300 transition duration-300">Projects</a>
-                <a href="#contact" class="accent-text hover:text-gray-300 transition duration-300">Contact</a>
-            </div>
-            <button class="md:hidden text-xl accent-text">
-                <i class="fas fa-bars"></i>
-            </button>
-        </div>
+<body>
+
+    <nav>
+        <button class="nav-btn active" onclick="switchTab('portfolio')">Portfolio</button>
+        <button class="nav-btn" onclick="switchTab('projects')">Projects</button>
     </nav>
 
-    <!-- Hero Section -->
-    <section id="home" class="pt-32 pb-20 px-6 darker-section">
-        <div class="container mx-auto max-w-4xl">
-            <div class="text-center">
-                <h1 class="text-4xl md:text-6xl font-bold mb-6">Hello, I'm <span class="subtle-gradient-text">Achyut</span></h1>
-                <p class="text-xl text-gray-400 mb-8 max-w-2xl mx-auto">I build efficient, scalable solutions with clean code. Passionate about backend systems, automation, and creating seamless user experiences.</p>
+    <div class="content-wrapper">
+        
+        <section id="portfolio-tab" class="tab-section active">
+            
+            <div class="ice-container">
+                <div class="ice-slab">
+                    <canvas id="frost-canvas"></canvas>
+                    <div class="ice-content">
+                        <h1>John Doe</h1>
+                        <p>Creative Developer & Designer</p>
+                    </div>
+                </div>
+                <div class="scroll-hint">Scroll Down</div>
+            </div>
+
+            <div class="sand-container">
+                <div class="sand-texture"></div>
+                <canvas id="sand-canvas"></canvas>
+                <div class="sand-content">
+                    <h2>About Me</h2>
+                    <p>Like the shifting sands, I adapt to new technologies. I build immersive digital experiences that leave a mark. From the cold precision of code to the fluid creativity of design, I bridge the gap.</p>
+                </div>
+            </div>
+
+        </section>
+
+        <section id="projects-tab" class="tab-section">
+            <div class="projects-stage" id="project-stage">
                 
-                <!-- Email Automation Button -->
-                <a href="mailto:achyutrmenon@gmail.com?subject=Portfolio Inquiry&body=Hello, I saw your portfolio and wanted to connect..." 
-                   class="email-btn dark-btn inline-block font-medium py-3 px-8 rounded-lg mb-4">
-                    <i class="fas fa-paper-plane mr-2"></i>Get In Touch
-                </a>
-                <p class="text-gray-600 text-sm">Clicking will open your email client with my address pre-filled</p>
+                <div class="card-floater card-left" data-speed="0.5">
+                    <h3>Project Alpha</h3>
+                    <p>A high-frequency trading dashboard with real-time analytics.</p>
+                </div>
+
+                <div class="glass-container" data-speed="0.2">
+                    <div class="whiskey-glass">
+                        <div class="liquid" id="liquid"></div>
+                        <div class="ice-cube cube1"></div>
+                        <div class="ice-cube cube2"></div>
+                    </div>
+                </div>
+
+                <div class="card-floater card-right" data-speed="0.8">
+                    <h3>Project Beta</h3>
+                    <p>AI-driven image recognition tool for medical diagnostics.</p>
+                </div>
+
             </div>
-        </div>
-    </section>
+        </section>
 
-    <div class="section-divider"></div>
-
-    <!-- About Section -->
-    <section id="about" class="py-16 px-6 dark-section">
-        <div class="container mx-auto max-w-4xl">
-            <h2 class="text-3xl font-bold mb-10 text-center text-subtle-highlight">About Me</h2>
-            <div class="hollow-card">
-                <div class="flex flex-col md:flex-row items-center gap-8">
-                    <div class="md:w-1/3">
-                        <div class="w-48 h-48 rounded-full bg-gradient-to-br from-gray-900 via-black to-gray-900 mx-auto flex items-center justify-center border border-gray-800 shadow-inner">
-                            <span class="text-6xl text-gray-600">👨‍💻</span>
-                        </div>
-                    </div>
-                    <div class="md:w-2/3">
-                        <p class="text-gray-400 mb-6">
-                            I'm a passionate developer who specializes in building robust backend systems. With a strong foundation in multiple programming languages, I enjoy solving problems and creating efficient solutions.
-                        </p>
-                        <p class="text-gray-400 mb-6">
-                            I believe in writing clean, maintainable code and following best practices. Whether it's developing a web application with Flask, creating a bash automation script, or optimizing a database query, I approach each project with attention to detail.
-                        </p>
-                        <div class="flex items-center space-x-4 mt-8">
-                            <a href="#contact" class="dark-btn px-5 py-2 rounded-lg">Hire Me</a>
-                            <a href="#projects" class="border border-gray-800 hover:bg-gray-900 px-5 py-2 rounded-lg transition duration-300 accent-text">View Projects</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <div class="section-divider"></div>
-    <section id="skills" class="py-16 px-6 darker-section">
-        <div class="container mx-auto max-w-6xl">
-            <h2 class="text-3xl font-bold mb-10 text-center text-subtle-highlight">Technical Skills</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <!-- Frontend Skills - Blue icon -->
-                <div class="hollow-card">
-                    <div class="category-icon-frontend text-3xl mb-4">
-                        <i class="fas fa-code skill-icon"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-4 text-subtle-highlight">Frontend</h3>
-                    <ul class="space-y-3">
-                        <li class="flex items-center">
-                            <i class="fab fa-html5 text-orange-500 mr-3 skill-icon"></i>
-                            <span class="text-gray-300">HTML5</span>
-                        </li>
-                        <li class="flex items-center">
-                            <i class="fab fa-css3-alt text-blue-500 mr-3 skill-icon"></i>
-                            <span class="text-gray-300">CSS3</span>
-                        </li>
-                        <li class="flex items-center">
-                            <i class="fab fa-js-square text-yellow-500 mr-3 skill-icon"></i>
-                            <span class="text-gray-300">JavaScript</span>
-                        </li>
-                        <li class="flex items-center">
-                            <i class="fas fa-wind text-teal-400 mr-3 skill-icon"></i>
-                            <span class="text-gray-300">Tailwind CSS</span>
-                        </li>
-                    </ul>
-                </div>
-
-                <!-- Backend Skills - Green icon -->
-                <div class="hollow-card">
-                    <div class="category-icon-backend text-3xl mb-4">
-                        <i class="fas fa-server skill-icon"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-4 text-subtle-highlight">Backend</h3>
-                    <ul class="space-y-3">
-                        <li class="flex items-center">
-                            <i class="fab fa-python text-yellow-400 mr-3 skill-icon"></i>
-                            <span class="text-gray-300">Python & Flask</span>
-                        </li>
-                        <li class="flex items-center">
-                            <i class="fas fa-database text-blue-300 mr-3 skill-icon"></i>
-                            <span class="text-gray-300">SQL Databases & Power Queries</span>
-                        </li>
-                        <li class="flex items-center">
-                            <i class="fas fa-cogs text-gray-400 mr-3 skill-icon"></i>
-                            <span class="text-gray-300">Bash Automation</span>
-                        </li>
-                    </ul>
-                </div>
-
-                <!-- Programming Languages - Purple icon -->
-                <div class="hollow-card">
-                    <div class="category-icon-languages text-3xl mb-4">
-                        <i class="fas fa-laptop-code skill-icon"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-4 text-subtle-highlight">Languages</h3>
-                    <ul class="space-y-3">
-                        <li class="flex items-center">
-                            <i class="fas fa-copyright text-blue-400 mr-3 skill-icon"></i>
-                            <span class="text-gray-300">C Programming</span>
-                        </li>
-                        <li class="flex items-center">
-                            <i class="fas fa-database text-blue-400 mr-3 skill-icon"></i>
-                            <span class="text-gray-300">SQL</span>
-                        </li>
-                        <li class="flex items-center">
-                            <i class="fab fa-python text-blue-500 mr-3 skill-icon"></i>
-                            <span class="text-gray-300">Python</span>
-                        </li>
-                        <li class="flex items-center">
-                            <i class="fab fa-js-square text-yellow-500 mr-3 skill-icon"></i>
-                            <span class="text-gray-300">JavaScript</span>
-                        </li>
-                        <li class="flex items-center">
-                            <i class="fas fa-terminal text-gray-300 mr-3 skill-icon"></i>
-                            <span class="text-gray-300">Bash Scripting</span>
-                        </li>
-                    </ul>
-                </div>
-
-                <!-- Tools & Others - Red icon -->
-                <div class="hollow-card">
-                    <div class="category-icon-tools text-3xl mb-4">
-                        <i class="fas fa-tools skill-icon"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-4 text-subtle-highlight">Tools & Others</h3>
-                    <ul class="space-y-3">
-                        <li class="flex items-center">
-                            <i class="fab fa-git-alt text-orange-600 mr-3 skill-icon"></i>
-                            <span class="text-gray-300">Git Version Control</span>
-                        </li>
-                        <li class="flex items-center">
-                            <i class="fas fa-terminal text-green-500 mr-3 skill-icon"></i>
-                            <span class="text-gray-300">Linux Command Line</span>
-                        </li>
-                        <li class="flex items-center">
-                            <i class="fas fa-project-diagram text-purple-500 mr-3 skill-icon"></i>
-                            <span class="text-gray-300">System Design</span>
-                        </li>
-                        <li class="flex items-center">
-                            <i class="fas fa-bolt text-yellow-500 mr-3 skill-icon"></i>
-                            <span class="text-gray-300">Automation Scripts</span>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <div class="section-divider"></div>
-
-    <!-- Email Automation Section -->
-    <section id="automation" class="py-16 px-6 dark-section">
-        <div class="container mx-auto max-w-4xl">
-            <h2 class="text-3xl font-bold mb-10 text-center text-subtle-highlight">Email Automation</h2>
-            <div class="email-automation-card rounded-2xl p-8">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-                    <div>
-                        <h3 class="text-xl font-bold mb-4 text-subtle-highlight">Quick Contact</h3>
-                        <p class="text-gray-400 mb-6">
-                            Click the button below to open your email client, saves you time and ensures you reach me directly.
-                        </p>
-                        <div class="mb-6">
-                            <h4 class="font-medium mb-2 text-gray-300">Pre-filled Information:</h4>
-                            <ul class="text-gray-500 space-y-1">
-                                <li><i class="fas fa-check text-green-500 mr-2"></i> My email address: achyutrmenon@gmail.com</li>
-                                <li><i class="fas fa-check text-green-500 mr-2"></i> Subject: Portfolio Inquiry</li>
-                                <li><i class="fas fa-check text-green-500 mr-2"></i> Hi, </li>
-                            </ul>
-                        </div>
-                        
-                        <!-- Email Automation Button -->
-                        <a href="mailto:dev@portfolio.com?subject=Portfolio Inquiry&body=Hello, I saw your portfolio and wanted to connect. Here's what I'd like to discuss..." 
-                           class="email-btn dark-btn inline-block font-medium py-3 px-8 rounded-lg mb-2">
-                            <i class="fas fa-envelope mr-2"></i>Send Email Now
-                        </a>
-                        <p class="text-gray-600 text-sm">Works on all devices with email clients</p>
-                    </div>
-                    <div class="text-center">
-                        <div class="text-6xl mb-4 text-blue-400">
-                            <i class="fas fa-robot"></i>
-                        </div>
-                        <p class="text-gray-500 italic">
-                            "Automation applied to an efficient operation will magnify the efficiency."
-                        </p>
-                        <p class="text-gray-600 mt-2">- Bill Gates</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <div class="section-divider"></div>
-
-    <!-- Projects Section - WITH COLORED ICONS -->
-    <section id="projects" class="py-16 px-6 darker-section">
-        <div class="container mx-auto max-w-6xl">
-            <h2 class="text-3xl font-bold mb-10 text-center text-subtle-highlight">Projects</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <!-- Project 1 - Blue icon -->
-                <div class="project-card rounded-xl p-6">
-                    <div class="project-icon-1 text-2xl mb-4">
-                        <i class="fas fa-robot"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-3 text-subtle-highlight">Morning.coffee</h3>
-                    <p class="text-gray-400 mb-4">An on-going project: online audio streaming service to make music listening and creating easy and quick.</p>
-                    <div class="flex flex-wrap gap-2 mb-4">
-                        <span class="bg-gray-900 px-3 py-1 rounded-full text-sm text-gray-300">HTML5</span>
-                        <span class="bg-gray-900 px-3 py-1 rounded-full text-sm text-gray-300">CSS3</span>
-                        <span class="bg-gray-900 px-3 py-1 rounded-full text-sm text-gray-300">JavaScript</span>
-                        <span class="bg-gray-900 px-3 py-1 rounded-full text-sm text-gray-300">Flask</span>
-                        <span class="bg-gray-900 px-3 py-1 rounded-full text-sm text-gray-300">SupaBase</span>
-                    </div>
-                    <a href="#" class="text-gray-400 hover:text-gray-300 flex items-center">
-                        View Details <i class="fas fa-arrow-right ml-2"></i>
-                    </a>
-                </div>
-
-                <!-- Project 2 - Green icon -->
-                <div class="project-card rounded-xl p-6">
-                    <div class="project-icon-2 text-2xl mb-4">
-                        <i class="fas fa-chart-line"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-3 text-subtle-highlight">Webpage hosted-</h3>
-                    <p class="text-gray-400 mb-4">A web application built with Tailwind.css and .js .</p>
-                    <div class="flex flex-wrap gap-2 mb-4">
-                        <span class="bg-gray-900 px-3 py-1 rounded-full text-sm text-gray-300">HTML5</span>
-                        <span class="bg-gray-900 px-3 py-1 rounded-full text-sm text-gray-300">TailwindCSS</span>
-                        <span class="bg-gray-900 px-3 py-1 rounded-full text-sm text-gray-300">js</span>
-                        <span class="bg-gray-900 px-3 py-1 rounded-full text-sm text-gray-300">github-vercel</span>
-                    </div>
-                    <a href="https://maanukutty.vercel.app" target="_blank" class="text-gray-400 hover:text-gray-300 flex items-center">
-                        View Details <i class="fas fa-arrow-right ml-2"></i>
-                    </a>
-                </div>
-
-                <!-- Project 3 - Purple icon -->
-                <div class="project-card rounded-xl p-6">
-                    <div class="project-icon-3 text-2xl mb-4">
-                        <i class="fas fa-code"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-3 text-subtle-highlight">SQL & Flask based Backend Server</h3>
-                    <p class="text-gray-400 mb-4">Backend server hosted locally on a headless 24/7 running server.</p>
-                    <div class="flex flex-wrap gap-2 mb-4">
-                        <span class="bg-gray-900 px-3 py-1 rounded-full text-sm text-gray-300">SQL</span>
-                        <span class="bg-gray-900 px-3 py-1 rounded-full text-sm text-gray-300">Flask</span>
-                        <span class="bg-gray-900 px-3 py-1 rounded-full text-sm text-gray-300">Data management</span>
-                    </div>
-                    <a href="#" class="text-gray-400 hover:text-gray-300 flex items-center">
-                        View Details <i class="fas fa-arrow-right ml-2"></i>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <div class="section-divider"></div>
-
-    <!-- Contact Section - WITH COLORED ICONS -->
-    <section id="contact" class="py-16 px-6 dark-section">
-        <div class="container mx-auto max-w-4xl">
-            <h2 class="text-3xl font-bold mb-10 text-center text-subtle-highlight">Contact Me</h2>
-            <div class="hollow-card">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
-                    <div>
-                        <h3 class="text-xl font-bold mb-6 text-subtle-highlight">Let's work together</h3>
-                        <p class="text-gray-400 mb-8">
-                            I'm currently open to new opportunities and interesting projects. Whether you need a backend developer, automation expert, or full-stack solutions, feel free to reach out.
-                        </p>
-                        <div class="space-y-4 mb-8">
-                            <div class="flex items-center">
-                                <i class="fas fa-envelope contact-icon-email mr-4 text-xl"></i>
-                                <span class="text-gray-300">achyutrmenon@gmail.com</span>
-                            </div>
-                            <div class="flex items-center">
-                                <i class="fas fa-phone contact-icon-phone mr-4 text-xl"></i>
-                                <span class="text-gray-300">(+91)812 364 6097</span>
-                            </div>
-                            <div class="flex items-center">
-                                <i class="fas fa-map-marker-alt contact-icon-location mr-4 text-xl"></i>
-                                <span class="text-gray-300">India</span>
-                            </div>
-                        </div>
-                        
-                        <!-- Social icons with brand colors -->
-                        <div class="flex space-x-4 mb-6">
-                            <a href="#" class="bg-gray-900 hover:bg-gray-800 w-10 h-10 rounded-full flex items-center justify-center">
-                                <i class="fab fa-github social-icon-github"></i>
-                            </a>
-                            <a href="#" class="bg-gray-900 hover:bg-gray-800 w-10 h-10 rounded-full flex items-center justify-center">
-                                <i class="fab fa-linkedin-in social-icon-linkedin"></i>
-                            </a>
-                            <a href="#" class="bg-gray-900 hover:bg-gray-800 w-10 h-10 rounded-full flex items-center justify-center">
-                                <i class="fab fa-twitter social-icon-twitter"></i>
-                            </a>
-                        </div>
-                        
-                        <!-- Direct Email Button -->
-                        <a href="mailto:achyutrmenon@gmail.com?subject=Job Opportunity&body=Hello..." 
-                           class="email-btn dark-btn inline-block font-medium py-3 px-6 rounded-lg mb-4">
-                            <i class="fas fa-briefcase mr-2"></i>Email for Opportunities
-                        </a>
-                    </div>
-                    <div>
-                        <form class="space-y-6" id="contactForm">
-                            <div>
-                                <label class="block mb-2 text-gray-300">Name</label>
-                                <input type="text" class="w-full input-field rounded-lg p-3" required>
-                            </div>
-                            <div>
-                                <label class="block mb-2 text-gray-300">Email</label>
-                                <input type="email" class="w-full input-field rounded-lg p-3" required>
-                            </div>
-                            <div>
-                                <label class="block mb-2 text-gray-300">Message</label>
-                                <textarea rows="4" class="w-full input-field rounded-lg p-3" required></textarea>
-                            </div>
-                            <button type="submit" class="dark-btn font-medium py-3 px-6 rounded-lg w-full">
-                                <i class="fas fa-paper-plane mr-2"></i>Send Message
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="footer-dark py-8 px-6">
-        <div class="container mx-auto text-center">
-            <p class="text-gray-600">© 2023 Dev Portfolio. All rights reserved.</p>
-            <p class="text-gray-700 text-sm mt-2">Built with passion and clean code</p>
-            <div class="mt-4">
-                <!-- Quick Email Link in Footer -->
-                <a href="mailto:achyutrmenon@gmail.com" class="text-gray-600 hover:text-gray-400 text-sm">
-                    <i class="fas fa-envelope contact-icon-email mr-1"></i> achyutrmenon@gmail.com
-                </a>
-            </div>
-        </div>
-    </footer>
+    </div>
 
     <script>
-        // Smooth scrolling for navigation links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function(e) {
-                e.preventDefault();
-                
-                const targetId = this.getAttribute('href');
-                if(targetId === '#') return;
-                
-                const targetElement = document.querySelector(targetId);
-                if(targetElement) {
-                    window.scrollTo({
-                        top: targetElement.offsetTop - 80,
-                        behavior: 'smooth'
-                    });
-                }
+        // --- Tab Switching Logic ---
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-section').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById(tabName + '-tab').classList.add('active');
+            
+            // Find button with specific text content roughly
+            const buttons = document.querySelectorAll('.nav-btn');
+            buttons.forEach(btn => {
+                if(btn.textContent.toLowerCase().includes(tabName)) btn.classList.add('active');
             });
-        });
+        }
 
-        // Mobile menu toggle
-        const menuButton = document.querySelector('button.md\\:hidden');
-        const navLinks = document.querySelector('.hidden.md\\:flex');
+        // --- EFFECT 1: Ice Frost Trails (Canvas) ---
+        const frostCanvas = document.getElementById('frost-canvas');
+        const fCtx = frostCanvas.getContext('2d');
+        let fWidth, fHeight;
+        let trails = [];
+
+        function resizeFrost() {
+            // Get parent dimensions
+            const parent = frostCanvas.parentElement;
+            fWidth = parent.clientWidth;
+            fHeight = parent.clientHeight;
+            frostCanvas.width = fWidth;
+            frostCanvas.height = fHeight;
+        }
         
-        menuButton.addEventListener('click', () => {
-            navLinks.classList.toggle('hidden');
-            navLinks.classList.toggle('flex');
-            navLinks.classList.toggle('flex-col');
-            navLinks.classList.toggle('absolute');
-            navLinks.classList.toggle('top-16');
-            navLinks.classList.toggle('left-0');
-            navLinks.classList.toggle('right-0');
-            navLinks.classList.toggle('bg-gray-900');
-            navLinks.classList.toggle('p-6');
-            navLinks.classList.toggle('space-y-4');
-            navLinks.classList.toggle('text-center');
+        window.addEventListener('resize', resizeFrost);
+        resizeFrost();
+
+        // Track mouse on Ice Slab
+        frostCanvas.parentElement.addEventListener('mousemove', (e) => {
+            const rect = frostCanvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            trails.push({ x, y, alpha: 1.0, size: Math.random() * 20 + 10 });
         });
 
-        // Form submission handler
-        document.getElementById('contactForm').addEventListener('submit', function(e) {
-            e.preventDefault();
+        function animateFrost() {
+            fCtx.clearRect(0, 0, fWidth, fHeight);
             
-            // In a real implementation, you would send this data to a server
-            // For demo purposes, we'll just show a success message
-            alert('Message sent successfully!');
-            
-            // Clear the form
-            this.reset();
-        });
+            for (let i = 0; i < trails.length; i++) {
+                const p = trails[i];
+                fCtx.beginPath();
+                fCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                
+                // Create gradient for "frosty" look
+                let grd = fCtx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size);
+                grd.addColorStop(0, `rgba(255, 255, 255, ${p.alpha})`);
+                grd.addColorStop(1, `rgba(200, 230, 255, 0)`);
+                
+                fCtx.fillStyle = grd;
+                fCtx.fill();
 
-        // Add scroll effect to navbar
-        window.addEventListener('scroll', () => {
-            const nav = document.querySelector('nav');
-            if (window.scrollY > 50) {
-                nav.classList.add('nav-dark');
-            } else {
-                nav.classList.add('nav-dark');
+                p.alpha -= 0.015; // Fade out
+                p.size += 0.2;    // Spread out
             }
+
+            trails = trails.filter(p => p.alpha > 0);
+            requestAnimationFrame(animateFrost);
+        }
+        animateFrost();
+
+
+        // --- EFFECT 2: Sand Particles (Canvas) ---
+        const sandCanvas = document.getElementById('sand-canvas');
+        const sCtx = sandCanvas.getContext('2d');
+        let sWidth, sHeight;
+        let particles = [];
+
+        function resizeSand() {
+            sWidth = window.innerWidth;
+            sHeight = window.innerHeight;
+            sandCanvas.width = sWidth;
+            sandCanvas.height = sHeight;
+            initSand();
+        }
+
+        class SandParticle {
+            constructor() {
+                this.x = Math.random() * sWidth;
+                this.y = Math.random() * sHeight;
+                this.vx = 0;
+                this.vy = 0;
+                this.baseX = this.x;
+                this.baseY = this.y;
+                this.size = Math.random() * 2 + 1;
+                this.color = Math.random() > 0.5 ? '#dcb183' : '#c29b6b';
+            }
+            update(mouseX, mouseY) {
+                let dx = mouseX - this.x;
+                let dy = mouseY - this.y;
+                let distance = Math.sqrt(dx*dx + dy*dy);
+                let forceDirectionX = dx / distance;
+                let forceDirectionY = dy / distance;
+                let maxDistance = 100;
+                let force = (maxDistance - distance) / maxDistance;
+                let directionX = forceDirectionX * force * 5; // Strength
+                let directionY = forceDirectionY * force * 5;
+
+                if (distance < maxDistance) {
+                    this.vx -= directionX;
+                    this.vy -= directionY;
+                } else {
+                    if (this.x !== this.baseX) {
+                        let dx = this.x - this.baseX;
+                        this.vx -= dx/10;
+                    }
+                    if (this.y !== this.baseY) {
+                        let dy = this.y - this.baseY;
+                        this.vy -= dy/10;
+                    }
+                }
+                
+                // Friction
+                this.vx *= 0.9;
+                this.vy *= 0.9;
+                this.x += this.vx;
+                this.y += this.vy;
+            }
+            draw() {
+                sCtx.fillStyle = this.color;
+                sCtx.fillRect(this.x, this.y, this.size, this.size);
+            }
+        }
+
+        function initSand() {
+            particles = [];
+            // Create fewer particles for performance
+            for(let i=0; i<300; i++){
+                particles.push(new SandParticle());
+            }
+        }
+
+        let mouse = { x: null, y: null };
+        window.addEventListener('mousemove', (e) => {
+            mouse.x = e.x;
+            mouse.y = e.y;
         });
 
-        // Email automation note
-        console.log("Email automation is implemented using mailto: links with pre-filled subject and body.");
-        console.log("To customize for your own email, change 'dev@portfolio.com' to your actual email address.");
+        function animateSand() {
+            sCtx.clearRect(0, 0, sWidth, sHeight);
+            particles.forEach(p => {
+                p.update(mouse.x, mouse.y);
+                p.draw();
+            });
+            requestAnimationFrame(animateSand);
+        }
+        
+        resizeSand();
+        animateSand();
+
+
+        // --- EFFECT 3: Whiskey Parallax ---
+        const stage = document.getElementById('project-stage');
+        const liquid = document.getElementById('liquid');
+        const floaters = document.querySelectorAll('.card-floater');
+        const glassContainer = document.querySelector('.glass-container');
+
+        stage.addEventListener('mousemove', (e) => {
+            let x = (window.innerWidth / 2 - e.pageX) / 20;
+            let y = (window.innerHeight / 2 - e.pageY) / 20;
+
+            // Liquid Slosh effect
+            liquid.style.transform = `rotate(${x}deg) translateY(${y/2}px)`;
+
+            // Parallax for cards
+            floaters.forEach(card => {
+                let speed = card.getAttribute('data-speed');
+                card.style.transform = `translate(${x * speed}px, ${y * speed}px)`;
+            });
+
+            // Glass movement
+            glassContainer.style.transform = `rotateY(${x}deg) rotateX(${-y}deg)`;
+        });
+
+        // Reset on mouse leave
+        stage.addEventListener('mouseleave', () => {
+            liquid.style.transform = `rotate(0deg)`;
+            glassContainer.style.transform = `rotateY(0deg) rotateX(0deg)`;
+        });
+
     </script>
 </body>
 </html>
