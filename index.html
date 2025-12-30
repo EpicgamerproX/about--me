@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ice & Ember Portfolio Ultimate</title>
+    <title>Ice & Ember: Photorealistic</title>
     <script type="importmap">
         {
             "imports": {
@@ -75,11 +75,10 @@
         }
         .section.active { opacity: 1; pointer-events: all; }
 
-        /* --- PORTFOLIO: ICE SLAB (CSS 3D) --- */
+        /* --- PORTFOLIO: ICE SLAB --- */
         #portfolio-section {
             perspective: 1000px;
             background: radial-gradient(circle at center, #1a1a1a 0%, #000000 100%);
-            overflow: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -87,7 +86,7 @@
 
         .ice-stage {
             transform-style: preserve-3d;
-            transform: rotateX(25deg); /* The Angle */
+            transform: rotateX(25deg);
             position: relative;
         }
 
@@ -100,26 +99,14 @@
             box-shadow: 
                 0 0 30px rgba(165, 216, 255, 0.1),
                 inset 0 0 100px rgba(0,0,0,0.8);
-            backdrop-filter: blur(8px); /* Real blur behind */
+            backdrop-filter: blur(8px);
             position: relative;
             transform-style: preserve-3d;
-        }
-
-        /* Glossy Highlight on Ice */
-        .ice-slab::after {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: linear-gradient(120deg, transparent 40%, rgba(255,255,255,0.1) 50%, transparent 60%);
-            background-size: 200% 100%;
-            animation: shine 8s infinite linear;
-            pointer-events: none;
         }
 
         .content-layer {
             position: absolute;
             top: 50%; left: 50%;
-            /* FIX FOR CLIPPING: Lift text 100px off the slab */
             transform: translate(-50%, -50%) translateZ(80px); 
             text-align: center;
             width: 100%;
@@ -142,7 +129,24 @@
             margin-top: 10px;
         }
 
-        /* --- PROJECTS: 3D CANVAS --- */
+        /* --- PROJECTS: PHOTOREALISTIC SCENE --- */
+        #projects-section {
+            /* A dark, moody background image to give reflections */
+            background-image: url('https://images.unsplash.com/photo-1543006762-829575100d16?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
+            background-size: cover;
+            background-position: center;
+        }
+        
+        /* Darken and blur the background image */
+        #projects-section::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(15px);
+            z-index: 0;
+        }
+
         #webgl-canvas {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -161,12 +165,13 @@
         }
 
         .card {
-            background: rgba(10, 10, 10, 0.7);
+            background: rgba(20, 20, 20, 0.6);
             border: 1px solid rgba(255,255,255,0.1);
             padding: 30px;
             border-radius: 12px;
             max-width: 300px;
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
             transform: translateY(50px);
             opacity: 0;
             transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
@@ -181,10 +186,9 @@
             font-family: 'Playfair Display', serif;
             color: var(--accent);
             margin-bottom: 10px;
+            font-size: 1.8rem;
         }
-        .card p { font-size: 0.9rem; color: #aaa; line-height: 1.5; }
-
-        @keyframes shine { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+        .card p { font-size: 0.9rem; color: #ccc; line-height: 1.6; }
 
     </style>
 </head>
@@ -198,8 +202,7 @@
     <section id="portfolio-section" class="section active">
         <div class="ice-stage" id="ice-stage">
             <div class="ice-slab">
-                <canvas id="frost-canvas" style="position:absolute; width:100%; height:100%; top:0; left:0; mix-blend-mode: overlay; opacity: 0.7;"></canvas>
-                
+                <canvas id="frost-canvas" style="position:absolute; width:100%; height:100%; top:0; left:0; mix-blend-mode: overlay; opacity: 0.6;"></canvas>
                 <div class="content-layer">
                     <h1>JOHN DOE</h1>
                     <p class="subtitle">CREATIVE DEVELOPER</p>
@@ -224,26 +227,27 @@
 
     <script type="module">
         import * as THREE from 'three';
-        import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+        import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 
         // --- GLOBAL VARIABLES ---
         let currentTab = 'portfolio';
+        let mouseX = 0, mouseY = 0;
         
-        // --- 1. PORTFOLIO ICE INTERACTIVITY (Vanilla JS) ---
+        // --- 1. PORTFOLIO ICE INTERACTIVITY ---
         const iceStage = document.getElementById('ice-stage');
-        document.getElementById('portfolio-section').addEventListener('mousemove', (e) => {
-            if(currentTab !== 'portfolio') return;
-            // Subtle parallax tilt of the slab
-            const x = (window.innerWidth / 2 - e.clientX) / 40;
-            const y = (window.innerHeight / 2 - e.clientY) / 40;
-            // Maintain the base 25deg rotation and add mouse influence
-            iceStage.style.transform = `rotateX(${25 + y}deg) rotateY(${x}deg)`;
+        document.addEventListener('mousemove', (e) => {
+            mouseX = (e.clientX - window.innerWidth / 2) * 0.001;
+            mouseY = (e.clientY - window.innerHeight / 2) * 0.001;
+
+            if(currentTab === 'portfolio') {
+                const x = (window.innerWidth / 2 - e.clientX) / 40;
+                const y = (window.innerHeight / 2 - e.clientY) / 40;
+                iceStage.style.transform = `rotateX(${25 + y}deg) rotateY(${x}deg)`;
+            }
         });
 
-        // Frost Canvas Logic
         const frostC = document.getElementById('frost-canvas');
         const fCtx = frostC.getContext('2d');
-        
         function resizeFrost() {
             const rect = frostC.getBoundingClientRect();
             frostC.width = rect.width;
@@ -260,160 +264,232 @@
 
         function animateFrost() {
             fCtx.clearRect(0,0, frostC.width, frostC.height);
-            fCtx.fillStyle = 'rgba(255,255,255,0.1)'; 
+            fCtx.fillStyle = 'rgba(255,255,255,0.15)'; 
             trails.forEach((t, i) => {
                 t.age++;
                 fCtx.beginPath();
-                fCtx.arc(t.x, t.y, 20 - t.age*0.2, 0, Math.PI*2);
+                fCtx.arc(t.x, t.y, 25 - t.age*0.2, 0, Math.PI*2);
                 fCtx.fill();
             });
-            trails = trails.filter(t => t.age < 100);
+            trails = trails.filter(t => t.age < 120);
             requestAnimationFrame(animateFrost);
         }
         animateFrost();
 
 
-        // --- 2. PROJECTS 3D WHISKEY (Three.js) ---
+        // --- 2. PHOTOREALISTIC 3D SCENE ---
         
-        // Scene Setup
         const canvas = document.querySelector('#webgl-canvas');
         const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        // Important for realism: Filmic Tone Mapping
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        renderer.toneMappingExposure = 1.0;
+        renderer.toneMappingExposure = 1.5;
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
         const scene = new THREE.Scene();
-
-        // **CRITICAL**: Environment Map (Make glass look real)
-        const pmremGenerator = new THREE.PMREMGenerator(renderer);
-        scene.environment = pmremGenerator.fromScene(new RoomEnvironment(), 0.04).texture;
-
         const camera = new THREE.PerspectiveCamera(35, window.innerWidth/window.innerHeight, 0.1, 100);
-        camera.position.set(0, 3, 12);
+        camera.position.set(0, 4, 14);
 
-        // Group to rotate everything
+        // --- LOAD HDRI ENVIRONMENT ---
+        // This is the key to realistic glass. It provides the reflections.
+        const rgbeLoader = new RGBELoader();
+        rgbeLoader.load('https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/empty_warehouse_01_1k.hdr', function (texture) {
+            texture.mapping = THREE.EquirectangularReflectionMapping;
+            scene.environment = texture;
+            // We don't set it as background, we want our CSS background to show
+        });
+
         const glassGroup = new THREE.Group();
         scene.add(glassGroup);
 
-        // Materials
+        // --- MATERIALS ---
         const glassMaterial = new THREE.MeshPhysicalMaterial({
             color: 0xffffff,
-            transmission: 1.0,  // Full glass transparency
+            transmission: 1.0,
             opacity: 1.0,
             metalness: 0.0,
-            roughness: 0.05,    // Very smooth
-            ior: 1.5,           // Refraction index of glass
-            thickness: 0.5,     // Volume rendering
+            roughness: 0.0, // Perfectly smooth
+            ior: 1.52,      // Accurate for crystal glass
+            thickness: 0.5,
             specularIntensity: 1.0,
-            clearcoat: 1.0
+            clearcoat: 1.0,
+            envMapIntensity: 1.5 // Boost reflections
         });
 
+        // Advanced Liquid Material
         const liquidMaterial = new THREE.MeshPhysicalMaterial({
-            color: 0xffa500,    // Whiskey Amber
-            transmission: 0.6,
-            opacity: 0.9,
+            color: 0xaa5500, // Richer amber
+            transmission: 0.8,
+            opacity: 0.95,
             metalness: 0.0,
-            roughness: 0.2,
-            ior: 1.4,
-            attenuationColor: new THREE.Color(0x8a4b08), // Darkens as light goes through
-            attenuationDistance: 2.0
+            roughness: 0.1,
+            ior: 1.33, // Water/Alcohol IOR
+            attenuationColor: new THREE.Color(0x6a3b08), 
+            attenuationDistance: 1.5,
+            envMapIntensity: 1.2
         });
 
+        // Frosty Ice Material
         const iceMaterial = new THREE.MeshPhysicalMaterial({
             color: 0xffffff,
-            transmission: 0.9,
-            roughness: 0.2,
-            thickness: 1.5,
-            clearcoat: 1.0,
-            ior: 1.31
+            transmission: 0.7,
+            roughness: 0.5, // Frosty surface
+            metalness: 0.1,
+            ior: 1.31,
+            thickness: 2.0,
+            clearcoat: 0.5,
+            envMapIntensity: 1.0
         });
 
-        // 1. CREATE THE GLASS CUP (Using LatheGeometry for thickness)
-        // We draw the "profile" of the cup wall
-        const points = [];
-        for ( let i = 0; i < 10; i ++ ) {
-            // Inner wall (bottom up)
-            points.push( new THREE.Vector2( Math.sin( i * 0.2 ) * 1.3 + 0.1, ( i - 5 ) * 0.5 ) ); 
-        }
-        // Manual simple shape:
+        // --- GEOMETRY ---
+        
+        // 1. The Glass (Lathe Geometry for a nice profile)
         const profile = [
-            new THREE.Vector2(0, 0),       // Center Bottom
-            new THREE.Vector2(1.5, 0),     // Outer Bottom Edge
-            new THREE.Vector2(1.8, 4),     // Outer Top Rim
-            new THREE.Vector2(1.6, 4),     // Inner Top Rim
-            new THREE.Vector2(1.35, 0.4),  // Inner Bottom Edge
-            new THREE.Vector2(0, 0.4)      // Inner Center
+            new THREE.Vector2(0, 0),
+            new THREE.Vector2(1.6, 0.1),
+            new THREE.Vector2(1.8, 4.5),
+            new THREE.Vector2(1.6, 4.5),
+            new THREE.Vector2(1.4, 0.5),
+            new THREE.Vector2(0, 0.5)
         ];
-        const geometry = new THREE.LatheGeometry( profile, 40 ); 
-        const cup = new THREE.Mesh( geometry, glassMaterial );
-        cup.position.y = -2;
-        cup.castShadow = true;
-        glassGroup.add( cup );
+        const glassGeo = new THREE.LatheGeometry(profile, 64); 
+        const glass = new THREE.Mesh(glassGeo, glassMaterial);
+        glass.position.y = -2.5;
+        glass.castShadow = true;
+        glass.receiveShadow = true;
+        glassGroup.add(glass);
 
-        // 2. CREATE THE LIQUID
-        // Just a simple cylinder inside the cup
-        const liqGeo = new THREE.CylinderGeometry(1.55, 1.2, 2.0, 32);
-        const liquid = new THREE.Mesh(liqGeo, liquidMaterial);
-        liquid.position.y = -0.8;
+        // 2. The Liquid with realistic wave physics
+        const liquidGeo = new THREE.CylinderGeometry(1.55, 1.35, 2.5, 64, 32);
+        // Store original positions for simulation
+        const posAttribute = liquidGeo.attributes.position;
+        const originalPositions = posAttribute.array.slice();
+
+        const liquid = new THREE.Mesh(liquidGeo, liquidMaterial);
+        liquid.position.y = -1.2;
+        liquid.castShadow = true;
         glassGroup.add(liquid);
 
-        // 3. ICE CUBES
-        const cubeGeo = new THREE.BoxGeometry(0.9, 0.9, 0.9);
-        
-        const cube1 = new THREE.Mesh(cubeGeo, iceMaterial);
-        cube1.position.set(0.3, -0.5, 0.3);
-        cube1.rotation.set(0.5, 0.5, 0);
+        // 3. Detailed Ice Cubes with rounded edges
+        function createIceCube(size) {
+            // A box with many segments so we can round it
+            const geo = new THREE.BoxGeometry(size, size, size, 8, 8, 8);
+            const pos = geo.attributes.position;
+            // Simple rounding algorithm
+            for (let i = 0; i < pos.count; i++) {
+                let x = pos.getX(i), y = pos.getY(i), z = pos.getZ(i);
+                // Normalize to a sphere then blend back to a box
+                const len = Math.sqrt(x*x + y*y + z*z);
+                const blend = 0.3; // How round it is
+                pos.setX(i, x * (1-blend) + (x/len * size*0.5) * blend);
+                pos.setY(i, y * (1-blend) + (y/len * size*0.5) * blend);
+                pos.setZ(i, z * (1-blend) + (z/len * size*0.5) * blend);
+                // Add some random noise for realism
+                pos.setY(i, pos.getY(i) + (Math.random()-0.5)*0.05);
+            }
+            geo.computeVertexNormals();
+            const mesh = new THREE.Mesh(geo, iceMaterial);
+            mesh.castShadow = true;
+            return mesh;
+        }
+
+        const cube1 = createIceCube(1.0);
+        cube1.position.set(0.4, -0.8, 0.4);
+        cube1.rotation.set(Math.random(), Math.random(), Math.random());
         glassGroup.add(cube1);
 
-        const cube2 = new THREE.Mesh(cubeGeo, iceMaterial);
-        cube2.position.set(-0.4, 0.2, -0.2);
-        cube2.rotation.set(0.8, 0.2, 0.4);
+        const cube2 = createIceCube(1.1);
+        cube2.position.set(-0.3, 0.2, -0.2);
+        cube2.rotation.set(Math.random(), Math.random(), Math.random());
         glassGroup.add(cube2);
 
-        // Lighting
-        const spotLight = new THREE.SpotLight( 0xffffff, 100 );
-        spotLight.position.set( 5, 10, 5 );
-        spotLight.angle = Math.PI / 6;
-        spotLight.penumbra = 1;
-        scene.add( spotLight );
+        // --- LIGHTING ---
+        const mainLight = new THREE.SpotLight(0xffe0b5, 80); // Warm main light
+        mainLight.position.set(10, 15, 10);
+        mainLight.angle = Math.PI / 6;
+        mainLight.penumbra = 0.5;
+        mainLight.castShadow = true;
+        mainLight.shadow.bias = -0.001;
+        scene.add(mainLight);
 
-        const rimLight = new THREE.PointLight( 0x4488ff, 20 );
-        rimLight.position.set( -5, 2, -5 );
-        scene.add( rimLight );
+        const rimLight = new THREE.PointLight(0x4466ff, 30); // Cool rim light
+        rimLight.position.set(-10, 5, -10);
+        scene.add(rimLight);
+
+        const fillLight = new THREE.AmbientLight(0x404040, 2);
+        scene.add(fillLight);
 
 
-        // Animation Variables
-        let mouseX = 0;
-        let mouseY = 0;
-        let targetRotX = 0;
-        let targetRotY = 0;
+        // --- ANIMATION & PHYSICS ---
+        let time = 0;
+        let glassRotX = 0, glassRotY = 0;
+        let liquidVelX = 0, liquidVelZ = 0;
+        let liquidRotX = 0, liquidRotZ = 0;
 
-        document.addEventListener('mousemove', (e) => {
-            mouseX = (e.clientX - window.innerWidth / 2) * 0.001;
-            mouseY = (e.clientY - window.innerHeight / 2) * 0.001;
-        });
-
-        // Loop
         function animate() {
             requestAnimationFrame(animate);
 
             if (currentTab === 'projects') {
-                // Smooth Camera movement
-                targetRotX += (mouseY - targetRotX) * 0.05;
-                targetRotY += (mouseX - targetRotY) * 0.05;
+                time += 0.05;
 
-                // Rotate the whole glass group
-                glassGroup.rotation.x = targetRotX * 0.5;
-                glassGroup.rotation.y = targetRotY * 1.5;
+                // 1. Glass Movement (Smoothly follows mouse)
+                glassRotX += (mouseY * 0.8 - glassRotX) * 0.08;
+                glassRotY += (mouseX * 0.8 - glassRotY) * 0.08;
+                glassGroup.rotation.x = glassRotX;
+                glassGroup.rotation.y = glassRotY;
 
-                // Liquid Slosh Physics (Lag behind the glass)
-                liquid.rotation.x = -targetRotX * 0.8 + Math.sin(Date.now()*0.002)*0.05;
-                liquid.rotation.z = targetRotY * 0.8 + Math.cos(Date.now()*0.003)*0.05;
+                // 2. Advanced Liquid Physics Simulation
+                // Calculate acceleration based on glass tilt difference
+                const accelX = (glassRotX - liquidRotX) * 0.15;
+                const accelZ = (glassRotY - liquidRotZ) * 0.15;
                 
-                // Ice float animation
-                cube2.position.y = 0.2 + Math.sin(Date.now() * 0.001) * 0.05;
-                cube2.rotation.y += 0.002;
+                // Add to velocity with damping
+                liquidVelX += accelX;
+                liquidVelZ += accelZ;
+                liquidVelX *= 0.92; // Damping (viscosity)
+                liquidVelZ *= 0.92;
+
+                // Update liquid rotation
+                liquidRotX += liquidVelX;
+                liquidRotZ += liquidVelZ;
+
+                // Apply rotation to liquid mesh, with a slight lag/overshoot
+                liquid.rotation.x = liquidRotX + Math.sin(time*0.5)*0.02;
+                liquid.rotation.z = liquidRotZ + Math.cos(time*0.6)*0.02;
+
+                // 3. Vertex Displacement for Surface Waves
+                const positions = liquidGeo.attributes.position.array;
+                for (let i = 0; i < positions.length; i += 3) {
+                    const x = originalPositions[i];
+                    const y = originalPositions[i+1];
+                    const z = originalPositions[i+2];
+
+                    // Only displace vertices on the top surface
+                    if(y > 1.2) {
+                        // Combine several sine waves based on position and time
+                        const wave1 = Math.sin(x * 2 + time + liquidRotZ*5) * 0.05;
+                        const wave2 = Math.cos(z * 2 + time + liquidRotX*5) * 0.05;
+                        const slosh = (x * liquidRotZ - z * liquidRotX) * 0.5; // Slosh height based on tilt
+
+                        positions[i+1] = y + wave1 + wave2 + slosh;
+                    }
+                }
+                liquidGeo.attributes.position.needsUpdate = true;
+                liquidGeo.computeVertexNormals();
+
+                // Ice floating physics
+                cube2.position.y = 0.2 + Math.sin(time * 0.3) * 0.08;
+                cube2.rotation.x += 0.005;
+                cube2.rotation.z += 0.003;
+                cube1.position.y = -0.8 + Math.cos(time * 0.4) * 0.04;
+
+                // Subtle camera parallax
+                camera.position.x = mouseX * 2;
+                camera.position.y = 4 + mouseY * 1;
+                camera.lookAt(0, 0, 0);
 
                 renderer.render(scene, camera);
             }
@@ -424,17 +500,12 @@
         // --- UI LOGIC ---
         window.switchTab = function(tabName) {
             currentTab = tabName;
-            
-            // Buttons
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
             event.target.classList.add('active');
-            
-            // Sections
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             document.getElementById(tabName + '-section').classList.add('active');
         };
 
-        // Resize
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
