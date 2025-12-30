@@ -11,6 +11,9 @@
             padding: 0;
             box-sizing: border-box;
             cursor: none; /* Hide default cursor */
+            /* Prevent text selection while dragging on mobile */
+            -webkit-user-select: none;
+            user-select: none; 
         }
 
         body::-webkit-scrollbar { display: none; }
@@ -50,6 +53,10 @@
             pointer-events: none;
             z-index: 10000;
             transform: translate(-50%, -50%);
+            
+            /* IMPORTANT: We remove the 'left' and 'top' transition for physics 
+               because we are updating them every frame in JS. 
+               We only transition shape properties. */
             transition: 
                 width 0.3s cubic-bezier(0.2, 0.8, 0.2, 1),
                 height 0.3s cubic-bezier(0.2, 0.8, 0.2, 1),
@@ -75,12 +82,11 @@
         #layer-2 { background-color: #080808; z-index: 2; }
         #layer-3 { background-color: #000000; z-index: 3; }
         
-        /* THE SKILL LAYER (LAYER 4) */
         #layer-skills { 
             background-color: #050505; 
             z-index: 4; 
-            padding: 0; /* Reset padding for layout */
-            flex-direction: row; /* Split layout */
+            padding: 0; 
+            flex-direction: row; 
             position: sticky;
         }
 
@@ -117,16 +123,17 @@
             z-index: 10;
         }
 
-        /* --- 6. BUTTONS (Compact) --- */
+        /* --- 6. BUTTONS --- */
         .btn-container {
             margin-top: 30px;
             display: flex;
+            flex-wrap: wrap; /* Helps on mobile */
             gap: 15px;
         }
 
         .btn {
             display: inline-block;
-            padding: 10px 24px; /* Small/Compact */
+            padding: 10px 24px;
             border: 1px solid rgba(255,255,255,0.3);
             border-radius: 30px; 
             color: white;
@@ -139,12 +146,12 @@
             z-index: 20;
             background: transparent;
             transition: opacity 0.3s;
+            /* Allow clicking on mobile */
+            pointer-events: auto; 
         }
         .btn.hovered-state { border-color: transparent; }
 
-        /* --- 7. SIDEBAR SLIDE-IN LOGIC --- */
-        
-        /* The Container text on the left */
+        /* --- 7. SIDEBAR --- */
         .skill-left {
             width: 65%;
             height: 100%;
@@ -154,32 +161,25 @@
             padding-left: 10vw;
         }
 
-        /* The Sliding Drawer on the right */
         .skill-sidebar {
             position: absolute;
             right: 0;
             top: 0;
-            width: 35%; /* 35% of screen */
+            width: 35%;
+            min-width: 250px; /* Ensure readability on mobile */
             height: 100vh;
-            background-color: #111; /* Slightly lighter for contrast */
+            background-color: #111;
             border-left: 1px solid rgba(255,255,255,0.1);
-            padding: 50px 40px;
+            padding: 50px 30px;
             overflow-y: auto;
-            
-            /* Animation Start State: Off screen to right */
             transform: translateX(100%);
             transition: transform 0.8s cubic-bezier(0.2, 1, 0.3, 1);
             z-index: 50;
         }
 
-        /* Triggered Class */
-        #layer-skills.in-view .skill-sidebar {
-            transform: translateX(0); /* Slide In */
-        }
+        #layer-skills.in-view .skill-sidebar { transform: translateX(0); }
 
-        /* Skill Styling */
         .skill-category { margin-bottom: 40px; }
-        
         .skill-category h3 {
             font-size: 0.75rem;
             text-transform: uppercase;
@@ -189,12 +189,7 @@
             border-bottom: 1px solid #333;
             padding-bottom: 5px;
         }
-
-        .skill-grid {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
+        .skill-grid { display: flex; flex-wrap: wrap; gap: 8px; }
 
         .skill-tag {
             display: inline-block;
@@ -205,16 +200,18 @@
             color: #ddd;
             background: transparent;
             font-weight: 600;
-            letter-spacing: 0.5px;
-            cursor: none;
             position: relative;
             z-index: 20;
             white-space: nowrap;
         }
+        .skill-tag.hovered-state { border-color: transparent; color: #fff; }
 
-        .skill-tag.hovered-state {
-            border-color: transparent;
-            color: #fff;
+        /* Mobile Adjustments */
+        @media (max-width: 768px) {
+            h1 { font-size: 12vw; }
+            .skill-left { display: none; } /* Hide left text on mobile to show sidebar fully */
+            .skill-sidebar { width: 100%; transform: translateX(100%); }
+            #layer-skills.in-view .skill-sidebar { transform: translateX(0); }
         }
 
     </style>
@@ -234,7 +231,7 @@
         <section class="layer" id="layer-2">
             <h2>About</h2>
             <h1>CODE &<br>DESIGN.</h1>
-            <p>Passionate about building accessible, pixel-perfect interfaces that scale. I bridge the gap between engineering and aesthetics.</p>
+            <p>Passionate about building accessible, pixel-perfect interfaces that scale.</p>
             <div class="btn-container">
                 <a href="#" class="btn magnetic">Read Bio</a>
             </div>
@@ -258,7 +255,6 @@
             </div>
 
             <aside class="skill-sidebar">
-                
                 <div class="skill-category">
                     <h3>Frontend</h3>
                     <div class="skill-grid">
@@ -269,38 +265,14 @@
                         <div class="skill-tag magnetic">React</div>
                     </div>
                 </div>
-
                 <div class="skill-category">
                     <h3>Backend</h3>
                     <div class="skill-grid">
                         <div class="skill-tag magnetic">Flask</div>
                         <div class="skill-tag magnetic">SQL</div>
                         <div class="skill-tag magnetic">PostgreSQL</div>
-                        <div class="skill-tag magnetic">Node.js</div>
                     </div>
                 </div>
-
-                <div class="skill-category">
-                    <h3>Core</h3>
-                    <div class="skill-grid">
-                        <div class="skill-tag magnetic">Data Structures</div>
-                        <div class="skill-tag magnetic">Bash Automation</div>
-                        <div class="skill-tag magnetic">C</div>
-                        <div class="skill-tag magnetic">C++</div>
-                        <div class="skill-tag magnetic">Python</div>
-                    </div>
-                </div>
-
-                <div class="skill-category">
-                    <h3>Learning</h3>
-                    <div class="skill-grid">
-                        <div class="skill-tag magnetic">Java</div>
-                        <div class="skill-tag magnetic">Cybersecurity</div>
-                        <div class="skill-tag magnetic">Web Security</div>
-                        <div class="skill-tag magnetic">Power Queries</div>
-                    </div>
-                </div>
-
             </aside>
         </section>
 
@@ -319,8 +291,55 @@
         const blob = document.getElementById('cursor-blob');
         const skillLayer = document.getElementById('layer-skills');
         
-        // --- ANIMATION OBSERVER ---
-        // Triggers the sidebar slide-in when the layer is 25% visible
+        // --- 1. SETUP VARIABLES ---
+        let mouseX = window.innerWidth / 2;
+        let mouseY = window.innerHeight / 2;
+        
+        // Blob Physics State
+        let blobX = window.innerWidth / 2;
+        let blobY = window.innerHeight / 2;
+        let velX = 0; // Velocity X
+        let velY = 0; // Velocity Y
+        
+        // Interactions
+        let isTouching = false;
+        
+        // Constants
+        const FRICTION = 0.92; // How much it slides after release (0.99 = ice, 0.8 = mud)
+        const MAGNET_RANGE = 80;
+        const SPEED = 0.15; // Follow speed
+
+        // --- 2. INPUT HANDLERS (MOUSE & TOUCH) ---
+        
+        // Mouse Move
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+            isTouching = true; // Treat mouse move as "holding"
+        });
+
+        // Touch Start
+        document.addEventListener('touchstart', (e) => {
+            isTouching = true;
+            mouseX = e.touches[0].clientX;
+            mouseY = e.touches[0].clientY;
+        });
+
+        // Touch Move
+        document.addEventListener('touchmove', (e) => {
+            mouseX = e.touches[0].clientX;
+            mouseY = e.touches[0].clientY;
+            // We do NOT preventDefault here to allow scrolling
+        });
+
+        // Touch End (The Release)
+        document.addEventListener('touchend', () => {
+            isTouching = false;
+            // When user lifts finger, physics loop takes over velocity
+        });
+
+
+        // --- 3. OBSERVER FOR SIDEBAR ---
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
@@ -330,72 +349,84 @@
                 }
             });
         }, { threshold: 0.25 });
-
         observer.observe(skillLayer);
 
-        // --- BLOB PHYSICS & MAGNETISM ---
-        const MAGNET_RANGE = 80; // Reduced range for smaller skill tags
-        const LERP_SPEED = 0.1;
 
-        let mouseX = window.innerWidth / 2;
-        let mouseY = window.innerHeight / 2;
-        let blobX = window.innerWidth / 2;
-        let blobY = window.innerHeight / 2;
-
-        document.addEventListener('mousemove', (e) => {
-            mouseX = e.clientX;
-            mouseY = e.clientY;
-        });
-
+        // --- 4. THE PHYSICS ENGINE ---
         function animate() {
-            // Need to query dynamically because some might be off screen initially? 
-            // Actually static query is fine, but lets ensure we get them all.
             const magneticElements = document.querySelectorAll('.magnetic');
-            
             let targetX = mouseX;
             let targetY = mouseY;
             let width = 150; 
             let height = 150;
             let borderRadius = '50%';
+            let isMagnetic = false;
 
-            magneticElements.forEach(btn => {
-                const rect = btn.getBoundingClientRect();
-                
-                // Skip if off screen (Performance)
-                if (rect.bottom < 0 || rect.top > window.innerHeight) return;
+            // --- A. MAGNETIC LOGIC (Priority) ---
+            // Only check magnet if we are actively touching/using mouse
+            if (isTouching) {
+                magneticElements.forEach(btn => {
+                    const rect = btn.getBoundingClientRect();
+                    if (rect.bottom < 0 || rect.top > window.innerHeight) return;
 
-                const btnCenterX = rect.left + rect.width / 2;
-                const btnCenterY = rect.top + rect.height / 2;
-                const dist = Math.hypot(mouseX - btnCenterX, mouseY - btnCenterY);
+                    const btnCenterX = rect.left + rect.width / 2;
+                    const btnCenterY = rect.top + rect.height / 2;
+                    const dist = Math.hypot(mouseX - btnCenterX, mouseY - btnCenterY);
 
-                if (dist < MAGNET_RANGE) {
-                    const pullFactor = 1 - (dist / MAGNET_RANGE);
-                    
-                    targetX = mouseX + (btnCenterX - mouseX) * (pullFactor * 0.8);
-                    targetY = mouseY + (btnCenterY - mouseY) * (pullFactor * 0.8);
+                    if (dist < MAGNET_RANGE) {
+                        const pullFactor = 1 - (dist / MAGNET_RANGE);
+                        
+                        // Pull target towards button
+                        targetX = mouseX + (btnCenterX - mouseX) * (pullFactor * 0.8);
+                        targetY = mouseY + (btnCenterY - mouseY) * (pullFactor * 0.8);
 
-                    if (dist > rect.width / 2) {
-                        width = 130; height = 130; 
-                    } 
-                    
-                    if (dist < rect.width) {
-                        width = rect.width;
-                        height = rect.height;
-                        borderRadius = '20px'; // Rounded pill shape
-                        targetX = btnCenterX;
-                        targetY = btnCenterY;
-                        btn.classList.add('hovered-state');
+                        // Snap
+                        if (dist < rect.width) {
+                            width = rect.width;
+                            height = rect.height;
+                            borderRadius = '20px';
+                            targetX = btnCenterX;
+                            targetY = btnCenterY;
+                            btn.classList.add('hovered-state');
+                            isMagnetic = true;
+                        } else {
+                            btn.classList.remove('hovered-state');
+                        }
                     } else {
                         btn.classList.remove('hovered-state');
                     }
-                } else {
-                    btn.classList.remove('hovered-state');
-                }
-            });
+                });
+            }
 
-            blobX += (targetX - blobX) * LERP_SPEED;
-            blobY += (targetY - blobY) * LERP_SPEED;
+            // --- B. VELOCITY CALCULATION ---
+            
+            if (isTouching || isMagnetic) {
+                // PHASE 1: FOLLOWING
+                // Calculate how far blob is from target
+                const dx = targetX - blobX;
+                const dy = targetY - blobY;
+                
+                // Add speed to velocity (spring physics)
+                velX += (dx * SPEED - velX) * 0.5; // Simple dampening
+                velY += (dy * SPEED - velY) * 0.5;
+                
+                // Directly move blob (with some easing)
+                blobX += velX;
+                blobY += velY;
 
+            } else {
+                // PHASE 2: INERTIA (SLIDING)
+                // When finger is lifted, there is no "target". 
+                // We simply degrade the existing velocity.
+                
+                velX *= FRICTION;
+                velY *= FRICTION;
+                
+                blobX += velX;
+                blobY += velY;
+            }
+
+            // --- C. RENDER ---
             blob.style.left = blobX + 'px';
             blob.style.top = blobY + 'px';
             blob.style.width = width + 'px';
