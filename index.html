@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ice & Ember: Final Polish</title>
+    <title>Ice & Ember: Organic Fluid</title>
     <script type="importmap">
         {
             "imports": {
@@ -13,6 +13,7 @@
         }
     </script>
     <style>
+        /* --- STYLES --- */
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@300;600&display=swap');
         
         :root { --accent: #ffae00; --bg: #050505; }
@@ -45,6 +46,7 @@
         }
         .section.active { opacity: 1; pointer-events: all; }
 
+        /* PORTFOLIO */
         #portfolio-section { display: flex; justify-content: center; align-items: center; perspective: 1000px; }
         .ice-slab {
             width: 70vw; height: 60vh;
@@ -57,6 +59,7 @@
         .ice-text { text-align: center; }
         h1 { font-family: 'Playfair Display'; font-size: 4rem; margin-bottom: 10px; }
         
+        /* PROJECTS */
         #webgl-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
         
         .ui-layer {
@@ -102,7 +105,7 @@
             </div>
             <div class="card" id="card-right">
                 <h3>FLUID ENGINE</h3>
-                <p>Simulating light refraction through amber liquid using custom WebGL shaders.</p>
+                <p>Organic liquid simulation using multi-layered noise algorithms for natural movement.</p>
             </div>
         </div>
     </section>
@@ -116,6 +119,7 @@
         const windowHalfX = window.innerWidth / 2;
         const windowHalfY = window.innerHeight / 2;
 
+        // --- 1. FROST CANVAS (2D) ---
         const fC = document.getElementById('frost-canvas');
         const fX = fC.getContext('2d');
         let trails = [];
@@ -143,15 +147,18 @@
         }
         renderIce();
 
+
+        // --- 2. 3D ENGINE ---
         const canvas = document.querySelector('#webgl-canvas');
         const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        renderer.toneMappingExposure = 1.0;
+        renderer.toneMappingExposure = 1.5; // Brightness boost
 
         const scene = new THREE.Scene();
 
+        // HDRI Environment
         new RGBELoader()
             .setPath('https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/')
             .load('studio_small_09_1k.hdr', function (texture) {
@@ -159,20 +166,20 @@
                 scene.environment = texture;
             });
 
-        const camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.1, 100);
-        camera.position.set(0, 3, 15);
+        const camera = new THREE.PerspectiveCamera(40, window.innerWidth/window.innerHeight, 0.1, 100);
+        camera.position.set(0, 4, 14);
 
         const glassGroup = new THREE.Group();
         glassGroup.position.y = -2.5; 
         scene.add(glassGroup);
 
-        // --- MATERIALS (FIXED FOR CLARITY) ---
+        // --- MATERIALS ---
         
-        // Glass: Darker base color prevents "milky/white" look
+        // FIX: Pure White Glass (removes "Metal" look)
         const glassMat = new THREE.MeshPhysicalMaterial({
-            color: 0x111111,    // Slightly dark tint
+            color: 0xffffff,    // Pure white for clarity
             transmission: 1.0,  
-            thickness: 0.2,     // Thinner = clearer
+            thickness: 0.1,     // Thin walls
             roughness: 0,       // Perfectly smooth
             ior: 1.5,
             clearcoat: 1.0,
@@ -183,21 +190,17 @@
         const liquidMat = new THREE.MeshPhysicalMaterial({
             color: 0xffaa00,
             transmission: 0.6, 
-            thickness: 2.0,    
-            roughness: 0.2,    // Slightly rough surface catches light
+            thickness: 1.5,    
+            roughness: 0.2,
             ior: 1.33,
             attenuationColor: new THREE.Color(0x8a4b08), 
-            attenuationDistance: 2.0,
+            attenuationDistance: 3.0, // See deeper into the liquid
             transparent: true
         });
 
         const iceMat = new THREE.MeshPhysicalMaterial({
-            transmission: 0.9,
-            roughness: 0.2, 
-            thickness: 1.5,
-            ior: 1.31,
-            color: 0xffffff,
-            clearcoat: 0.5
+            transmission: 0.9, roughness: 0.3, thickness: 1.5, ior: 1.31,
+            color: 0xffffff, clearcoat: 0.5
         });
 
         // --- GEOMETRY ---
@@ -212,16 +215,16 @@
         ];
         const cupGeo = new THREE.LatheGeometry(cupProfile, 64);
         const cup = new THREE.Mesh(cupGeo, glassMat);
-        cup.renderOrder = 2; 
+        cup.renderOrder = 2; // Glass renders last
         glassGroup.add(cup);
 
-        // LIQUID WITH HIGH NODE COUNT FOR PHYSICS
-        // CylinderGeometry(radiusTop, radiusBottom, height, radialSegments, heightSegments)
-        // INCREASED TO 128 radial, 10 height segments for fluid motion
-        const liquidGeo = new THREE.CylinderGeometry(2.9, 2.7, 2.5, 128, 10);
+        // --- NEW FLUID METHOD: High-Res Mesh + Noise Math ---
+        // Instead of Radial Segments, we use a high-poly cylinder and distort vertices
+        // using superimposed sine waves (Pseudo-Perlin).
+        const liquidGeo = new THREE.CylinderGeometry(2.9, 2.7, 2.5, 128, 32); // High resolution
         const liquid = new THREE.Mesh(liquidGeo, liquidMat);
         liquid.position.y = 1.8; 
-        liquid.renderOrder = 1;  
+        liquid.renderOrder = 1; // Liquid renders first
         glassGroup.add(liquid);
 
         const iceGeo = new THREE.BoxGeometry(1.6, 1.6, 1.6);
@@ -230,16 +233,24 @@
         iceCube.rotation.set(0.5, 0.5, 0);
         glassGroup.add(iceCube);
 
-        const backLight = new THREE.PointLight(0xffffff, 50);
+        // --- LIGHTING ---
+        const backLight = new THREE.PointLight(0xffffff, 80);
         backLight.position.set(0, 5, -10);
         scene.add(backLight);
 
-        const fillLight = new THREE.DirectionalLight(0xffaa00, 2);
+        const fillLight = new THREE.DirectionalLight(0xffaa00, 3);
         fillLight.position.set(-5, 5, 5);
         scene.add(fillLight);
 
         const cardL = document.getElementById('card-left');
         const cardR = document.getElementById('card-right');
+
+        // Simple pseudo-noise function
+        function noise(x, z, t) {
+            return Math.sin(x * 0.8 + t) * Math.cos(z * 0.8 + t) + 
+                   Math.sin(x * 2.5 + t * 2) * 0.1 + 
+                   Math.cos(z * 3.0 + t * 1.5) * 0.1; 
+        }
 
         function animate() {
             requestAnimationFrame(animate);
@@ -248,26 +259,24 @@
                 glassGroup.rotation.y += (mouse.x * 0.5 - glassGroup.rotation.y) * 0.05;
                 glassGroup.rotation.x += (mouse.y * 0.2 - glassGroup.rotation.x) * 0.05;
 
-                // --- ENHANCED FLUID PHYSICS ---
-                const time = Date.now() * 0.003;
+                // --- ORGANIC FLUID SIMULATION ---
+                const time = Date.now() * 0.002;
                 const pos = liquidGeo.attributes.position;
                 
                 for(let i=0; i<pos.count; i++){
-                    // Animate top surface (y > 1.0)
+                    // Only animate top surface (y > 1.0)
                     if(pos.getY(i) > 1.0) {
                         const x = pos.getX(i);
                         const z = pos.getZ(i);
                         
-                        // Complex Wave: Main wave + Ripples
-                        const wave1 = Math.sin(x * 1.5 + time) * 0.1;
-                        const wave2 = Math.cos(z * 1.5 + time) * 0.1;
-                        const ripple = Math.sin(Math.sqrt(x*x + z*z) * 5 - time * 2) * 0.02;
+                        // Use "Noise" function instead of simple sine waves
+                        const organicWave = noise(x, z, time) * 0.2;
                         
-                        // Mouse Tilt Influence (Sloshing)
-                        const sloshX = x * mouse.x * 0.3;
-                        const sloshZ = z * -mouse.y * 0.1;
+                        // Slosh logic (Mouse influence)
+                        const slosh = (x * mouse.x * 0.4) + (z * -mouse.y * 0.2);
 
-                        pos.setY(i, 1.25 + wave1 + wave2 + ripple + sloshX + sloshZ);
+                        // Base height + Wave + Slosh
+                        pos.setY(i, 1.25 + organicWave + slosh);
                     }
                 }
                 pos.needsUpdate = true;
@@ -284,6 +293,8 @@
         }
         animate();
 
+
+        // --- UI LOGIC ---
         window.setTab = (t) => {
             currentTab = t;
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
