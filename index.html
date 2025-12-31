@@ -98,7 +98,7 @@
             z-index: 1; 
         }
         
-        #layer-1 { z-index: 10; position: sticky; overflow: hidden; } /* Ensure overflow hidden for grid */
+        #layer-1 { z-index: 10; position: sticky; overflow: hidden; } 
         #layer-2 { z-index: 20; background-color: #080808; }
         #layer-3 { z-index: 30; background-color: #000000; }
         #layer-skills { z-index: 40; background-color: #050505; padding: 0; flex-direction: row; }
@@ -106,40 +106,33 @@
 
         .spacer { width: 100%; height: 38.2vh; background: transparent; pointer-events: none; }
 
-        /* --- 5. THE GLASS GRID (NEW FEATURE) --- */
+        /* --- 5. THE GLASS GRID (RIGHT SIDE) --- */
         .glass-grid {
             position: absolute;
             top: 0;
-            left: 0;
-            width: 100%;
+            right: 0; /* Align to right */
+            width: 38.2vw; /* Golden Ratio width */
             height: 100%;
-            display: flex; /* Creates vertical columns */
-            z-index: 0; /* Behind the text */
-            pointer-events: none; /* Let clicks pass through to text/blob */
+            display: flex;
+            z-index: 0; 
+            pointer-events: none; 
+            border-left: 1px solid rgba(255, 255, 255, 0.05); /* Seperator */
         }
 
         .glass-slice {
-            flex: 1; /* Distribute width equally */
+            flex: 1;
             height: 100%;
-            border-right: 1px solid rgba(255, 255, 255, 0.05); /* Subtle border */
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
             position: relative;
-            transition: background-color 0.3s ease, border-color 0.3s ease;
-            
-            /* Content alignment for future use */
-            display: flex;
-            align-items: flex-end;
-            padding: 20px;
-            color: rgba(255, 255, 255, 0.1);
-            font-family: monospace;
-            font-size: 0.8rem;
+            transition: background-color 0.2s ease, box-shadow 0.2s ease;
         }
 
         .glass-slice:last-child { border-right: none; }
 
-        /* Interaction State: When blob is behind it */
+        /* Interaction State: When blob enters specific slice */
         .glass-slice.active-slice {
-            background-color: rgba(255, 255, 255, 0.03); /* Slight light up */
-            border-right-color: rgba(255, 255, 255, 0.2); /* Brighter border */
+            background-color: rgba(255, 255, 255, 0.08); /* Brighter light up */
+            box-shadow: 0 0 30px rgba(255,255,255,0.05); /* Glow */
         }
 
         /* --- 6. HIDDEN FINAL CONTENT --- */
@@ -203,8 +196,9 @@
             .pull-text { display: none; }
             .spacer { height: 25vh; }
             #final-layer h1 { font-size: 8vw; }
-            /* Make slices less visible on mobile to reduce clutter */
-            .glass-slice { border-right-color: rgba(255,255,255,0.02); }
+            
+            /* On mobile, narrow the grid slightly so it doesn't overlap text if text wraps */
+            .glass-grid { width: 20vw; }
         }
     </style>
 </head>
@@ -225,11 +219,10 @@
     <main>
         <section class="layer" id="layer-1">
             <div class="glass-grid">
-                <div class="glass-slice">01</div>
-                <div class="glass-slice">02</div>
-                <div class="glass-slice">03</div>
-                <div class="glass-slice">04</div>
-                <div class="glass-slice">05</div>
+                <div class="glass-slice"></div>
+                <div class="glass-slice"></div>
+                <div class="glass-slice"></div>
+                <div class="glass-slice"></div>
             </div>
 
             <h2>Portfolio</h2>
@@ -306,7 +299,8 @@
         const skillLayer = document.getElementById('layer-skills');
         const sidebar = document.getElementById('skillSidebar');
         const finalLayer = document.getElementById('final-layer');
-        // Get Glass Slices
+        // Glass Elements
+        const glassGrid = document.querySelector('.glass-grid');
         const glassSlices = document.querySelectorAll('.glass-slice');
         
         let blobX = window.innerWidth / 2;
@@ -447,24 +441,32 @@
                 height += breathe;
             }
 
-            // --- GLASS SLICE LOGIC ---
-            // Calculate which slice the blob is currently in
-            const winWidth = window.innerWidth;
-            const totalSlices = glassSlices.length;
+            // --- GLASS GRID LOGIC ---
+            // Only activate if blob is actually INSIDE the grid area
+            const gridRect = glassGrid.getBoundingClientRect();
             
-            // Map blob X position to slice index (0 to 4)
-            // We clamp it between 0 and totalSlices - 1
-            let activeSliceIndex = Math.floor((blobX / winWidth) * totalSlices);
-            if (activeSliceIndex < 0) activeSliceIndex = 0;
-            if (activeSliceIndex >= totalSlices) activeSliceIndex = totalSlices - 1;
+            // Check if blob is within horizontal bounds of grid
+            if (blobX >= gridRect.left && blobX <= gridRect.right) {
+                // Calculate which slice
+                const relativeX = blobX - gridRect.left;
+                const totalSlices = glassSlices.length;
+                const sliceWidth = gridRect.width / totalSlices;
+                
+                let activeSliceIndex = Math.floor(relativeX / sliceWidth);
+                if (activeSliceIndex < 0) activeSliceIndex = 0;
+                if (activeSliceIndex >= totalSlices) activeSliceIndex = totalSlices - 1;
 
-            glassSlices.forEach((slice, index) => {
-                if (index === activeSliceIndex) {
-                    slice.classList.add('active-slice');
-                } else {
-                    slice.classList.remove('active-slice');
-                }
-            });
+                glassSlices.forEach((slice, index) => {
+                    if (index === activeSliceIndex) {
+                        slice.classList.add('active-slice');
+                    } else {
+                        slice.classList.remove('active-slice');
+                    }
+                });
+            } else {
+                // Remove all active states if blob is outside grid
+                glassSlices.forEach(slice => slice.classList.remove('active-slice'));
+            }
 
             // SIDEBAR
             const skillsRect = skillLayer.getBoundingClientRect();
