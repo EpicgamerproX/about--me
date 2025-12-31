@@ -130,9 +130,8 @@
             justify-content: center;
             align-items: center;
             
-            /* Hidden State */
             opacity: 0;
-            visibility: hidden; /* Fixes overlap issue */
+            visibility: hidden; 
             pointer-events: none;
             
             transition: opacity 0.5s ease, visibility 0s linear 0.5s;
@@ -143,7 +142,7 @@
             opacity: 1;
             visibility: visible;
             pointer-events: auto;
-            transition: opacity 0.5s ease; /* Instant visibility */
+            transition: opacity 0.5s ease;
         }
 
         #final-layer h1 { color: #fff; font-family: monospace; font-size: 4vw; margin-bottom: 20px; text-shadow: 0 0 10px rgba(255,255,255,0.5); }
@@ -194,9 +193,22 @@
         .skill-tag { display: inline-block; padding: 8px 14px; border: 1px solid rgba(255,255,255,0.15); border-radius: 20px; font-size: 0.7rem; color: #ddd; background: transparent; font-weight: 600; position: relative; z-index: 20; white-space: nowrap; }
         .skill-tag.hovered-state { border-color: transparent; color: #fff; }
 
-        /* RIPPLE */
-        .ripple { position: fixed; border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; mix-blend-mode: difference; border: 1px solid rgba(255, 255, 255, 0.4); animation: rippleAnim 1s ease-out forwards; z-index: 9999; }
-        @keyframes rippleAnim { 0% { width: 0; height: 0; opacity: 0.6; } 100% { width: 100vmax; height: 100vmax; opacity: 0; } }
+        /* RIPPLE - OPTIMIZED */
+        .ripple { 
+            position: fixed; 
+            border-radius: 50%; 
+            transform: translate(-50%, -50%); 
+            pointer-events: none; 
+            mix-blend-mode: difference; 
+            border: 1px solid rgba(255, 255, 255, 0.4); 
+            animation: rippleAnim 1s ease-out forwards; 
+            z-index: 9999; 
+            will-change: transform, opacity; /* Performance hint */
+        }
+        @keyframes rippleAnim { 
+            0% { width: 0; height: 0; opacity: 0.6; } 
+            100% { width: 100vmax; height: 100vmax; opacity: 0; } 
+        }
 
         @media (max-width: 768px) { 
             h1 { font-size: 3.5rem; line-height: 1; margin-bottom: 1rem; } 
@@ -314,7 +326,7 @@
         let isMouseMode = true; 
         let isSecretMode = false;
         
-        // Track the currently "snapped" button
+        // Track currently snapped button
         let currentHoveredBtn = null;
 
         // CONFIG
@@ -322,6 +334,7 @@
         const FOLLOW_SPEED = 0.08; 
         const REPULSION_FORCE = 120; 
         const MAGNET_RANGE = 80;
+        const MAX_RIPPLES = 3; // Limit number of concurrent ripples for performance
 
         // --- EXPAND FUNCTION ---
         window.expandLayer = function() {
@@ -381,21 +394,27 @@
         }, { passive: false });
 
         // --- SMART CLICK (PROXY) ---
-        // If blob is snapped to a button, any click triggers that button
         document.addEventListener('click', (e) => {
             if (isSecretMode) return; 
             
-            // If we are hovering a button magnetically
+            // If the blob is magnetically attached to a button
             if (currentHoveredBtn) {
                 // If user clicked the actual button, let it be.
                 if (currentHoveredBtn.contains(e.target)) return;
                 
-                // Otherwise, force a click on the button
+                // Otherwise, perform a click on the tracked button
                 currentHoveredBtn.click();
             }
         });
 
+        // --- OPTIMIZED RIPPLE TRIGGER ---
         function triggerRipple(x, y) {
+            // Rate limiter: Remove oldest if too many exist
+            const activeRipples = document.getElementsByClassName('ripple');
+            if (activeRipples.length >= MAX_RIPPLES) {
+                activeRipples[0].remove();
+            }
+
             const ripple = document.createElement('div');
             ripple.classList.add('ripple');
             ripple.style.left = x + 'px';
@@ -403,6 +422,7 @@
             document.body.appendChild(ripple);
             setTimeout(() => { ripple.remove(); }, 1000);
 
+            // Physics calculation
             let dx = blobX - x;
             let dy = blobY - y;
             let dist = Math.hypot(dx, dy);
@@ -417,7 +437,6 @@
         // --- MAIN LOOP ---
         function animate() {
             if (isSecretMode) {
-                // Ensure tracker is clear in secret mode
                 currentHoveredBtn = null;
                 requestAnimationFrame(animate);
                 return;
@@ -474,7 +493,7 @@
             }
 
             // MAGNETISM & TRACKING
-            let foundBtn = null; // Reset local tracker
+            let foundBtn = null; 
 
             if (speed < 25) {
                 magneticElements.forEach(btn => {
@@ -493,7 +512,7 @@
                         if (dist < rect.width * 0.8) {
                             width = rect.width; height = rect.height; borderRadius = '20px';
                             btn.classList.add('hovered-state');
-                            foundBtn = btn; // Set current tracked button
+                            foundBtn = btn; 
                         } else { btn.classList.remove('hovered-state'); }
                     } else { btn.classList.remove('hovered-state'); }
                 });
@@ -501,7 +520,6 @@
                 magneticElements.forEach(btn => btn.classList.remove('hovered-state'));
             }
 
-            // Update Global Tracker
             currentHoveredBtn = foundBtn;
 
             // UPDATE
