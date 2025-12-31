@@ -106,33 +106,78 @@
 
         .spacer { width: 100%; height: 38.2vh; background: transparent; pointer-events: none; }
 
-        /* --- 5. THE GLASS GRID (RIGHT SIDE) --- */
+        /* --- 5. THE FLIP GLASS GRID (RIGHT SIDE) --- */
         .glass-grid {
             position: absolute;
             top: 0;
-            right: 0; /* Align to right */
-            width: 38.2vw; /* Golden Ratio width */
+            right: 0; 
+            width: 38.2vw;
             height: 100%;
             display: flex;
             z-index: 0; 
             pointer-events: none; 
-            border-left: 1px solid rgba(255, 255, 255, 0.05); /* Seperator */
+            /* Perspective is crucial for 3D flip */
+            perspective: 1000px;
         }
 
         .glass-slice {
             flex: 1;
             height: 100%;
-            border-right: 1px solid rgba(255, 255, 255, 0.05);
             position: relative;
-            transition: background-color 0.2s ease, box-shadow 0.2s ease;
+            /* Container for the 3D object */
         }
 
-        .glass-slice:last-child { border-right: none; }
+        /* The Inner Wrapper that actually rotates */
+        .slice-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+            transform-style: preserve-3d;
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+        }
 
-        /* Interaction State: When blob enters specific slice */
-        .glass-slice.active-slice {
-            background-color: rgba(255, 255, 255, 0.08); /* Brighter light up */
-            box-shadow: 0 0 30px rgba(255,255,255,0.05); /* Glow */
+        /* Front and Back Faces */
+        .slice-front, .slice-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden; /* Hides the back when facing away */
+            -webkit-backface-visibility: hidden;
+        }
+
+        /* FRONT: Transparent Glass */
+        .slice-front {
+            background-color: transparent;
+            color: transparent;
+        }
+
+        /* BACK: Solid White */
+        .slice-back {
+            background-color: #ffffff;
+            color: #000000;
+            transform: rotateY(180deg);
+            
+            /* Content Layout */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            writing-mode: vertical-rl; /* Vertical Text */
+            text-orientation: mixed;
+            font-family: monospace;
+            font-weight: bold;
+            font-size: 1rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.1);
+        }
+
+        .glass-slice:last-child .slice-inner { border-right: none; }
+
+        /* FLIP TRIGGER */
+        .glass-slice.flipped .slice-inner {
+            transform: rotateY(-180deg); /* Flip Left */
         }
 
         /* --- 6. HIDDEN FINAL CONTENT --- */
@@ -196,9 +241,7 @@
             .pull-text { display: none; }
             .spacer { height: 25vh; }
             #final-layer h1 { font-size: 8vw; }
-            
-            /* On mobile, narrow the grid slightly so it doesn't overlap text if text wraps */
-            .glass-grid { width: 20vw; }
+            .glass-grid { width: 25vw; }
         }
     </style>
 </head>
@@ -219,10 +262,35 @@
     <main>
         <section class="layer" id="layer-1">
             <div class="glass-grid">
-                <div class="glass-slice"></div>
-                <div class="glass-slice"></div>
-                <div class="glass-slice"></div>
-                <div class="glass-slice"></div>
+                
+                <div class="glass-slice">
+                    <div class="slice-inner">
+                        <div class="slice-front"></div>
+                        <div class="slice-back">WEB</div>
+                    </div>
+                </div>
+
+                <div class="glass-slice">
+                    <div class="slice-inner">
+                        <div class="slice-front"></div>
+                        <div class="slice-back">APP</div>
+                    </div>
+                </div>
+
+                <div class="glass-slice">
+                    <div class="slice-inner">
+                        <div class="slice-front"></div>
+                        <div class="slice-back">UX</div>
+                    </div>
+                </div>
+
+                <div class="glass-slice">
+                    <div class="slice-inner">
+                        <div class="slice-front"></div>
+                        <div class="slice-back">DEV</div>
+                    </div>
+                </div>
+
             </div>
 
             <h2>Portfolio</h2>
@@ -299,7 +367,6 @@
         const skillLayer = document.getElementById('layer-skills');
         const sidebar = document.getElementById('skillSidebar');
         const finalLayer = document.getElementById('final-layer');
-        // Glass Elements
         const glassGrid = document.querySelector('.glass-grid');
         const glassSlices = document.querySelectorAll('.glass-slice');
         
@@ -442,12 +509,10 @@
             }
 
             // --- GLASS GRID LOGIC ---
-            // Only activate if blob is actually INSIDE the grid area
             const gridRect = glassGrid.getBoundingClientRect();
             
-            // Check if blob is within horizontal bounds of grid
+            // Logic: Is blob horizontally aligned with the grid?
             if (blobX >= gridRect.left && blobX <= gridRect.right) {
-                // Calculate which slice
                 const relativeX = blobX - gridRect.left;
                 const totalSlices = glassSlices.length;
                 const sliceWidth = gridRect.width / totalSlices;
@@ -458,14 +523,13 @@
 
                 glassSlices.forEach((slice, index) => {
                     if (index === activeSliceIndex) {
-                        slice.classList.add('active-slice');
+                        slice.classList.add('flipped'); // Trigger Flip
                     } else {
-                        slice.classList.remove('active-slice');
+                        slice.classList.remove('flipped');
                     }
                 });
             } else {
-                // Remove all active states if blob is outside grid
-                glassSlices.forEach(slice => slice.classList.remove('active-slice'));
+                glassSlices.forEach(slice => slice.classList.remove('flipped'));
             }
 
             // SIDEBAR
@@ -487,7 +551,7 @@
                 sidebar.style.transform = `translateX(100%)`;
             }
 
-            // MAGNETISM
+            // MAGNETISM (Visibility Check)
             let foundBtn = null; 
             if (speed < 25) {
                 magneticElements.forEach(btn => {
