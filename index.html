@@ -53,18 +53,15 @@
             background-color: #fff;
             mix-blend-mode: difference;
             border-radius: 50%;
-            /* IMPT: pointer-events none ensures elementFromPoint looks THROUGH the blob */
             pointer-events: none;
             z-index: 10000;
             transform: translate(-50%, -50%);
-            
             transition: 
                 width 0.38s cubic-bezier(0.2, 0.8, 0.2, 1),
                 height 0.38s cubic-bezier(0.2, 0.8, 0.2, 1),
                 border-radius 0.38s cubic-bezier(0.2, 0.8, 0.2, 1),
                 background-color 0.62s ease,
                 transform 0.2s ease-out;
-            
             will-change: left, top, width, height, transform;
         }
 
@@ -74,18 +71,8 @@
             border-radius: 0 !important; 
             transition: width 1s ease-in-out, height 1s ease-in-out, border-radius 1s ease-in-out;
         }
-
-        #cursor-blob.expanded.blackout {
-            background-color: #000;
-            mix-blend-mode: normal; 
-        }
-
-        #cursor-blob.breaking {
-            background-color: #fff !important; 
-            mix-blend-mode: difference !important;
-            transition: all 0.1s ease !important; 
-            animation: shatterEffect 0.38s forwards;
-        }
+        #cursor-blob.expanded.blackout { background-color: #000; mix-blend-mode: normal; }
+        #cursor-blob.breaking { background-color: #fff !important; mix-blend-mode: difference !important; transition: all 0.1s ease !important; animation: shatterEffect 0.38s forwards; }
 
         @keyframes shatterEffect {
             0% { transform: translate(-50%, -50%) scale(1); }
@@ -108,19 +95,54 @@
             border-top: 1px solid rgba(255,255,255,0.08);
             overflow: hidden;
             box-shadow: 0 -50px 100px rgba(0,0,0,0.8);
-            z-index: 1; /* Default Z */
+            z-index: 1; 
         }
         
-        /* Ensure visual stacking order */
-        #layer-1 { z-index: 10; }
+        #layer-1 { z-index: 10; position: sticky; overflow: hidden; } /* Ensure overflow hidden for grid */
         #layer-2 { z-index: 20; background-color: #080808; }
         #layer-3 { z-index: 30; background-color: #000000; }
-        #layer-skills { z-index: 40; background-color: #050505; padding: 0; flex-direction: row; position: sticky; }
+        #layer-skills { z-index: 40; background-color: #050505; padding: 0; flex-direction: row; }
         #layer-5 { z-index: 50; background-color: #020202; }
 
         .spacer { width: 100%; height: 38.2vh; background: transparent; pointer-events: none; }
 
-        /* --- 5. HIDDEN FINAL CONTENT --- */
+        /* --- 5. THE GLASS GRID (NEW FEATURE) --- */
+        .glass-grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex; /* Creates vertical columns */
+            z-index: 0; /* Behind the text */
+            pointer-events: none; /* Let clicks pass through to text/blob */
+        }
+
+        .glass-slice {
+            flex: 1; /* Distribute width equally */
+            height: 100%;
+            border-right: 1px solid rgba(255, 255, 255, 0.05); /* Subtle border */
+            position: relative;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+            
+            /* Content alignment for future use */
+            display: flex;
+            align-items: flex-end;
+            padding: 20px;
+            color: rgba(255, 255, 255, 0.1);
+            font-family: monospace;
+            font-size: 0.8rem;
+        }
+
+        .glass-slice:last-child { border-right: none; }
+
+        /* Interaction State: When blob is behind it */
+        .glass-slice.active-slice {
+            background-color: rgba(255, 255, 255, 0.03); /* Slight light up */
+            border-right-color: rgba(255, 255, 255, 0.2); /* Brighter border */
+        }
+
+        /* --- 6. HIDDEN FINAL CONTENT --- */
         #final-layer {
             position: fixed;
             top: 0;
@@ -139,62 +161,34 @@
             text-align: center;
         }
 
-        #final-layer.active {
-            opacity: 1;
-            visibility: visible;
-            pointer-events: auto;
-            transition: opacity 0.62s ease;
-        }
-
+        #final-layer.active { opacity: 1; visibility: visible; pointer-events: auto; transition: opacity 0.62s ease; }
         #final-layer h1 { color: #fff; font-family: monospace; font-size: 4vw; margin-bottom: 2.618rem; text-shadow: 0 0 10px rgba(255,255,255,0.5); }
         #final-layer p { color: #888; font-family: monospace; font-size: 1.2rem; margin-bottom: 0.618rem; }
-        
-        #break-trigger {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            cursor: pointer;
-        }
-
-        .action-hint {
-            margin-top: 4.236rem;
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: #444;
-            animation: pulse 1.618s infinite;
-            font-family: monospace;
-        }
+        #break-trigger { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; cursor: pointer; }
+        .action-hint { margin-top: 4.236rem; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; color: #444; animation: pulse 1.618s infinite; font-family: monospace; }
         @keyframes pulse { 0%,100%{opacity:0.3} 50%{opacity:1} }
 
-        /* --- 6. UI ELEMENTS --- */
-        h1 { font-size: 7vw; line-height: 1.1; font-weight: 800; letter-spacing: -3px; margin-bottom: 2.618rem; color: #fff; position: relative; z-index: 10; }
+        /* --- 7. UI ELEMENTS --- */
+        h1 { font-size: 7vw; line-height: 1.1; font-weight: 800; letter-spacing: -3px; margin-bottom: 2.618rem; color: #fff; position: relative; z-index: 10; pointer-events: auto; }
         h2 { font-size: 0.9rem; font-weight: 600; text-transform: uppercase; letter-spacing: 3px; color: #666; margin-bottom: 1.618rem; z-index: 10; }
         p { font-size: 1.5rem; max-width: 600px; line-height: 1.618; color: #bbb; margin-bottom: 1.618rem; z-index: 10; }
         .mobile-hint { display: none; font-size: 0.75rem; color: #444; margin-top: 1.618rem; text-transform: uppercase; letter-spacing: 1px; }
-
         .btn-container { margin-top: 30px; display: flex; flex-wrap: wrap; gap: 15px; }
         .btn { display: inline-block; padding: 12px 30px; border: 1px solid rgba(255,255,255,0.3); border-radius: 30px; color: white; text-decoration: none; text-transform: uppercase; letter-spacing: 1px; font-size: 0.75rem; font-weight: 700; position: relative; z-index: 20; background: transparent; transition: opacity 0.3s; pointer-events: auto; }
         .btn.hovered-state { border-color: transparent; }
 
-        /* --- 7. SIDEBAR --- */
+        /* --- 8. SIDEBAR --- */
         .skill-left { width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; padding-left: 10vw; transition: opacity 0.38s; }
         .pull-indicator { position: absolute; right: 20px; top: 50%; transform: translateY(-50%); z-index: 40; display: flex; flex-direction: column; align-items: center; opacity: 0.6; animation: pulseLeft 2s infinite; }
         .arrow-icon { width: 0; height: 0; border-top: 8px solid transparent; border-bottom: 8px solid transparent; border-right: 12px solid #fff; margin-bottom: 8px; }
         .pull-text { writing-mode: vertical-rl; text-orientation: mixed; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 2px; }
         @keyframes pulseLeft { 0%, 100% { transform: translateY(-50%) translateX(0); opacity: 0.5; } 50% { transform: translateY(-50%) translateX(-10px); opacity: 1; } }
-
         .skill-sidebar { position: absolute; right: 0; top: 0; width: 38.2%; min-width: 300px; height: 100vh; background-color: rgba(10, 10, 10, 0.9); backdrop-filter: blur(15px); border-left: 1px solid rgba(255,255,255,0.1); padding: 61.8px 38.2px; overflow-y: auto; z-index: 50; transform: translateX(100%); will-change: transform; box-shadow: -20px 0 50px rgba(0,0,0,0.8); }
         .skill-category { margin-bottom: 40px; }
         .skill-category h3 { font-size: 0.75rem; text-transform: uppercase; color: #555; margin-bottom: 1.618rem; letter-spacing: 2px; border-bottom: 1px solid #333; padding-bottom: 5px; }
         .skill-grid { display: flex; flex-wrap: wrap; gap: 8px; }
         .skill-tag { display: inline-block; padding: 8px 14px; border: 1px solid rgba(255,255,255,0.15); border-radius: 20px; font-size: 0.7rem; color: #ddd; background: transparent; font-weight: 600; position: relative; z-index: 20; white-space: nowrap; }
         .skill-tag.hovered-state { border-color: transparent; color: #fff; }
-
-        /* RIPPLE */
         .ripple { position: fixed; border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; mix-blend-mode: difference; border: 1px solid rgba(255, 255, 255, 0.4); animation: rippleAnim 1.618s ease-out forwards; z-index: 9999; will-change: transform, opacity; }
         @keyframes rippleAnim { 0% { width: 0; height: 0; opacity: 0.6; } 100% { width: 100vmax; height: 100vmax; opacity: 0; } }
 
@@ -209,6 +203,8 @@
             .pull-text { display: none; }
             .spacer { height: 25vh; }
             #final-layer h1 { font-size: 8vw; }
+            /* Make slices less visible on mobile to reduce clutter */
+            .glass-slice { border-right-color: rgba(255,255,255,0.02); }
         }
     </style>
 </head>
@@ -228,6 +224,14 @@
 
     <main>
         <section class="layer" id="layer-1">
+            <div class="glass-grid">
+                <div class="glass-slice">01</div>
+                <div class="glass-slice">02</div>
+                <div class="glass-slice">03</div>
+                <div class="glass-slice">04</div>
+                <div class="glass-slice">05</div>
+            </div>
+
             <h2>Portfolio</h2>
             <h1>HI, I'M<br>ACHYUT.</h1>
             <p>Full Stack Developer.</p>
@@ -302,6 +306,8 @@
         const skillLayer = document.getElementById('layer-skills');
         const sidebar = document.getElementById('skillSidebar');
         const finalLayer = document.getElementById('final-layer');
+        // Get Glass Slices
+        const glassSlices = document.querySelectorAll('.glass-slice');
         
         let blobX = window.innerWidth / 2;
         let blobY = window.innerHeight / 2;
@@ -312,7 +318,6 @@
         
         let isMouseMode = true; 
         let isSecretMode = false;
-        
         let currentHoveredBtn = null;
 
         const FRICTION = 0.93; 
@@ -391,19 +396,16 @@
         function triggerRipple(x, y) {
             const activeRipples = document.getElementsByClassName('ripple');
             if (activeRipples.length >= MAX_RIPPLES) activeRipples[0].remove();
-
             const ripple = document.createElement('div');
             ripple.classList.add('ripple');
             ripple.style.left = x + 'px';
             ripple.style.top = y + 'px';
             document.body.appendChild(ripple);
             setTimeout(() => { ripple.remove(); }, 1618);
-
             let dx = blobX - x;
             let dy = blobY - y;
             let dist = Math.hypot(dx, dy);
             if (dist === 0) { dx = 1; dy = 0; dist = 1; }
-            
             const dirX = dx / dist;
             const dirY = dy / dist;
             velX += dirX * (REPULSION_FORCE * 0.5); 
@@ -445,9 +447,28 @@
                 height += breathe;
             }
 
+            // --- GLASS SLICE LOGIC ---
+            // Calculate which slice the blob is currently in
+            const winWidth = window.innerWidth;
+            const totalSlices = glassSlices.length;
+            
+            // Map blob X position to slice index (0 to 4)
+            // We clamp it between 0 and totalSlices - 1
+            let activeSliceIndex = Math.floor((blobX / winWidth) * totalSlices);
+            if (activeSliceIndex < 0) activeSliceIndex = 0;
+            if (activeSliceIndex >= totalSlices) activeSliceIndex = totalSlices - 1;
+
+            glassSlices.forEach((slice, index) => {
+                if (index === activeSliceIndex) {
+                    slice.classList.add('active-slice');
+                } else {
+                    slice.classList.remove('active-slice');
+                }
+            });
+
+            // SIDEBAR
             const skillsRect = skillLayer.getBoundingClientRect();
             const isLayerActive = Math.abs(skillsRect.top) < 50; 
-
             if (isLayerActive) { 
                 const distFromRight = window.innerWidth - blobX;
                 const pullStartZone = isMobile ? 200 : 400; 
@@ -464,27 +485,21 @@
                 sidebar.style.transform = `translateX(100%)`;
             }
 
-            // --- THE VISIBILITY FIX ---
+            // MAGNETISM
             let foundBtn = null; 
             if (speed < 25) {
                 magneticElements.forEach(btn => {
                     const rect = btn.getBoundingClientRect();
                     if (rect.bottom < 0 || rect.top > window.innerHeight) return;
-
                     const btnCenterX = rect.left + rect.width / 2;
                     const btnCenterY = rect.top + rect.height / 2;
                     const dist = Math.hypot(blobX - btnCenterX, blobY - btnCenterY);
-
                     if (dist < MAGNET_RANGE) {
-                        // Check if covered by another layer using elementFromPoint
                         const elAtPoint = document.elementFromPoint(btnCenterX, btnCenterY);
-                        
-                        // Only apply if the button (or its child) is the topmost element
                         if (elAtPoint && (btn.contains(elAtPoint) || elAtPoint === btn)) {
                             const pullStrength = 0.05;
                             velX += (btnCenterX - blobX) * pullStrength;
                             velY += (btnCenterY - blobY) * pullStrength;
-
                             if (dist < rect.width * 0.8) {
                                 width = rect.width; height = rect.height; borderRadius = '20px';
                                 btn.classList.add('hovered-state');
