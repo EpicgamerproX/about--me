@@ -53,6 +53,7 @@
             background-color: #fff;
             mix-blend-mode: difference;
             border-radius: 50%;
+            /* IMPT: pointer-events none ensures elementFromPoint looks THROUGH the blob */
             pointer-events: none;
             z-index: 10000;
             transform: translate(-50%, -50%);
@@ -107,15 +108,17 @@
             border-top: 1px solid rgba(255,255,255,0.08);
             overflow: hidden;
             box-shadow: 0 -50px 100px rgba(0,0,0,0.8);
+            z-index: 1; /* Default Z */
         }
         
-        .spacer { width: 100%; height: 38.2vh; background: transparent; pointer-events: none; }
+        /* Ensure visual stacking order */
+        #layer-1 { z-index: 10; }
+        #layer-2 { z-index: 20; background-color: #080808; }
+        #layer-3 { z-index: 30; background-color: #000000; }
+        #layer-skills { z-index: 40; background-color: #050505; padding: 0; flex-direction: row; position: sticky; }
+        #layer-5 { z-index: 50; background-color: #020202; }
 
-        #layer-1 { background-color: #050505; z-index: 1; }
-        #layer-2 { background-color: #080808; z-index: 2; }
-        #layer-3 { background-color: #000000; z-index: 3; }
-        #layer-skills { background-color: #050505; z-index: 4; padding: 0; flex-direction: row; position: sticky; }
-        #layer-5 { background-color: #020202; z-index: 5; }
+        .spacer { width: 100%; height: 38.2vh; background: transparent; pointer-events: none; }
 
         /* --- 5. HIDDEN FINAL CONTENT --- */
         #final-layer {
@@ -192,21 +195,8 @@
         .skill-tag.hovered-state { border-color: transparent; color: #fff; }
 
         /* RIPPLE */
-        .ripple { 
-            position: fixed; 
-            border-radius: 50%; 
-            transform: translate(-50%, -50%); 
-            pointer-events: none; 
-            mix-blend-mode: difference; 
-            border: 1px solid rgba(255, 255, 255, 0.4); 
-            animation: rippleAnim 1.618s ease-out forwards; 
-            z-index: 9999; 
-            will-change: transform, opacity;
-        }
-        @keyframes rippleAnim { 
-            0% { width: 0; height: 0; opacity: 0.6; } 
-            100% { width: 100vmax; height: 100vmax; opacity: 0; } 
-        }
+        .ripple { position: fixed; border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; mix-blend-mode: difference; border: 1px solid rgba(255, 255, 255, 0.4); animation: rippleAnim 1.618s ease-out forwards; z-index: 9999; will-change: transform, opacity; }
+        @keyframes rippleAnim { 0% { width: 0; height: 0; opacity: 0.6; } 100% { width: 100vmax; height: 100vmax; opacity: 0; } }
 
         @media (max-width: 768px) { 
             h1 { font-size: 3.5rem; line-height: 1; margin-bottom: 1.618rem; } 
@@ -320,13 +310,11 @@
         let mouseX = window.innerWidth / 2;
         let mouseY = window.innerHeight / 2;
         
-        // **UPDATED**: Default to true, only switch to false on release
         let isMouseMode = true; 
         let isSecretMode = false;
         
         let currentHoveredBtn = null;
 
-        // CONFIG
         const FRICTION = 0.93; 
         const FOLLOW_SPEED = 0.08; 
         const REPULSION_FORCE = 120; 
@@ -365,7 +353,6 @@
             }, 380);
         };
 
-        // --- INPUT HANDLING ---
         document.addEventListener('mousemove', (e) => {
             if(isSecretMode) return;
             isMouseMode = true;
@@ -373,39 +360,26 @@
             mouseY = e.clientY;
         });
 
-        // --- UPDATED TOUCH LOGIC (ENABLES DRAGGING) ---
         document.addEventListener('touchstart', (e) => {
             if(isSecretMode) return;
-            
-            // Re-enable "Mouse Mode" so it follows the finger (Lazy Drag)
             isMouseMode = true;
-            
             const touchX = e.touches[0].clientX;
             const touchY = e.touches[0].clientY;
-            
-            // Only trigger ripple on tap, not drag start if you prefer?
-            // For now, let's keep the ripple feedback as it feels responsive.
             triggerRipple(touchX, touchY);
-            
             mouseX = touchX;
             mouseY = touchY;
         }, { passive: false });
 
         document.addEventListener('touchmove', (e) => {
             if(isSecretMode) return;
-            // Prevent default page scroll ONLY if we are interacting horizontally? 
-            // For now, let's just track position.
             mouseX = e.touches[0].clientX;
             mouseY = e.touches[0].clientY;
         }, { passive: false });
 
         document.addEventListener('touchend', (e) => {
-            // When finger leaves, switch to inertia mode
             isMouseMode = false;
         });
 
-
-        // --- PROXY CLICK ---
         document.addEventListener('click', (e) => {
             if (isSecretMode) return; 
             if (currentHoveredBtn) {
@@ -416,9 +390,7 @@
 
         function triggerRipple(x, y) {
             const activeRipples = document.getElementsByClassName('ripple');
-            if (activeRipples.length >= MAX_RIPPLES) {
-                activeRipples[0].remove();
-            }
+            if (activeRipples.length >= MAX_RIPPLES) activeRipples[0].remove();
 
             const ripple = document.createElement('div');
             ripple.classList.add('ripple');
@@ -427,9 +399,6 @@
             document.body.appendChild(ripple);
             setTimeout(() => { ripple.remove(); }, 1618);
 
-            // OPTIONAL: Disable velocity kick on touch to make dragging easier?
-            // Or keep it for the "pop" feel. Let's reduce it slightly for touch.
-            // keeping original logic for consistency with desktop click.
             let dx = blobX - x;
             let dy = blobY - y;
             let dist = Math.hypot(dx, dy);
@@ -437,8 +406,6 @@
             
             const dirX = dx / dist;
             const dirY = dy / dist;
-            
-            // Reduced repulsion force so you can still catch it to drag
             velX += dirX * (REPULSION_FORCE * 0.5); 
             velY += dirY * (REPULSION_FORCE * 0.5);
         }
@@ -458,7 +425,6 @@
             let height = baseSize;
             let borderRadius = '50%';
             
-            // PHYSICS
             if (isMouseMode) {
                 const dx = mouseX - blobX;
                 const dy = mouseY - blobY;
@@ -469,7 +435,6 @@
                 velY *= FRICTION;
             }
 
-            // IDLE LIFE
             const speed = Math.hypot(velX, velY);
             if (speed < 0.5) {
                 const time = Date.now() * 0.002;
@@ -480,7 +445,6 @@
                 height += breathe;
             }
 
-            // SIDEBAR
             const skillsRect = skillLayer.getBoundingClientRect();
             const isLayerActive = Math.abs(skillsRect.top) < 50; 
 
@@ -500,7 +464,7 @@
                 sidebar.style.transform = `translateX(100%)`;
             }
 
-            // MAGNETISM
+            // --- THE VISIBILITY FIX ---
             let foundBtn = null; 
             if (speed < 25) {
                 magneticElements.forEach(btn => {
@@ -512,14 +476,20 @@
                     const dist = Math.hypot(blobX - btnCenterX, blobY - btnCenterY);
 
                     if (dist < MAGNET_RANGE) {
-                        const pullStrength = 0.05;
-                        velX += (btnCenterX - blobX) * pullStrength;
-                        velY += (btnCenterY - blobY) * pullStrength;
+                        // Check if covered by another layer using elementFromPoint
+                        const elAtPoint = document.elementFromPoint(btnCenterX, btnCenterY);
+                        
+                        // Only apply if the button (or its child) is the topmost element
+                        if (elAtPoint && (btn.contains(elAtPoint) || elAtPoint === btn)) {
+                            const pullStrength = 0.05;
+                            velX += (btnCenterX - blobX) * pullStrength;
+                            velY += (btnCenterY - blobY) * pullStrength;
 
-                        if (dist < rect.width * 0.8) {
-                            width = rect.width; height = rect.height; borderRadius = '20px';
-                            btn.classList.add('hovered-state');
-                            foundBtn = btn; 
+                            if (dist < rect.width * 0.8) {
+                                width = rect.width; height = rect.height; borderRadius = '20px';
+                                btn.classList.add('hovered-state');
+                                foundBtn = btn; 
+                            } else { btn.classList.remove('hovered-state'); }
                         } else { btn.classList.remove('hovered-state'); }
                     } else { btn.classList.remove('hovered-state'); }
                 });
@@ -528,7 +498,6 @@
             }
             currentHoveredBtn = foundBtn;
 
-            // UPDATE
             blobX += velX;
             blobY += velY;
             if (blobX < 0) { blobX = 0; velX *= -0.6; }
