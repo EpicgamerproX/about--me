@@ -115,7 +115,7 @@
         .glass-slice { flex: 1; height: 100%; position: relative; }
         .slice-inner {
             position: relative; width: 100%; height: 100%; text-align: center;
-            transition: transform 0.5s cubic-bezier(0.2, 0.2, 0.2, 1);
+            transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
             transform-style: preserve-3d; border-right: 1px solid rgba(255, 255, 255, 0.05);
         }
         .slice-front, .slice-back {
@@ -134,8 +134,6 @@
 
 
         /* --- 6. FLUID FILL EFFECT (Layer 3) --- */
-        
-        /* The Fluid Layer (White Water) */
         #fluid-overlay {
             position: fixed;
             top: 0;
@@ -175,6 +173,11 @@
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.5s ease 0.5s; 
+            
+            /* FIX 2: Prevent background scrolling issues */
+            overscroll-behavior: contain;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
         #project-showcase.visible {
@@ -201,42 +204,31 @@
         .project-card p { font-size: 1rem; color: #333; line-height: 1.5; font-family: monospace; }
         .card-num { font-size: 4rem; font-weight: 900; opacity: 0.1; align-self: flex-end; }
         
-        /* NEW: The Circular Drain Button */
+        /* FIX 1: Enhanced Drain Button for Mobile */
         .btn-drain {
-            position: absolute;
-            bottom: 5vw; /* Bottom Right location */
-            right: 5vw;
+            position: fixed; /* Fixed so it doesn't scroll with content */
+            bottom: 40px; 
+            right: 40px;
             width: 80px;
             height: 80px;
-            border-radius: 50%; /* Perfect Circle */
+            border-radius: 50%;
             border: 2px solid #000;
-            background: transparent;
+            background: rgba(255, 255, 255, 0.8); /* Semi-transparent bg */
+            backdrop-filter: blur(5px); /* Blur to separate from content */
             color: #000;
             display: flex;
             align-items: center;
             justify-content: center;
-            cursor: none; /* Let blob handle cursor */
-            z-index: 100;
+            cursor: none; 
+            z-index: 10000; /* High Z to stay on top */
             transition: all 0.3s ease;
             pointer-events: auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
         }
         
-        .btn-drain svg {
-            width: 24px;
-            height: 24px;
-            fill: #000;
-            transition: transform 0.3s ease;
-        }
-        
-        .btn-drain.hovered-state {
-            background: #000;
-            transform: scale(1.1);
-        }
-        
-        .btn-drain.hovered-state svg {
-            fill: #fff;
-            transform: rotate(90deg);
-        }
+        .btn-drain svg { width: 24px; height: 24px; fill: #000; transition: transform 0.3s ease; }
+        .btn-drain.hovered-state { background: #000; transform: scale(1.1); }
+        .btn-drain.hovered-state svg { fill: #fff; transform: rotate(90deg); }
 
 
         /* --- 7. HIDDEN FINAL CONTENT (Terminal) --- */
@@ -300,12 +292,24 @@
             .spacer { height: 25vh; }
             #final-layer h1 { font-size: 8vw; }
             .glass-grid { width: 25vw; }
-            #project-showcase { flex-direction: column; overflow-y: auto; align-items: stretch; justify-content: flex-start; padding-top: 100px; }
-            .project-card { height: auto; min-height: 200px; margin-bottom: 20px; }
-            .btn.fill-trigger { width: 60px; height: 60px; position: relative; right: auto; top: auto; transform: none; margin-top: 20px; }
             
-            /* Adjust drain button on mobile */
-            .btn-drain { width: 60px; height: 60px; bottom: 20px; right: 20px; }
+            /* Mobile project layout adjustments */
+            #project-showcase { 
+                flex-direction: column; 
+                justify-content: flex-start; /* Stack from top */
+                padding-top: 60px; /* Space for status bar/notch */
+                padding-bottom: 120px; /* Space for drain button */
+            }
+            .project-card { 
+                height: auto; 
+                min-height: 250px; 
+                margin-bottom: 20px; 
+                flex: none; /* Allow scrolling */
+            }
+            .btn.fill-trigger { position: relative; right: auto; top: auto; transform: none; margin-top: 20px; }
+            
+            /* Fix Drain Button on Mobile */
+            .btn-drain { width: 60px; height: 60px; bottom: 30px; right: 30px; }
         }
     </style>
 </head>
@@ -435,7 +439,6 @@
         const glassGrid = document.querySelector('.glass-grid');
         const glassSlices = document.querySelectorAll('.glass-slice');
         
-        // Liquid Elements
         const fluidOverlay = document.getElementById('fluid-overlay');
         const projectShowcase = document.getElementById('project-showcase');
         
@@ -457,42 +460,35 @@
         const MAGNET_RANGE = 80;
         const MAX_RIPPLES = 3; 
 
-        // --- FLUID LOGIC SPLIT ---
-        
-        // 1. OPEN (From "FILL" Button)
+        // --- FIXED: LOCK SCROLL ---
         window.openLiquid = function(btn) {
             if (isLiquidMode) return;
             isLiquidMode = true;
             
-            // Get button center coordinates
+            // Lock body scroll to prevent background parallax shifting
+            document.body.style.overflow = 'hidden';
+
             const rect = btn.getBoundingClientRect();
             const centerX = rect.left + rect.width / 2;
             const centerY = rect.top + rect.height / 2;
             
-            // Set CSS variables for origin
             fluidOverlay.style.setProperty('--fill-x', centerX + 'px');
             fluidOverlay.style.setProperty('--fill-y', centerY + 'px');
-            
-            // Start Fill Animation
             fluidOverlay.classList.remove('draining');
             fluidOverlay.classList.add('filling');
-            
-            // Reveal Content
             projectShowcase.classList.add('visible');
         }
 
-        // 2. CLOSE (From "X" Button)
         window.closeLiquid = function() {
             isLiquidMode = false;
             
-            // Hide content
-            projectShowcase.classList.remove('visible');
+            // Unlock body scroll
+            document.body.style.overflow = '';
             
-            // Start drain animation
+            projectShowcase.classList.remove('visible');
             fluidOverlay.classList.remove('filling');
             fluidOverlay.classList.add('draining');
             
-            // Wait for animation, then reset clips
             setTimeout(() => {
                 fluidOverlay.classList.remove('draining');
             }, 1200);
@@ -549,6 +545,7 @@
 
         document.addEventListener('touchmove', (e) => {
             if(isSecretMode) return;
+            // FIX 3: Removed Ripple Trigger here to fix Lag
             mouseX = e.touches[0].clientX;
             mouseY = e.touches[0].clientY;
         }, { passive: false });
@@ -619,21 +616,23 @@
                 height += breathe;
             }
 
-            // GLASS GRID LOGIC
-            const gridRect = glassGrid.getBoundingClientRect();
-            if (blobX >= gridRect.left && blobX <= gridRect.right) {
-                const relativeX = blobX - gridRect.left;
-                const totalSlices = glassSlices.length;
-                const sliceWidth = gridRect.width / totalSlices;
-                let activeSliceIndex = Math.floor(relativeX / sliceWidth);
-                if (activeSliceIndex < 0) activeSliceIndex = 0;
-                if (activeSliceIndex >= totalSlices) activeSliceIndex = totalSlices - 1;
-                glassSlices.forEach((slice, index) => {
-                    if (index === activeSliceIndex) slice.classList.add('flipped');
-                    else slice.classList.remove('flipped');
-                });
-            } else {
-                glassSlices.forEach(slice => slice.classList.remove('flipped'));
+            // OPTIMIZATION: Only run glass grid logic if we aren't in liquid mode (covered)
+            if (!isLiquidMode) {
+                const gridRect = glassGrid.getBoundingClientRect();
+                if (blobX >= gridRect.left && blobX <= gridRect.right) {
+                    const relativeX = blobX - gridRect.left;
+                    const totalSlices = glassSlices.length;
+                    const sliceWidth = gridRect.width / totalSlices;
+                    let activeSliceIndex = Math.floor(relativeX / sliceWidth);
+                    if (activeSliceIndex < 0) activeSliceIndex = 0;
+                    if (activeSliceIndex >= totalSlices) activeSliceIndex = totalSlices - 1;
+                    glassSlices.forEach((slice, index) => {
+                        if (index === activeSliceIndex) slice.classList.add('flipped');
+                        else slice.classList.remove('flipped');
+                    });
+                } else {
+                    glassSlices.forEach(slice => slice.classList.remove('flipped'));
+                }
             }
 
             // SIDEBAR
