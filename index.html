@@ -60,7 +60,8 @@
                 width 0.38s cubic-bezier(0.2, 0.8, 0.2, 1),
                 height 0.38s cubic-bezier(0.2, 0.8, 0.2, 1),
                 border-radius 0.38s cubic-bezier(0.2, 0.8, 0.2, 1),
-                background-color 0.2s ease, /* Faster color switch */
+                background-color 0.2s ease,
+                border 0.2s ease,
                 transform 0.2s ease-out;
             will-change: left, top, width, height, transform;
         }
@@ -74,10 +75,15 @@
         #cursor-blob.expanded.blackout { background-color: #000; mix-blend-mode: normal; }
         #cursor-blob.breaking { background-color: #fff !important; mix-blend-mode: difference !important; transition: all 0.1s ease !important; animation: shatterEffect 0.38s forwards; }
 
-        /* PERFORMANCE FIX: When on white layer, disable blend mode */
+        /* FIX: LIQUID ACTIVE STATE (HOLLOW RING) 
+           This ensures the blob doesn't cover text on the white background.
+        */
         #cursor-blob.liquid-active {
             mix-blend-mode: normal !important;
-            background-color: #000 !important;
+            background-color: transparent !important; /* Transparent body */
+            border: 2px solid rgba(0,0,0,0.8) !important; /* Black ring */
+            width: 80px !important; /* Smaller size for precision */
+            height: 80px !important;
         }
 
         @keyframes shatterEffect {
@@ -201,7 +207,7 @@
             background: rgba(255,255,255,0.5);
             transform: translateY(50px);
             transition: transform 0.8s ease;
-            will-change: transform; /* Performance Hint */
+            will-change: transform;
         }
         
         #project-showcase.visible .project-card { transform: translateY(0); }
@@ -209,7 +215,7 @@
         .project-card p { font-size: 1rem; color: #333; line-height: 1.5; font-family: monospace; }
         .card-num { font-size: 4rem; font-weight: 900; opacity: 0.1; align-self: flex-end; }
         
-        /* OPTIMIZED DRAIN BUTTON */
+        /* DRAIN BUTTON */
         .btn-drain {
             position: fixed; 
             bottom: 40px; 
@@ -218,8 +224,7 @@
             height: 80px;
             border-radius: 50%;
             border: 2px solid #000;
-            background: rgba(255, 255, 255, 0.9); /* Opaque enough, no blur needed */
-            /* backdrop-filter: blur(5px);  <-- REMOVED FOR PERFORMANCE */
+            background: rgba(255, 255, 255, 0.9);
             color: #000;
             display: flex;
             align-items: center;
@@ -236,7 +241,7 @@
         .btn-drain.hovered-state svg { fill: #fff; transform: rotate(90deg); }
 
 
-        /* --- 7. HIDDEN FINAL CONTENT (Terminal) --- */
+        /* --- 7. HIDDEN FINAL CONTENT --- */
         #final-layer {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10001;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
@@ -321,17 +326,17 @@
 
     <div id="fluid-overlay"></div>
     <div id="project-showcase">
-        <div class="project-card magnetic-target">
+        <div class="project-card">
             <div class="card-num">01</div>
             <h3>E-Commerce</h3>
             <p>A headless Shopify build with Next.js and WebGL product configurator.</p>
         </div>
-        <div class="project-card magnetic-target">
+        <div class="project-card">
             <div class="card-num">02</div>
             <h3>Finance App</h3>
             <p>Real-time stock dashboard using WebSockets and Python backend.</p>
         </div>
-        <div class="project-card magnetic-target">
+        <div class="project-card">
             <div class="card-num">03</div>
             <h3>AI Tool</h3>
             <p>Generative image processing tool wrapped in Electron for desktop.</p>
@@ -478,7 +483,7 @@
             fluidOverlay.classList.add('filling');
             projectShowcase.classList.add('visible');
             
-            // OPTIMIZATION: Switch Blob Mode
+            // Activate Hollow Ring Mode
             blob.classList.add('liquid-active');
         }
 
@@ -549,7 +554,6 @@
 
         document.addEventListener('touchmove', (e) => {
             if(isSecretMode) return;
-            // FIX: Removed ripple here to reduce lag
             mouseX = e.touches[0].clientX;
             mouseY = e.touches[0].clientY;
         }, { passive: false });
@@ -592,11 +596,9 @@
                 return;
             }
 
-            // OPTIMIZATION: Separate arrays to reduce checks
+            // Separate arrays
             const baseMagnetic = document.querySelectorAll('.magnetic');
             const liquidMagnetic = document.querySelectorAll('.magnetic-target');
-            
-            // Select which group to check based on mode
             const targetList = isLiquidMode ? liquidMagnetic : baseMagnetic;
 
             const isMobile = window.innerWidth < 768;
@@ -626,7 +628,6 @@
                 height += breathe;
             }
 
-            // GLASS GRID (Disabled in liquid mode for performance)
             if (!isLiquidMode) {
                 const gridRect = glassGrid.getBoundingClientRect();
                 if (blobX >= gridRect.left && blobX <= gridRect.right) {
@@ -664,7 +665,7 @@
                 sidebar.style.transform = `translateX(100%)`;
             }
 
-            // MAGNETISM (OPTIMIZED LOOP)
+            // MAGNETISM
             let foundBtn = null; 
             if (speed < 25) {
                 targetList.forEach(btn => {
@@ -675,7 +676,6 @@
                     const dist = Math.hypot(blobX - btnCenterX, blobY - btnCenterY);
                     
                     if (dist < MAGNET_RANGE) {
-                        // Only perform elementFromPoint check if close
                         const elAtPoint = document.elementFromPoint(btnCenterX, btnCenterY);
                         if (elAtPoint && (btn.contains(elAtPoint) || elAtPoint === btn)) {
                             const pullStrength = 0.05;
