@@ -14,6 +14,8 @@
             -webkit-user-select: none;
             user-select: none; 
             -webkit-tap-highlight-color: transparent;
+            /* CRITICAL MOBILE FIX: Improves touch response */
+            touch-action: manipulation; 
         }
 
         body::-webkit-scrollbar { display: none; }
@@ -55,15 +57,17 @@
             border-radius: 50%;
             pointer-events: none;
             z-index: 10000;
-            transform: translate(-50%, -50%);
+            transform: translate3d(-50%, -50%, 0); /* HW Acceleration */
+            
+            /* REMOVED: 'left' and 'top' from transition to prevent conflict with JS loop */
             transition: 
                 width 0.38s cubic-bezier(0.2, 0.8, 0.2, 1),
                 height 0.38s cubic-bezier(0.2, 0.8, 0.2, 1),
                 border-radius 0.38s cubic-bezier(0.2, 0.8, 0.2, 1),
                 background-color 0.2s ease,
-                border 0.2s ease,
-                transform 0.2s ease-out;
-            will-change: left, top, width, height, transform;
+                border 0.2s ease;
+            
+            will-change: transform, width, height;
         }
 
         #cursor-blob.expanded {
@@ -75,14 +79,11 @@
         #cursor-blob.expanded.blackout { background-color: #000; mix-blend-mode: normal; }
         #cursor-blob.breaking { background-color: #fff !important; mix-blend-mode: difference !important; transition: all 0.1s ease !important; animation: shatterEffect 0.38s forwards; }
 
-        /* FIX: LIQUID ACTIVE STATE (HOLLOW RING) 
-           This ensures the blob doesn't cover text on the white background.
-        */
         #cursor-blob.liquid-active {
             mix-blend-mode: normal !important;
-            background-color: transparent !important; /* Transparent body */
-            border: 2px solid rgba(0,0,0,0.8) !important; /* Black ring */
-            width: 80px !important; /* Smaller size for precision */
+            background-color: transparent !important;
+            border: 2px solid rgba(0,0,0,0.8) !important;
+            width: 80px !important;
             height: 80px !important;
         }
 
@@ -455,22 +456,20 @@
         let mouseX = window.innerWidth / 2;
         let mouseY = window.innerHeight / 2;
         
-        let isMouseMode = true; 
+        // Detect Mobile/Touch Device
+        const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+        
         let isSecretMode = false;
         let isLiquidMode = false; 
         let currentHoveredBtn = null;
 
         const FRICTION = 0.93; 
         const FOLLOW_SPEED = 0.08; 
-        const REPULSION_FORCE = 120; 
         const MAGNET_RANGE = 80;
-        const MAX_RIPPLES = 3; 
 
         window.openLiquid = function(btn) {
             if (isLiquidMode) return;
             isLiquidMode = true;
-            
-            // LOCK BACKGROUND SCROLL
             document.body.style.overflow = 'hidden';
 
             const rect = btn.getBoundingClientRect();
@@ -483,14 +482,11 @@
             fluidOverlay.classList.add('filling');
             projectShowcase.classList.add('visible');
             
-            // Activate Hollow Ring Mode
             blob.classList.add('liquid-active');
         }
 
         window.closeLiquid = function() {
             isLiquidMode = false;
-            
-            // UNLOCK SCROLL
             document.body.style.overflow = '';
             
             projectShowcase.classList.remove('visible');
@@ -537,17 +533,16 @@
 
         document.addEventListener('mousemove', (e) => {
             if(isSecretMode) return;
-            isMouseMode = true;
             mouseX = e.clientX;
             mouseY = e.clientY;
         });
 
         document.addEventListener('touchstart', (e) => {
             if(isSecretMode) return;
-            isMouseMode = true;
             const touchX = e.touches[0].clientX;
             const touchY = e.touches[0].clientY;
-            triggerRipple(touchX, touchY);
+            // Only ripple if NOT in liquid mode to save performance
+            if(!isLiquidMode) triggerRipple(touchX, touchY);
             mouseX = touchX;
             mouseY = touchY;
         }, { passive: false });
@@ -558,10 +553,6 @@
             mouseY = e.touches[0].clientY;
         }, { passive: false });
 
-        document.addEventListener('touchend', (e) => {
-            isMouseMode = false;
-        });
-
         document.addEventListener('click', (e) => {
             if (isSecretMode) return; 
             if (currentHoveredBtn) {
@@ -571,22 +562,12 @@
         });
 
         function triggerRipple(x, y) {
-            const activeRipples = document.getElementsByClassName('ripple');
-            if (activeRipples.length >= MAX_RIPPLES) activeRipples[0].remove();
             const ripple = document.createElement('div');
             ripple.classList.add('ripple');
             ripple.style.left = x + 'px';
             ripple.style.top = y + 'px';
             document.body.appendChild(ripple);
-            setTimeout(() => { ripple.remove(); }, 1618);
-            let dx = blobX - x;
-            let dy = blobY - y;
-            let dist = Math.hypot(dx, dy);
-            if (dist === 0) { dx = 1; dy = 0; dist = 1; }
-            const dirX = dx / dist;
-            const dirY = dy / dist;
-            velX += dirX * (REPULSION_FORCE * 0.5); 
-            velY += dirY * (REPULSION_FORCE * 0.5);
+            setTimeout(() => { ripple.remove(); }, 1000);
         }
 
         function animate() {
@@ -596,7 +577,6 @@
                 return;
             }
 
-            // Separate arrays
             const baseMagnetic = document.querySelectorAll('.magnetic');
             const liquidMagnetic = document.querySelectorAll('.magnetic-target');
             const targetList = isLiquidMode ? liquidMagnetic : baseMagnetic;
@@ -608,18 +588,33 @@
             let height = baseSize;
             let borderRadius = '50%';
             
-            if (isMouseMode) {
+            // --- DUAL ENGINE MOVEMENT ---
+            if (isTouchDevice) {
+                // MOBILE: Linear Interpolation (Smooth, No Bounce)
+                // factor 0.15 = snappy but smooth
+                blobX += (mouseX - blobX) * 0.15;
+                blobY += (mouseY - blobY) * 0.15;
+                
+                // Reset velocity so it doesn't build up
+                velX = 0; 
+                velY = 0;
+            } else {
+                // DESKTOP: Physics (Elastic)
                 const dx = mouseX - blobX;
                 const dy = mouseY - blobY;
                 velX += (dx * FOLLOW_SPEED - velX) * 0.5;
                 velY += (dy * FOLLOW_SPEED - velY) * 0.5;
-            } else {
+                
+                // Friction
                 velX *= FRICTION;
                 velY *= FRICTION;
+                
+                blobX += velX;
+                blobY += velY;
             }
 
-            const speed = Math.hypot(velX, velY);
-            if (speed < 0.5) {
+            // Idle breathing animation
+            if (Math.abs(mouseX - blobX) < 1 && Math.abs(mouseY - blobY) < 1) {
                 const time = Date.now() * 0.002;
                 blobX += Math.sin(time) * 0.2;
                 blobY += Math.cos(time * 1.5) * 0.2;
@@ -667,40 +662,42 @@
 
             // MAGNETISM
             let foundBtn = null; 
-            if (speed < 25) {
-                targetList.forEach(btn => {
-                    const rect = btn.getBoundingClientRect();
-                    if (rect.bottom < 0 || rect.top > window.innerHeight) return;
-                    const btnCenterX = rect.left + rect.width / 2;
-                    const btnCenterY = rect.top + rect.height / 2;
-                    const dist = Math.hypot(blobX - btnCenterX, blobY - btnCenterY);
-                    
-                    if (dist < MAGNET_RANGE) {
-                        const elAtPoint = document.elementFromPoint(btnCenterX, btnCenterY);
-                        if (elAtPoint && (btn.contains(elAtPoint) || elAtPoint === btn)) {
+            // Reduce checks on mobile for performance (check radius smaller or skip)
+            targetList.forEach(btn => {
+                const rect = btn.getBoundingClientRect();
+                if (rect.bottom < 0 || rect.top > window.innerHeight) return;
+                const btnCenterX = rect.left + rect.width / 2;
+                const btnCenterY = rect.top + rect.height / 2;
+                const dist = Math.hypot(blobX - btnCenterX, blobY - btnCenterY);
+                
+                if (dist < MAGNET_RANGE) {
+                    const elAtPoint = document.elementFromPoint(btnCenterX, btnCenterY);
+                    if (elAtPoint && (btn.contains(elAtPoint) || elAtPoint === btn)) {
+                        // Desktop only magnetism force? 
+                        // On mobile, just snap shape, don't pull blob (feels weird)
+                        if (!isTouchDevice) {
                             const pullStrength = 0.05;
                             velX += (btnCenterX - blobX) * pullStrength;
                             velY += (btnCenterY - blobY) * pullStrength;
-                            if (dist < rect.width * 0.8) {
-                                width = rect.width; height = rect.height; borderRadius = '20px';
-                                btn.classList.add('hovered-state');
-                                foundBtn = btn; 
-                            } else { btn.classList.remove('hovered-state'); }
+                        }
+
+                        if (dist < rect.width * 0.8) {
+                            width = rect.width; height = rect.height; borderRadius = '20px';
+                            btn.classList.add('hovered-state');
+                            foundBtn = btn; 
                         } else { btn.classList.remove('hovered-state'); }
                     } else { btn.classList.remove('hovered-state'); }
-                });
-            } else {
-                targetList.forEach(btn => btn.classList.remove('hovered-state'));
-            }
+                } else { btn.classList.remove('hovered-state'); }
+            });
             currentHoveredBtn = foundBtn;
 
-            blobX += velX;
-            blobY += velY;
-            if (blobX < 0) { blobX = 0; velX *= -0.6; }
-            if (blobX > window.innerWidth) { blobX = window.innerWidth; velX *= -0.6; }
+            // Boundaries
+            if (blobX < 0) blobX = 0;
+            if (blobX > window.innerWidth) blobX = window.innerWidth;
 
-            blob.style.left = blobX + 'px';
-            blob.style.top = blobY + 'px';
+            // UPDATE DOM
+            // Use translate3d for GPU accel
+            blob.style.transform = `translate3d(${blobX}px, ${blobY}px, 0) translate(-50%, -50%)`;
             blob.style.width = width + 'px';
             blob.style.height = height + 'px';
             blob.style.borderRadius = borderRadius;
