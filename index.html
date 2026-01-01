@@ -60,7 +60,7 @@
                 width 0.38s cubic-bezier(0.2, 0.8, 0.2, 1),
                 height 0.38s cubic-bezier(0.2, 0.8, 0.2, 1),
                 border-radius 0.38s cubic-bezier(0.2, 0.8, 0.2, 1),
-                background-color 0.62s ease,
+                background-color 0.2s ease, /* Faster color switch */
                 transform 0.2s ease-out;
             will-change: left, top, width, height, transform;
         }
@@ -73,6 +73,12 @@
         }
         #cursor-blob.expanded.blackout { background-color: #000; mix-blend-mode: normal; }
         #cursor-blob.breaking { background-color: #fff !important; mix-blend-mode: difference !important; transition: all 0.1s ease !important; animation: shatterEffect 0.38s forwards; }
+
+        /* PERFORMANCE FIX: When on white layer, disable blend mode */
+        #cursor-blob.liquid-active {
+            mix-blend-mode: normal !important;
+            background-color: #000 !important;
+        }
 
         @keyframes shatterEffect {
             0% { transform: translate(-50%, -50%) scale(1); }
@@ -144,7 +150,8 @@
             z-index: 9990; 
             pointer-events: none; 
             clip-path: circle(0% at var(--fill-x, 90%) var(--fill-y, 50%));
-            transition: clip-path 1.2s cubic-bezier(0.65, 0, 0.35, 1); 
+            transition: clip-path 1.2s cubic-bezier(0.65, 0, 0.35, 1);
+            will-change: clip-path; 
         }
 
         #fluid-overlay.filling {
@@ -157,7 +164,6 @@
             clip-path: circle(0% at 50% 100%); 
         }
 
-        /* The Hidden Project Content */
         #project-showcase {
             position: fixed;
             top: 0;
@@ -173,8 +179,6 @@
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.5s ease 0.5s; 
-            
-            /* FIX 2: Prevent background scrolling issues */
             overscroll-behavior: contain;
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
@@ -197,6 +201,7 @@
             background: rgba(255,255,255,0.5);
             transform: translateY(50px);
             transition: transform 0.8s ease;
+            will-change: transform; /* Performance Hint */
         }
         
         #project-showcase.visible .project-card { transform: translateY(0); }
@@ -204,23 +209,23 @@
         .project-card p { font-size: 1rem; color: #333; line-height: 1.5; font-family: monospace; }
         .card-num { font-size: 4rem; font-weight: 900; opacity: 0.1; align-self: flex-end; }
         
-        /* FIX 1: Enhanced Drain Button for Mobile */
+        /* OPTIMIZED DRAIN BUTTON */
         .btn-drain {
-            position: fixed; /* Fixed so it doesn't scroll with content */
+            position: fixed; 
             bottom: 40px; 
             right: 40px;
             width: 80px;
             height: 80px;
             border-radius: 50%;
             border: 2px solid #000;
-            background: rgba(255, 255, 255, 0.8); /* Semi-transparent bg */
-            backdrop-filter: blur(5px); /* Blur to separate from content */
+            background: rgba(255, 255, 255, 0.9); /* Opaque enough, no blur needed */
+            /* backdrop-filter: blur(5px);  <-- REMOVED FOR PERFORMANCE */
             color: #000;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: none; 
-            z-index: 10000; /* High Z to stay on top */
+            z-index: 10000; 
             transition: all 0.3s ease;
             pointer-events: auto;
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
@@ -292,23 +297,19 @@
             .spacer { height: 25vh; }
             #final-layer h1 { font-size: 8vw; }
             .glass-grid { width: 25vw; }
-            
-            /* Mobile project layout adjustments */
             #project-showcase { 
                 flex-direction: column; 
-                justify-content: flex-start; /* Stack from top */
-                padding-top: 60px; /* Space for status bar/notch */
-                padding-bottom: 120px; /* Space for drain button */
+                justify-content: flex-start; 
+                padding-top: 60px; 
+                padding-bottom: 120px; 
             }
             .project-card { 
                 height: auto; 
                 min-height: 250px; 
                 margin-bottom: 20px; 
-                flex: none; /* Allow scrolling */
+                flex: none; 
             }
             .btn.fill-trigger { position: relative; right: auto; top: auto; transform: none; margin-top: 20px; }
-            
-            /* Fix Drain Button on Mobile */
             .btn-drain { width: 60px; height: 60px; bottom: 30px; right: 30px; }
         }
     </style>
@@ -320,23 +321,23 @@
 
     <div id="fluid-overlay"></div>
     <div id="project-showcase">
-        <div class="project-card magnetic">
+        <div class="project-card magnetic-target">
             <div class="card-num">01</div>
             <h3>E-Commerce</h3>
             <p>A headless Shopify build with Next.js and WebGL product configurator.</p>
         </div>
-        <div class="project-card magnetic">
+        <div class="project-card magnetic-target">
             <div class="card-num">02</div>
             <h3>Finance App</h3>
             <p>Real-time stock dashboard using WebSockets and Python backend.</p>
         </div>
-        <div class="project-card magnetic">
+        <div class="project-card magnetic-target">
             <div class="card-num">03</div>
             <h3>AI Tool</h3>
             <p>Generative image processing tool wrapped in Electron for desktop.</p>
         </div>
 
-        <button class="btn-drain magnetic" onclick="closeLiquid()">
+        <button class="btn-drain magnetic-target" onclick="closeLiquid()">
             <svg viewBox="0 0 24 24">
                 <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
             </svg>
@@ -460,12 +461,11 @@
         const MAGNET_RANGE = 80;
         const MAX_RIPPLES = 3; 
 
-        // --- FIXED: LOCK SCROLL ---
         window.openLiquid = function(btn) {
             if (isLiquidMode) return;
             isLiquidMode = true;
             
-            // Lock body scroll to prevent background parallax shifting
+            // LOCK BACKGROUND SCROLL
             document.body.style.overflow = 'hidden';
 
             const rect = btn.getBoundingClientRect();
@@ -477,17 +477,21 @@
             fluidOverlay.classList.remove('draining');
             fluidOverlay.classList.add('filling');
             projectShowcase.classList.add('visible');
+            
+            // OPTIMIZATION: Switch Blob Mode
+            blob.classList.add('liquid-active');
         }
 
         window.closeLiquid = function() {
             isLiquidMode = false;
             
-            // Unlock body scroll
+            // UNLOCK SCROLL
             document.body.style.overflow = '';
             
             projectShowcase.classList.remove('visible');
             fluidOverlay.classList.remove('filling');
             fluidOverlay.classList.add('draining');
+            blob.classList.remove('liquid-active');
             
             setTimeout(() => {
                 fluidOverlay.classList.remove('draining');
@@ -545,7 +549,7 @@
 
         document.addEventListener('touchmove', (e) => {
             if(isSecretMode) return;
-            // FIX 3: Removed Ripple Trigger here to fix Lag
+            // FIX: Removed ripple here to reduce lag
             mouseX = e.touches[0].clientX;
             mouseY = e.touches[0].clientY;
         }, { passive: false });
@@ -588,7 +592,13 @@
                 return;
             }
 
-            const magneticElements = document.querySelectorAll('.magnetic');
+            // OPTIMIZATION: Separate arrays to reduce checks
+            const baseMagnetic = document.querySelectorAll('.magnetic');
+            const liquidMagnetic = document.querySelectorAll('.magnetic-target');
+            
+            // Select which group to check based on mode
+            const targetList = isLiquidMode ? liquidMagnetic : baseMagnetic;
+
             const isMobile = window.innerWidth < 768;
             const baseSize = isMobile ? 100 : 162;
 
@@ -616,7 +626,7 @@
                 height += breathe;
             }
 
-            // OPTIMIZATION: Only run glass grid logic if we aren't in liquid mode (covered)
+            // GLASS GRID (Disabled in liquid mode for performance)
             if (!isLiquidMode) {
                 const gridRect = glassGrid.getBoundingClientRect();
                 if (blobX >= gridRect.left && blobX <= gridRect.right) {
@@ -654,16 +664,18 @@
                 sidebar.style.transform = `translateX(100%)`;
             }
 
-            // MAGNETISM
+            // MAGNETISM (OPTIMIZED LOOP)
             let foundBtn = null; 
             if (speed < 25) {
-                magneticElements.forEach(btn => {
+                targetList.forEach(btn => {
                     const rect = btn.getBoundingClientRect();
                     if (rect.bottom < 0 || rect.top > window.innerHeight) return;
                     const btnCenterX = rect.left + rect.width / 2;
                     const btnCenterY = rect.top + rect.height / 2;
                     const dist = Math.hypot(blobX - btnCenterX, blobY - btnCenterY);
+                    
                     if (dist < MAGNET_RANGE) {
+                        // Only perform elementFromPoint check if close
                         const elAtPoint = document.elementFromPoint(btnCenterX, btnCenterY);
                         if (elAtPoint && (btn.contains(elAtPoint) || elAtPoint === btn)) {
                             const pullStrength = 0.05;
@@ -678,7 +690,7 @@
                     } else { btn.classList.remove('hovered-state'); }
                 });
             } else {
-                magneticElements.forEach(btn => btn.classList.remove('hovered-state'));
+                targetList.forEach(btn => btn.classList.remove('hovered-state'));
             }
             currentHoveredBtn = foundBtn;
 
