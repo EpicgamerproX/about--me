@@ -14,8 +14,7 @@
             -webkit-user-select: none;
             user-select: none; 
             -webkit-tap-highlight-color: transparent;
-            /* CRITICAL MOBILE FIX: Improves touch response */
-            touch-action: manipulation; 
+            touch-action: manipulation;
         }
 
         body::-webkit-scrollbar { display: none; }
@@ -57,9 +56,8 @@
             border-radius: 50%;
             pointer-events: none;
             z-index: 10000;
-            transform: translate3d(-50%, -50%, 0); /* HW Acceleration */
+            transform: translate3d(-50%, -50%, 0);
             
-            /* REMOVED: 'left' and 'top' from transition to prevent conflict with JS loop */
             transition: 
                 width 0.38s cubic-bezier(0.2, 0.8, 0.2, 1),
                 height 0.38s cubic-bezier(0.2, 0.8, 0.2, 1),
@@ -81,9 +79,9 @@
 
         #cursor-blob.liquid-active {
             mix-blend-mode: normal !important;
-            background-color: transparent !important;
-            border: 2px solid rgba(0,0,0,0.8) !important;
-            width: 80px !important;
+            background-color: transparent !important; 
+            border: 2px solid rgba(0,0,0,0.8) !important; 
+            width: 80px !important; 
             height: 80px !important;
         }
 
@@ -116,10 +114,18 @@
         #layer-3 { z-index: 30; background-color: #000000; }
         #layer-skills { z-index: 40; background-color: #050505; padding: 0; flex-direction: row; }
         #layer-5 { z-index: 50; background-color: #020202; }
+        
+        /* NEW FINAL SHUTTER LAYER */
+        #layer-6 { 
+            z-index: 60; 
+            background-color: #111; /* Hidden content bg */
+            position: sticky;
+            padding: 0; /* Remove padding so shutters hit edges */
+        }
 
         .spacer { width: 100%; height: 38.2vh; background: transparent; pointer-events: none; }
 
-        /* --- 5. THE FLIP GLASS GRID (Layer 1) --- */
+        /* --- 5. THE FLIP GLASS GRID --- */
         .glass-grid {
             position: absolute; top: 0; right: 0; 
             width: 38.2vw; height: 100%; display: flex;
@@ -146,69 +152,33 @@
         .glass-slice.flipped .slice-inner { transform: rotateY(-180deg); }
 
 
-        /* --- 6. FLUID FILL EFFECT (Layer 3) --- */
+        /* --- 6. FLUID FILL EFFECT --- */
         #fluid-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #fff;
-            z-index: 9990; 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #fff; z-index: 9990; 
             pointer-events: none; 
             clip-path: circle(0% at var(--fill-x, 90%) var(--fill-y, 50%));
             transition: clip-path 1.2s cubic-bezier(0.65, 0, 0.35, 1);
             will-change: clip-path; 
         }
 
-        #fluid-overlay.filling {
-            pointer-events: auto;
-            clip-path: circle(150% at var(--fill-x, 90%) var(--fill-y, 50%));
-        }
-
-        #fluid-overlay.draining {
-            pointer-events: none;
-            clip-path: circle(0% at 50% 100%); 
-        }
+        #fluid-overlay.filling { pointer-events: auto; clip-path: circle(150% at var(--fill-x, 90%) var(--fill-y, 50%)); }
+        #fluid-overlay.draining { pointer-events: none; clip-path: circle(0% at 50% 100%); }
 
         #project-showcase {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 9995;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 20px;
-            padding: 5vw;
-            opacity: 0;
-            pointer-events: none;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9995;
+            display: flex; align-items: center; justify-content: center; gap: 20px; padding: 5vw;
+            opacity: 0; pointer-events: none;
             transition: opacity 0.5s ease 0.5s; 
-            overscroll-behavior: contain;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain; overflow-y: auto; -webkit-overflow-scrolling: touch;
         }
 
-        #project-showcase.visible {
-            opacity: 1;
-            pointer-events: auto;
-        }
+        #project-showcase.visible { opacity: 1; pointer-events: auto; }
 
         .project-card {
-            flex: 1;
-            height: 60vh;
-            border: 2px solid #000;
-            color: #000;
-            padding: 30px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            background: rgba(255,255,255,0.5);
-            transform: translateY(50px);
-            transition: transform 0.8s ease;
-            will-change: transform;
+            flex: 1; height: 60vh; border: 2px solid #000; color: #000; padding: 30px;
+            display: flex; flex-direction: column; justify-content: space-between;
+            background: rgba(255,255,255,0.5); transform: translateY(50px);
+            transition: transform 0.8s ease; will-change: transform;
         }
         
         #project-showcase.visible .project-card { transform: translateY(0); }
@@ -216,27 +186,13 @@
         .project-card p { font-size: 1rem; color: #333; line-height: 1.5; font-family: monospace; }
         .card-num { font-size: 4rem; font-weight: 900; opacity: 0.1; align-self: flex-end; }
         
-        /* DRAIN BUTTON */
         .btn-drain {
-            position: fixed; 
-            bottom: 40px; 
-            right: 40px;
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            border: 2px solid #000;
-            background: rgba(255, 255, 255, 0.9);
-            color: #000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: none; 
-            z-index: 10000; 
-            transition: all 0.3s ease;
-            pointer-events: auto;
+            position: fixed; bottom: 40px; right: 40px; width: 80px; height: 80px;
+            border-radius: 50%; border: 2px solid #000; background: rgba(255, 255, 255, 0.9);
+            color: #000; display: flex; align-items: center; justify-content: center;
+            cursor: none; z-index: 10000; transition: all 0.3s ease; pointer-events: auto;
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
         }
-        
         .btn-drain svg { width: 24px; height: 24px; fill: #000; transition: transform 0.3s ease; }
         .btn-drain.hovered-state { background: #000; transform: scale(1.1); }
         .btn-drain.hovered-state svg { fill: #fff; transform: rotate(90deg); }
@@ -262,19 +218,9 @@
         p { font-size: 1.5rem; max-width: 600px; line-height: 1.618; color: #bbb; margin-bottom: 1.618rem; z-index: 10; }
         .mobile-hint { display: none; font-size: 0.75rem; color: #444; margin-top: 1.618rem; text-transform: uppercase; letter-spacing: 1px; }
         .btn-container { margin-top: 30px; display: flex; flex-wrap: wrap; gap: 15px; }
-        
         .btn { display: inline-block; padding: 12px 30px; border: 1px solid rgba(255,255,255,0.3); border-radius: 30px; color: white; text-decoration: none; text-transform: uppercase; letter-spacing: 1px; font-size: 0.75rem; font-weight: 700; position: relative; z-index: 20; background: transparent; transition: opacity 0.3s; pointer-events: auto; }
         .btn.hovered-state { border-color: transparent; }
-        
-        .btn.fill-trigger { 
-            position: absolute; 
-            right: 10vw; 
-            top: 50%; 
-            transform: translateY(-50%);
-            border-color: #fff;
-            background: rgba(255,255,255,0.05);
-            z-index: 50; 
-        }
+        .btn.fill-trigger { position: absolute; right: 10vw; top: 50%; transform: translateY(-50%); border-color: #fff; background: rgba(255,255,255,0.05); z-index: 50; }
 
         /* --- 9. SIDEBAR --- */
         .skill-left { width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; padding-left: 10vw; transition: opacity 0.38s; }
@@ -291,6 +237,45 @@
         .ripple { position: fixed; border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; mix-blend-mode: difference; border: 1px solid rgba(255, 255, 255, 0.4); animation: rippleAnim 1.618s ease-out forwards; z-index: 9999; will-change: transform, opacity; }
         @keyframes rippleAnim { 0% { width: 0; height: 0; opacity: 0.6; } 100% { width: 100vmax; height: 100vmax; opacity: 0; } }
 
+        /* --- 10. NEW SHUTTER STYLES --- */
+        #shutter-container {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 5; /* On top of background content */
+            display: flex; flex-direction: column;
+            pointer-events: none; /* Let clicks pass, but catch blob via math */
+        }
+        .shutter-row {
+            flex: 1; /* Distribute height equally */
+            width: 100%;
+            display: flex;
+            position: relative;
+            overflow: hidden;
+        }
+        .shutter-left, .shutter-right {
+            width: 50%;
+            height: 100%;
+            background-color: #050505; /* Cover color */
+            border-bottom: 1px solid rgba(255,255,255,0.05); /* Slight separator */
+            transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        .shutter-left { transform: translateX(0); border-right: 1px solid rgba(255,255,255,0.05); }
+        .shutter-right { transform: translateX(0); }
+        
+        /* OPEN STATE */
+        .shutter-row.open .shutter-left { transform: translateX(-100%); }
+        .shutter-row.open .shutter-right { transform: translateX(100%); }
+
+        /* HIDDEN CONTENT BEHIND SHUTTERS */
+        .reveal-content {
+            width: 100%; height: 100%;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            text-align: center;
+            z-index: 1; /* Behind shutters */
+        }
+        .reveal-title { font-size: 8vw; font-weight: 900; color: #fff; line-height: 0.9; text-transform: uppercase; }
+        .reveal-sub { font-size: 1.5rem; color: #888; margin-top: 20px; font-family: monospace; }
+
         @media (max-width: 768px) { 
             h1 { font-size: 3.5rem; line-height: 1; margin-bottom: 1.618rem; } 
             p { font-size: 1.1rem; max-width: 100%; }
@@ -303,18 +288,8 @@
             .spacer { height: 25vh; }
             #final-layer h1 { font-size: 8vw; }
             .glass-grid { width: 25vw; }
-            #project-showcase { 
-                flex-direction: column; 
-                justify-content: flex-start; 
-                padding-top: 60px; 
-                padding-bottom: 120px; 
-            }
-            .project-card { 
-                height: auto; 
-                min-height: 250px; 
-                margin-bottom: 20px; 
-                flex: none; 
-            }
+            #project-showcase { flex-direction: column; justify-content: flex-start; padding-top: 60px; padding-bottom: 120px; }
+            .project-card { height: auto; min-height: 250px; margin-bottom: 20px; flex: none; }
             .btn.fill-trigger { position: relative; right: auto; top: auto; transform: none; margin-top: 20px; }
             .btn-drain { width: 60px; height: 60px; bottom: 30px; right: 30px; }
         }
@@ -435,6 +410,17 @@
                 <button class="btn magnetic" onclick="expandLayer()">UNLOCK TERMINAL</button>
             </div>
         </section>
+        <div class="spacer"></div>
+
+        <section class="layer" id="layer-6">
+            <div id="shutter-container">
+                </div>
+            <div class="reveal-content">
+                <div class="reveal-title">THANK<br>YOU.</div>
+                <div class="reveal-sub">Designed & Built by Achyut</div>
+            </div>
+        </section>
+
         <div class="spacer" style="height: 20vh;"></div>
     </main>
 
@@ -449,6 +435,26 @@
         const fluidOverlay = document.getElementById('fluid-overlay');
         const projectShowcase = document.getElementById('project-showcase');
         
+        // REVEAL LAYER ELEMENTS
+        const shutterContainer = document.getElementById('shutter-container');
+        const revealLayer = document.getElementById('layer-6');
+        const SHUTTER_COUNT = 10;
+        let shutterRows = [];
+
+        // INIT SHUTTERS
+        for(let i=0; i<SHUTTER_COUNT; i++) {
+            const row = document.createElement('div');
+            row.className = 'shutter-row';
+            const left = document.createElement('div');
+            left.className = 'shutter-left';
+            const right = document.createElement('div');
+            right.className = 'shutter-right';
+            row.appendChild(left);
+            row.appendChild(right);
+            shutterContainer.appendChild(row);
+            shutterRows.push(row);
+        }
+        
         let blobX = window.innerWidth / 2;
         let blobY = window.innerHeight / 2;
         let velX = 0;
@@ -456,8 +462,8 @@
         let mouseX = window.innerWidth / 2;
         let mouseY = window.innerHeight / 2;
         
-        // Detect Mobile/Touch Device
-        const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+        let isTouchDevice = false;
+        window.addEventListener('touchstart', function() { isTouchDevice = true; }, {once:true});
         
         let isSecretMode = false;
         let isLiquidMode = false; 
@@ -539,9 +545,9 @@
 
         document.addEventListener('touchstart', (e) => {
             if(isSecretMode) return;
+            isTouchDevice = true;
             const touchX = e.touches[0].clientX;
             const touchY = e.touches[0].clientY;
-            // Only ripple if NOT in liquid mode to save performance
             if(!isLiquidMode) triggerRipple(touchX, touchY);
             mouseX = touchX;
             mouseY = touchY;
@@ -588,32 +594,23 @@
             let height = baseSize;
             let borderRadius = '50%';
             
-            // --- DUAL ENGINE MOVEMENT ---
+            // MOVEMENT
             if (isTouchDevice) {
-                // MOBILE: Linear Interpolation (Smooth, No Bounce)
-                // factor 0.15 = snappy but smooth
-                blobX += (mouseX - blobX) * 0.15;
-                blobY += (mouseY - blobY) * 0.15;
-                
-                // Reset velocity so it doesn't build up
-                velX = 0; 
-                velY = 0;
+                blobX += (mouseX - blobX) * 0.4;
+                blobY += (mouseY - blobY) * 0.4;
+                velX = 0; velY = 0; 
             } else {
-                // DESKTOP: Physics (Elastic)
                 const dx = mouseX - blobX;
                 const dy = mouseY - blobY;
                 velX += (dx * FOLLOW_SPEED - velX) * 0.5;
                 velY += (dy * FOLLOW_SPEED - velY) * 0.5;
-                
-                // Friction
                 velX *= FRICTION;
                 velY *= FRICTION;
-                
                 blobX += velX;
                 blobY += velY;
             }
 
-            // Idle breathing animation
+            // IDLE
             if (Math.abs(mouseX - blobX) < 1 && Math.abs(mouseY - blobY) < 1) {
                 const time = Date.now() * 0.002;
                 blobX += Math.sin(time) * 0.2;
@@ -623,6 +620,28 @@
                 height += breathe;
             }
 
+            // --- SHUTTER LOGIC ---
+            // Only calc if the reveal layer is visible in viewport
+            const revealRect = revealLayer.getBoundingClientRect();
+            if (revealRect.top < window.innerHeight && revealRect.bottom > 0) {
+                // Check if blob is inside the reveal section
+                if (blobY >= revealRect.top && blobY <= revealRect.bottom) {
+                    const relativeY = blobY - revealRect.top;
+                    const rowHeight = revealRect.height / SHUTTER_COUNT;
+                    let activeRow = Math.floor(relativeY / rowHeight);
+                    if(activeRow < 0) activeRow = 0;
+                    if(activeRow >= SHUTTER_COUNT) activeRow = SHUTTER_COUNT - 1;
+                    
+                    shutterRows.forEach((row, idx) => {
+                        if(idx === activeRow) row.classList.add('open');
+                        else row.classList.remove('open');
+                    });
+                } else {
+                    shutterRows.forEach(row => row.classList.remove('open'));
+                }
+            }
+
+            // GLASS GRID (Disabled in liquid mode)
             if (!isLiquidMode) {
                 const gridRect = glassGrid.getBoundingClientRect();
                 if (blobX >= gridRect.left && blobX <= gridRect.right) {
@@ -662,7 +681,6 @@
 
             // MAGNETISM
             let foundBtn = null; 
-            // Reduce checks on mobile for performance (check radius smaller or skip)
             targetList.forEach(btn => {
                 const rect = btn.getBoundingClientRect();
                 if (rect.bottom < 0 || rect.top > window.innerHeight) return;
@@ -673,14 +691,11 @@
                 if (dist < MAGNET_RANGE) {
                     const elAtPoint = document.elementFromPoint(btnCenterX, btnCenterY);
                     if (elAtPoint && (btn.contains(elAtPoint) || elAtPoint === btn)) {
-                        // Desktop only magnetism force? 
-                        // On mobile, just snap shape, don't pull blob (feels weird)
                         if (!isTouchDevice) {
                             const pullStrength = 0.05;
                             velX += (btnCenterX - blobX) * pullStrength;
                             velY += (btnCenterY - blobY) * pullStrength;
                         }
-
                         if (dist < rect.width * 0.8) {
                             width = rect.width; height = rect.height; borderRadius = '20px';
                             btn.classList.add('hovered-state');
@@ -691,12 +706,9 @@
             });
             currentHoveredBtn = foundBtn;
 
-            // Boundaries
             if (blobX < 0) blobX = 0;
             if (blobX > window.innerWidth) blobX = window.innerWidth;
 
-            // UPDATE DOM
-            // Use translate3d for GPU accel
             blob.style.transform = `translate3d(${blobX}px, ${blobY}px, 0) translate(-50%, -50%)`;
             blob.style.width = width + 'px';
             blob.style.height = height + 'px';
