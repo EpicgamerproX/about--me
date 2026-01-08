@@ -248,27 +248,26 @@
             width: 100%;
             position: relative;
             overflow: hidden;
-            border-bottom: 1px solid rgba(255,255,255,0.03); /* Tiny separator */
+            /* REMOVED: border-bottom to kill gap between rectangles */
+            /* Add outline to prevent sub-pixel bleeding */
+            outline: 1px solid transparent; 
         }
-        /* PERFORMANCE TRICK:
-           We make panels 100% width and position them off-screen or on-screen
-           Then use transforms to slide them to the cursor.
-        */
+        
         .shutter-left {
             position: absolute;
             top: 0; bottom: 0; left: 0;
-            width: 100%; /* Full Width */
+            width: 100%;
             background-color: #050505;
-            transform: translateX(-100%); /* Start Hidden Left */
+            transform: translateX(-100%); 
             border-right: 1px solid rgba(255,255,255,0.1);
             will-change: transform;
         }
         .shutter-right {
             position: absolute;
-            top: 0; bottom: 0; left: 0; /* Also anchored left for easy math */
-            width: 100%; /* Full Width */
+            top: 0; bottom: 0; left: 0;
+            width: 100%;
             background-color: #050505;
-            transform: translateX(0); /* Start Covering (Left aligned) */
+            transform: translateX(0); 
             will-change: transform;
         }
 
@@ -653,52 +652,20 @@
                 if(shutterRows[0].height === 0) updateShutterMetrics();
 
                 shutterRows.forEach(rowObj => {
-                    // Update Y position (since page scrolls)
                     const rowRect = rowObj.el.getBoundingClientRect();
                     const rowCenterY = rowRect.top + rowRect.height/2;
-
-                    // Distance from Blob Y
                     const distY = Math.abs(blobY - rowCenterY);
                     
-                    // Wave Logic: How wide is the gap?
-                    // Closer = Wider gap. Max gap = 150px.
-                    // Range = 300px vertical distance.
-                    let openFactor = Math.max(0, 1 - (distY / 300));
-                    // Smooth easing
+                    // Wider wave effect (400px range)
+                    let openFactor = Math.max(0, 1 - (distY / 400));
                     openFactor = openFactor * openFactor; 
                     
-                    const gapSize = openFactor * 80; // 80px left + 80px right = 160px opening
+                    // Much Wider Gap (240px opening per side)
+                    const gapSize = openFactor * 240; 
 
-                    // --- TRANSFORM LOGIC ---
-                    // Left Panel: Starts at -100%. We translate it to positive X.
-                    // Right Edge of Left Panel = X translation.
-                    // Target Edge = blobX - gapSize.
-                    // So TranslateX = blobX - gapSize.
-                    // BUT: We need to limit it so it doesn't detach from left wall.
-                    // Actually, Left Panel is Width 100%. Left: 0.
-                    // Wait, CSS says: transform: translateX(-100%).
-                    // So initial position is completely offscreen left.
-                    // To put Right Edge at blobX: transform = translateX(blobX - 100vw).
-                    // No, that's confusing.
-                    
-                    // Let's use the CSS defined earlier:
-                    // Left: width 100%, transform translateX(-100%).
-                    // To bring Right Edge to Pixel X: translate is (X - WindowWidth)? No.
-                    // Let's just set the transform directly based on pixel math.
-                    
-                    // Left Panel needs to cover from 0 to (blobX - gap).
-                    // Its width is WinW. Its natural position is 0.
-                    // We shift it left so its Right Edge is at (blobX - gap).
-                    // Shift = (blobX - gap) - WinW.
                     const leftShift = (blobX - gapSize) - winW;
-                    
-                    // Right Panel needs to cover from (blobX + gap) to End.
-                    // Its width is WinW. Its natural position is 0.
-                    // We shift it right so its Left Edge is at (blobX + gap).
-                    // Shift = (blobX + gap).
                     const rightShift = blobX + gapSize;
 
-                    // Apply
                     rowObj.leftPanel.style.transform = `translate3d(${leftShift}px, 0, 0)`;
                     rowObj.rightPanel.style.transform = `translate3d(${rightShift}px, 0, 0)`;
                 });
