@@ -251,7 +251,6 @@
             outline: 1px solid transparent; 
         }
         
-        /* Added styles for text inside shutters */
         .shutter-left, .shutter-right {
             position: absolute;
             top: 0; bottom: 0; left: 0;
@@ -263,8 +262,8 @@
             display: flex;
             align-items: center;
             font-family: monospace;
-            font-size: 0.7rem; /* Small technical font */
-            color: rgba(255,255,255,0.25); /* Subtle opacity */
+            font-size: 0.7rem; 
+            color: rgba(255,255,255,0.25); 
             white-space: nowrap;
             overflow: hidden;
             letter-spacing: 1px;
@@ -274,12 +273,12 @@
         .shutter-left {
             transform: translateX(-100%); 
             border-right: 1px solid rgba(255,255,255,0.1);
-            justify-content: flex-end; /* Align text to the seam */
+            justify-content: flex-end; 
             padding-right: 15px;
         }
         .shutter-right {
             transform: translateX(0); 
-            justify-content: flex-start; /* Align text to the seam */
+            justify-content: flex-start; 
             padding-left: 15px;
         }
 
@@ -456,7 +455,7 @@
         const SHUTTER_COUNT = 12; 
         let shutterRows = [];
 
-        // Programming Quotes Array
+        // Quotes Array
         const quotes = [
             "TALK IS CHEAP. SHOW ME THE CODE.",
             "SIMPLICITY IS PREREQUISITE FOR RELIABILITY.",
@@ -472,7 +471,7 @@
             "A BUG IS JUST AN UNDOCUMENTED FEATURE."
         ];
 
-        // INIT SHUTTERS WITH QUOTES
+        // INIT SHUTTERS
         for(let i=0; i<SHUTTER_COUNT; i++) {
             const row = document.createElement('div');
             row.className = 'shutter-row';
@@ -481,7 +480,7 @@
             const right = document.createElement('div');
             right.className = 'shutter-right';
             
-            // Inject Quote
+            // Inject Text
             const quoteText = quotes[i % quotes.length];
             left.innerText = quoteText;
             right.innerText = quoteText;
@@ -512,13 +511,23 @@
         let isLiquidMode = false; 
         let currentHoveredBtn = null;
 
+        // NEW: Click State
+        let isClicking = false;
+        // NEW: Animated base gap
+        let baseGap = 240; 
+
         const FRICTION = 0.93; 
         const FOLLOW_SPEED = 0.08; 
         const MAGNET_RANGE = 80;
 
+        // Event Listeners for Click/Touch Force
+        window.addEventListener('mousedown', () => isClicking = true);
+        window.addEventListener('mouseup', () => isClicking = false);
+        window.addEventListener('touchstart', () => isClicking = true);
+        window.addEventListener('touchend', () => isClicking = false);
+
         // Cache shutter metrics for performance
         function updateShutterMetrics() {
-            // Only calculate if reveal layer exists and is somewhat visible
             if (!revealLayer) return;
             const rect = revealLayer.getBoundingClientRect();
             if (rect.bottom < 0 || rect.top > window.innerHeight) return;
@@ -683,17 +692,20 @@
             const revealRect = revealLayer.getBoundingClientRect();
             if (revealRect.top < window.innerHeight && revealRect.bottom > 0) {
                 const winW = window.innerWidth;
-                // Ensure metrics are initialized
                 if(shutterRows[0] && shutterRows[0].height === 0) updateShutterMetrics();
 
+                // LERP BASE GAP FOR CLICK INTERACTION
+                const targetBase = isClicking ? 800 : 240;
+                baseGap += (targetBase - baseGap) * 0.1;
+
                 shutterRows.forEach(rowObj => {
-                    // Use cached Y center
                     const distY = Math.abs(blobY - rowObj.y);
                     
                     let openFactor = Math.max(0, 1 - (distY / 400));
                     openFactor = openFactor * openFactor; 
                     
-                    const gapSize = openFactor * 240; 
+                    // Use Dynamic BaseGap
+                    const gapSize = openFactor * baseGap; 
 
                     const leftShift = (blobX - gapSize) - winW;
                     const rightShift = blobX + gapSize;
