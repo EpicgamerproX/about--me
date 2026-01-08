@@ -115,12 +115,10 @@
         #layer-skills { z-index: 40; background-color: #050505; padding: 0; flex-direction: row; }
         #layer-5 { z-index: 50; background-color: #020202; }
         
-        /* NEW FINAL SHUTTER LAYER */
         #layer-6 { 
             z-index: 60; 
-            background-color: #111; /* Hidden content bg */
-            position: sticky;
-            padding: 0; /* Remove padding so shutters hit edges */
+            background-color: #111;
+            padding: 0; 
         }
 
         .spacer { width: 100%; height: 38.2vh; background: transparent; pointer-events: none; }
@@ -237,41 +235,49 @@
         .ripple { position: fixed; border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; mix-blend-mode: difference; border: 1px solid rgba(255, 255, 255, 0.4); animation: rippleAnim 1.618s ease-out forwards; z-index: 9999; will-change: transform, opacity; }
         @keyframes rippleAnim { 0% { width: 0; height: 0; opacity: 0.6; } 100% { width: 100vmax; height: 100vmax; opacity: 0; } }
 
-        /* --- 10. NEW SHUTTER STYLES --- */
+        /* --- 10. DYNAMIC SHUTTER STYLES --- */
         #shutter-container {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 5; /* On top of background content */
+            z-index: 5;
             display: flex; flex-direction: column;
-            pointer-events: none; /* Let clicks pass, but catch blob via math */
+            pointer-events: none; 
         }
         .shutter-row {
-            flex: 1; /* Distribute height equally */
+            flex: 1;
             width: 100%;
-            display: flex;
             position: relative;
             overflow: hidden;
+            border-bottom: 1px solid rgba(255,255,255,0.03); /* Tiny separator */
         }
-        .shutter-left, .shutter-right {
-            width: 50%;
-            height: 100%;
-            background-color: #050505; /* Cover color */
-            border-bottom: 1px solid rgba(255,255,255,0.05); /* Slight separator */
-            transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+        /* PERFORMANCE TRICK:
+           We make panels 100% width and position them off-screen or on-screen
+           Then use transforms to slide them to the cursor.
+        */
+        .shutter-left {
+            position: absolute;
+            top: 0; bottom: 0; left: 0;
+            width: 100%; /* Full Width */
+            background-color: #050505;
+            transform: translateX(-100%); /* Start Hidden Left */
+            border-right: 1px solid rgba(255,255,255,0.1);
+            will-change: transform;
         }
-        .shutter-left { transform: translateX(0); border-right: 1px solid rgba(255,255,255,0.05); }
-        .shutter-right { transform: translateX(0); }
-        
-        /* OPEN STATE */
-        .shutter-row.open .shutter-left { transform: translateX(-100%); }
-        .shutter-row.open .shutter-right { transform: translateX(100%); }
+        .shutter-right {
+            position: absolute;
+            top: 0; bottom: 0; left: 0; /* Also anchored left for easy math */
+            width: 100%; /* Full Width */
+            background-color: #050505;
+            transform: translateX(0); /* Start Covering (Left aligned) */
+            will-change: transform;
+        }
 
         /* HIDDEN CONTENT BEHIND SHUTTERS */
         .reveal-content {
             width: 100%; height: 100%;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             text-align: center;
-            z-index: 1; /* Behind shutters */
+            z-index: 1; 
         }
         .reveal-title { font-size: 8vw; font-weight: 900; color: #fff; line-height: 0.9; text-transform: uppercase; }
         .reveal-sub { font-size: 1.5rem; color: #888; margin-top: 20px; font-family: monospace; }
@@ -317,7 +323,6 @@
             <h3>AI Tool</h3>
             <p>Generative image processing tool wrapped in Electron for desktop.</p>
         </div>
-
         <button class="btn-drain magnetic-target" onclick="closeLiquid()">
             <svg viewBox="0 0 24 24">
                 <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
@@ -342,7 +347,6 @@
                 <div class="glass-slice"><div class="slice-inner"><div class="slice-front"></div><div class="slice-back">UX</div></div></div>
                 <div class="glass-slice"><div class="slice-inner"><div class="slice-front"></div><div class="slice-back">DEV</div></div></div>
             </div>
-
             <h2>Portfolio</h2>
             <h1>HI, I'M<br>ACHYUT.</h1>
             <p>Full Stack Developer.</p>
@@ -364,7 +368,6 @@
             <h2>Work</h2>
             <h1>FEATURED<br>PROJECTS.</h1>
             <p>Backend systems & fluid frontend interactions.</p>
-            
             <div class="btn-container" style="position: relative;">
                  <a href="https://github.com/achyut07" target="_blank" class="btn magnetic">GitHub</a>
                  <button class="btn magnetic fill-trigger" onclick="openLiquid(this)">FILL</button>
@@ -438,7 +441,7 @@
         // REVEAL LAYER ELEMENTS
         const shutterContainer = document.getElementById('shutter-container');
         const revealLayer = document.getElementById('layer-6');
-        const SHUTTER_COUNT = 10;
+        const SHUTTER_COUNT = 12; // More rows for smoother wave
         let shutterRows = [];
 
         // INIT SHUTTERS
@@ -452,7 +455,13 @@
             row.appendChild(left);
             row.appendChild(right);
             shutterContainer.appendChild(row);
-            shutterRows.push(row);
+            shutterRows.push({
+                el: row,
+                leftPanel: left,
+                rightPanel: right,
+                y: 0,
+                height: 0
+            });
         }
         
         let blobX = window.innerWidth / 2;
@@ -472,6 +481,19 @@
         const FRICTION = 0.93; 
         const FOLLOW_SPEED = 0.08; 
         const MAGNET_RANGE = 80;
+
+        // Cache shutter metrics for performance
+        function updateShutterMetrics() {
+            const rect = revealLayer.getBoundingClientRect();
+            // We only need relative heights, but we calculate centers in loop
+            shutterRows.forEach((rowObj, i) => {
+                const rowRect = rowObj.el.getBoundingClientRect();
+                rowObj.y = rowRect.top + rowRect.height / 2;
+                rowObj.height = rowRect.height;
+            });
+        }
+        window.addEventListener('scroll', updateShutterMetrics, {passive: true});
+        window.addEventListener('resize', updateShutterMetrics);
 
         window.openLiquid = function(btn) {
             if (isLiquidMode) return;
@@ -620,28 +642,68 @@
                 height += breathe;
             }
 
-            // --- SHUTTER LOGIC ---
-            // Only calc if the reveal layer is visible in viewport
+            // --- CURSOR-CENTRIC SHUTTER LOGIC ---
+            // Only calculate if visible
             const revealRect = revealLayer.getBoundingClientRect();
             if (revealRect.top < window.innerHeight && revealRect.bottom > 0) {
-                // Check if blob is inside the reveal section
-                if (blobY >= revealRect.top && blobY <= revealRect.bottom) {
-                    const relativeY = blobY - revealRect.top;
-                    const rowHeight = revealRect.height / SHUTTER_COUNT;
-                    let activeRow = Math.floor(relativeY / rowHeight);
-                    if(activeRow < 0) activeRow = 0;
-                    if(activeRow >= SHUTTER_COUNT) activeRow = SHUTTER_COUNT - 1;
+                // Pre-calc common widths
+                const winW = window.innerWidth;
+                
+                // If we haven't cached metrics yet (first load)
+                if(shutterRows[0].height === 0) updateShutterMetrics();
+
+                shutterRows.forEach(rowObj => {
+                    // Update Y position (since page scrolls)
+                    const rowRect = rowObj.el.getBoundingClientRect();
+                    const rowCenterY = rowRect.top + rowRect.height/2;
+
+                    // Distance from Blob Y
+                    const distY = Math.abs(blobY - rowCenterY);
                     
-                    shutterRows.forEach((row, idx) => {
-                        if(idx === activeRow) row.classList.add('open');
-                        else row.classList.remove('open');
-                    });
-                } else {
-                    shutterRows.forEach(row => row.classList.remove('open'));
-                }
+                    // Wave Logic: How wide is the gap?
+                    // Closer = Wider gap. Max gap = 150px.
+                    // Range = 300px vertical distance.
+                    let openFactor = Math.max(0, 1 - (distY / 300));
+                    // Smooth easing
+                    openFactor = openFactor * openFactor; 
+                    
+                    const gapSize = openFactor * 80; // 80px left + 80px right = 160px opening
+
+                    // --- TRANSFORM LOGIC ---
+                    // Left Panel: Starts at -100%. We translate it to positive X.
+                    // Right Edge of Left Panel = X translation.
+                    // Target Edge = blobX - gapSize.
+                    // So TranslateX = blobX - gapSize.
+                    // BUT: We need to limit it so it doesn't detach from left wall.
+                    // Actually, Left Panel is Width 100%. Left: 0.
+                    // Wait, CSS says: transform: translateX(-100%).
+                    // So initial position is completely offscreen left.
+                    // To put Right Edge at blobX: transform = translateX(blobX - 100vw).
+                    // No, that's confusing.
+                    
+                    // Let's use the CSS defined earlier:
+                    // Left: width 100%, transform translateX(-100%).
+                    // To bring Right Edge to Pixel X: translate is (X - WindowWidth)? No.
+                    // Let's just set the transform directly based on pixel math.
+                    
+                    // Left Panel needs to cover from 0 to (blobX - gap).
+                    // Its width is WinW. Its natural position is 0.
+                    // We shift it left so its Right Edge is at (blobX - gap).
+                    // Shift = (blobX - gap) - WinW.
+                    const leftShift = (blobX - gapSize) - winW;
+                    
+                    // Right Panel needs to cover from (blobX + gap) to End.
+                    // Its width is WinW. Its natural position is 0.
+                    // We shift it right so its Left Edge is at (blobX + gap).
+                    // Shift = (blobX + gap).
+                    const rightShift = blobX + gapSize;
+
+                    // Apply
+                    rowObj.leftPanel.style.transform = `translate3d(${leftShift}px, 0, 0)`;
+                    rowObj.rightPanel.style.transform = `translate3d(${rightShift}px, 0, 0)`;
+                });
             }
 
-            // GLASS GRID (Disabled in liquid mode)
             if (!isLiquidMode) {
                 const gridRect = glassGrid.getBoundingClientRect();
                 if (blobX >= gridRect.left && blobX <= gridRect.right) {
@@ -660,7 +722,6 @@
                 }
             }
 
-            // SIDEBAR
             const skillsRect = skillLayer.getBoundingClientRect();
             const isLayerActive = Math.abs(skillsRect.top) < 50; 
             if (isLayerActive) { 
@@ -679,7 +740,6 @@
                 sidebar.style.transform = `translateX(100%)`;
             }
 
-            // MAGNETISM
             let foundBtn = null; 
             targetList.forEach(btn => {
                 const rect = btn.getBoundingClientRect();
@@ -687,7 +747,6 @@
                 const btnCenterX = rect.left + rect.width / 2;
                 const btnCenterY = rect.top + rect.height / 2;
                 const dist = Math.hypot(blobX - btnCenterX, blobY - btnCenterY);
-                
                 if (dist < MAGNET_RANGE) {
                     const elAtPoint = document.elementFromPoint(btnCenterX, btnCenterY);
                     if (elAtPoint && (btn.contains(elAtPoint) || elAtPoint === btn)) {
