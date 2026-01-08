@@ -248,27 +248,39 @@
             width: 100%;
             position: relative;
             overflow: hidden;
-            /* REMOVED: border-bottom to kill gap between rectangles */
-            /* Add outline to prevent sub-pixel bleeding */
             outline: 1px solid transparent; 
         }
         
-        .shutter-left {
+        /* Added styles for text inside shutters */
+        .shutter-left, .shutter-right {
             position: absolute;
             top: 0; bottom: 0; left: 0;
             width: 100%;
             background-color: #050505;
+            will-change: transform;
+            
+            /* Text Stying */
+            display: flex;
+            align-items: center;
+            font-family: monospace;
+            font-size: 0.7rem; /* Small technical font */
+            color: rgba(255,255,255,0.25); /* Subtle opacity */
+            white-space: nowrap;
+            overflow: hidden;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .shutter-left {
             transform: translateX(-100%); 
             border-right: 1px solid rgba(255,255,255,0.1);
-            will-change: transform;
+            justify-content: flex-end; /* Align text to the seam */
+            padding-right: 15px;
         }
         .shutter-right {
-            position: absolute;
-            top: 0; bottom: 0; left: 0;
-            width: 100%;
-            background-color: #050505;
             transform: translateX(0); 
-            will-change: transform;
+            justify-content: flex-start; /* Align text to the seam */
+            padding-left: 15px;
         }
 
         /* HIDDEN CONTENT BEHIND SHUTTERS */
@@ -297,6 +309,7 @@
             .project-card { height: auto; min-height: 250px; margin-bottom: 20px; flex: none; }
             .btn.fill-trigger { position: relative; right: auto; top: auto; transform: none; margin-top: 20px; }
             .btn-drain { width: 60px; height: 60px; bottom: 30px; right: 30px; }
+            .shutter-left, .shutter-right { font-size: 0.6rem; }
         }
     </style>
 </head>
@@ -440,10 +453,26 @@
         // REVEAL LAYER ELEMENTS
         const shutterContainer = document.getElementById('shutter-container');
         const revealLayer = document.getElementById('layer-6');
-        const SHUTTER_COUNT = 12; // More rows for smoother wave
+        const SHUTTER_COUNT = 12; 
         let shutterRows = [];
 
-        // INIT SHUTTERS
+        // Programming Quotes Array
+        const quotes = [
+            "TALK IS CHEAP. SHOW ME THE CODE.",
+            "SIMPLICITY IS PREREQUISITE FOR RELIABILITY.",
+            "CODE IS POETRY WRITTEN FOR MACHINES.",
+            "FIRST, SOLVE THE PROBLEM. THEN, WRITE THE CODE.",
+            "IF IT WORKS, DON'T TOUCH IT.",
+            "EXPERIENCE IS THE NAME FOR MISTAKES.",
+            "IT WORKS ON MY MACHINE.",
+            "THERE'S NO PLACE LIKE 127.0.0.1",
+            "JAVA IS TO JAVASCRIPT AS CAR IS TO CARPET.",
+            "REAL PROGRAMMERS COUNT FROM 0.",
+            "CTRL+C, CTRL+V IS A LIFESTYLE.",
+            "A BUG IS JUST AN UNDOCUMENTED FEATURE."
+        ];
+
+        // INIT SHUTTERS WITH QUOTES
         for(let i=0; i<SHUTTER_COUNT; i++) {
             const row = document.createElement('div');
             row.className = 'shutter-row';
@@ -451,6 +480,12 @@
             left.className = 'shutter-left';
             const right = document.createElement('div');
             right.className = 'shutter-right';
+            
+            // Inject Quote
+            const quoteText = quotes[i % quotes.length];
+            left.innerText = quoteText;
+            right.innerText = quoteText;
+
             row.appendChild(left);
             row.appendChild(right);
             shutterContainer.appendChild(row);
@@ -483,8 +518,11 @@
 
         // Cache shutter metrics for performance
         function updateShutterMetrics() {
+            // Only calculate if reveal layer exists and is somewhat visible
+            if (!revealLayer) return;
             const rect = revealLayer.getBoundingClientRect();
-            // We only need relative heights, but we calculate centers in loop
+            if (rect.bottom < 0 || rect.top > window.innerHeight) return;
+
             shutterRows.forEach((rowObj, i) => {
                 const rowRect = rowObj.el.getBoundingClientRect();
                 rowObj.y = rowRect.top + rowRect.height / 2;
@@ -642,25 +680,19 @@
             }
 
             // --- CURSOR-CENTRIC SHUTTER LOGIC ---
-            // Only calculate if visible
             const revealRect = revealLayer.getBoundingClientRect();
             if (revealRect.top < window.innerHeight && revealRect.bottom > 0) {
-                // Pre-calc common widths
                 const winW = window.innerWidth;
-                
-                // If we haven't cached metrics yet (first load)
-                if(shutterRows[0].height === 0) updateShutterMetrics();
+                // Ensure metrics are initialized
+                if(shutterRows[0] && shutterRows[0].height === 0) updateShutterMetrics();
 
                 shutterRows.forEach(rowObj => {
-                    const rowRect = rowObj.el.getBoundingClientRect();
-                    const rowCenterY = rowRect.top + rowRect.height/2;
-                    const distY = Math.abs(blobY - rowCenterY);
+                    // Use cached Y center
+                    const distY = Math.abs(blobY - rowObj.y);
                     
-                    // Wider wave effect (400px range)
                     let openFactor = Math.max(0, 1 - (distY / 400));
                     openFactor = openFactor * openFactor; 
                     
-                    // Much Wider Gap (240px opening per side)
                     const gapSize = openFactor * 240; 
 
                     const leftShift = (blobX - gapSize) - winW;
