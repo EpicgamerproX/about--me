@@ -178,11 +178,13 @@
             background: rgba(255,255,255,0.5); transform: translateY(50px);
             transition: transform 0.8s ease; will-change: transform;
         }
+        .project-card:hover {color: rgba(0,0,0);}
         
         #project-showcase.visible .project-card { transform: translateY(0); }
         .project-card h3 { font-size: 2rem; font-weight: 800; letter-spacing: -1px; margin-bottom: 10px; color: #000;}
         .project-card p { font-size: 1rem; color: #333; line-height: 1.5; font-family: monospace; }
-        .card-num { font-size: 4rem; font-weight: 900; opacity: 0.1; align-self: flex-end; }
+        .card-num { font-size: 4rem; font-weight: 900; opacity: 0.1; align-self: flex-end; cursor: pointer; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: inline-block;}
+        .card-num:hover {transform: scale(1.2); color: rgba(100,100,100);}
         
         .btn-drain {
             position: fixed; bottom: 40px; right: 40px; width: 80px; height: 80px;
@@ -321,8 +323,8 @@
     <div id="project-showcase">
         <div class="project-card">
             <div class="card-num">01</div>
-            <h3>E-Commerce</h3>
-            <p>A headless Shopify build with Next.js and WebGL product configurator.</p>
+            <h3>IoT Based Irrigation</h3>
+            <p>A website to connect to ur personal network of BLOCKS and irrigate your field automatically</p>
         </div>
         <div class="project-card">
             <div class="card-num">02</div>
@@ -332,7 +334,7 @@
         <div class="project-card">
             <div class="card-num">03</div>
             <h3>AI Tool</h3>
-            <p>Generative image processing tool wrapped in Electron for desktop.</p>
+            <p></p>
         </div>
         <button class="btn-drain magnetic-target" onclick="closeLiquid()">
             <svg viewBox="0 0 24 24">
@@ -345,8 +347,8 @@
         <div id="break-trigger" onclick="breakLayer()"></div>
         <h1>TERMINAL<br>ACCESS.</h1>
         <p>Achyut | Full Stack Developer</p>
-        <p>achyut@devmail.com</p>
-        <p>+91 0000 00000</p>
+        <p>achyutrmenon@gmail.com</p>
+        <p>+91 812 364 6097</p>
         <div class="action-hint">[ CLICK TO DISCONNECT ]</div>
     </div>
 
@@ -762,6 +764,18 @@
             } else {
                 sidebar.style.transform = `translateX(100%)`;
             }
+
+            // Add redirection to all .card-num elements
+            const cardNums = document.querySelectorAll('.card-num');
+
+            cardNums.forEach(card => {
+                card.addEventListener('click', () => {
+                    window.location.href = 'https://es-pfrontend.vercel.app';
+                });
+    
+            // Optional: Add to magnetic targets if you want the cursor to stick to them
+            card.classList.add('magnetic'); 
+            });
 
             let foundBtn = null; 
             targetList.forEach(btn => {
