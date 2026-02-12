@@ -481,7 +481,6 @@
             "CTRL+C, CTRL+V IS A LIFESTYLE.",
             "A BUG IS JUST AN UNDOCUMENTED FEATURE."
         ];
-
         // INIT SHUTTERS
         for(let i=0; i<SHUTTER_COUNT; i++) {
             const row = document.createElement('div');
@@ -711,22 +710,26 @@
                 const targetBase = isClicking ? 800 : 240;
                 baseGap += (targetBase - baseGap) * 0.1;
 
-                shutterRows.forEach(rowObj => {
-                    const distY = Math.abs(blobY - rowObj.y);
-                    
-                    let openFactor = Math.max(0, 1 - (distY / 400));
-                    openFactor = openFactor * openFactor; 
-                    
-                    // Use Dynamic BaseGap
-                    const gapSize = openFactor * baseGap; 
+shutterRows.forEach(rowObj => {
+    const distY = Math.abs(blobY - rowObj.y);
+    
+    let openFactor = Math.max(0, 1 - (distY / 400));
+    openFactor = openFactor * openFactor; 
+    
+    const gapSize = openFactor * baseGap; 
 
-                    const leftShift = (blobX - gapSize) - winW;
-                    const rightShift = blobX + gapSize;
+    // JERK EFFECT: 
+    // We add (velX * openFactor * multiplier) 
+    // This makes panels "lurch" in the direction of movement
+    const jerkMultiplier = 1.5; 
+    const jerk = velX * openFactor * jerkMultiplier;
 
-                    rowObj.leftPanel.style.transform = `translate3d(${leftShift}px, 0, 0)`;
-                    rowObj.rightPanel.style.transform = `translate3d(${rightShift}px, 0, 0)`;
-                });
-            }
+    const leftShift = (blobX - gapSize) - winW + jerk;
+    const rightShift = blobX + gapSize + jerk;
+
+    rowObj.leftPanel.style.transform = `translate3d(${leftShift}px, 0, 0)`;
+    rowObj.rightPanel.style.transform = `translate3d(${rightShift}px, 0, 0)`;
+});
 
             if (!isLiquidMode) {
                 const gridRect = glassGrid.getBoundingClientRect();
