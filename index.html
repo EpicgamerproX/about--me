@@ -602,16 +602,18 @@
             finalLayer.classList.remove('active');
             blob.classList.remove('blackout');
             setTimeout(() => {
-                blob.classList.remove('expanded');
-                blob.classList.add('breaking');
-            }, 50);
-            setTimeout(() => {
-                isSecretMode = false;
-                blob.classList.remove('breaking');
-                blobX = window.innerWidth / 2;
-                blobY = window.innerHeight / 2;
-                blob.style.left = blobX + 'px';
-                blob.style.top = blobY + 'px';
+            blob.classList.remove('expanded');
+            blob.classList.add('breaking');
+        }, 50);
+        setTimeout(() => {
+            isSecretMode = false;
+            blob.classList.remove('breaking');
+            blobX = mouseX;
+            blobY = mouseY;
+            velX = 0;
+            velY = 0;
+            blob.style.left = '0px';
+            blob.style.top = '0px';
             }, 380);
         };
 
