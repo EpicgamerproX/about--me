@@ -140,6 +140,33 @@
             to   { opacity: 1; }
         }
 
+        .bottom-line {
+            position: fixed;
+            top: 330px;
+            left: calc(60% + 37px);
+            height: 1.5px;
+            width: 350px;
+            background: white;
+            z-index: 9999;
+            transform: scaleX(0);
+            transform-origin: left center;
+            animation: extendLine 0.8s cubic-bezier(0.4, 0, 0.2, 1) 1.4s forwards;
+        }
+
+        .bottom-name {
+            position: fixed;
+            top: 268px;
+            left: calc(60% + 37px);
+            width: 350px;
+            text-align: right;
+            font-family: 'Great Vibes', cursive;
+            font-size: 2.8rem;
+            color: white;
+            z-index: 9999;
+            opacity: 0;
+            animation: fadeIn 0.8s ease 2.3s forwards;
+        }
+
         @media (max-width: 768px) {
             body::before { display: none; }
             .center-image { display: none; }
@@ -236,6 +263,8 @@
 <body>
     <div class="top-line"></div>
     <div class="top-name">Achyut</div>
+    <div class="bottom-line"></div>
+    <div class="bottom-name">78kgs , 6'2ft</div>
     <main>
         <img class="center-image" src="assets/20261113_184858.png" alt="Achyut">
     </main>
